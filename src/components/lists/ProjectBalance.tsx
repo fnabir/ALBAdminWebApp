@@ -2,9 +2,11 @@ import { formatCurrency } from "@/utils/functions";
 
 export default function ProjectBalance(props:ProjectBalanceInterface) {
     const dateText = props.date == null || props.date == '' ? 'Last update date not found' : 'Last updated on ' + (props.date);
+    const bg = props.status && props.status == 'cancel' ? 'bg-red-900' : props.value == 0 ? 'bg-green-900' : props.value < 0 ? 'bg-yellow-900' : 'bg-slate-700';
+    const bgHover = props.status && props.status == 'cancel' ? 'bg-red-950' : props.value == 0 ? 'bg-green-950' : props.value < 0 ? 'bg-yellow-950' : 'bg-slate-800';
 
     return (
-        <div className="rounded-lg shadow bg-slate-700 hidden md:block">
+        <div className={"rounded-lg shadow hidden md:block " + bg + " hover:" + bgHover}>
             <div className="w-full mx-auto px-6 pt-1 md:flex md:items-center md:justify-between text-white">
                 <div>
                     <div className="sm:text-center md:text-start font-semibold">{props.name}</div>
