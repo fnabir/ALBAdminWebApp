@@ -89,21 +89,19 @@ export default function Home() {
           </div>
 
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon
-              icon = {<MdOutlineBuild  className='mx-1 w-6 h-6 content-center'/>}
-              title={"Callback"}/>
+            <CardIcon title={"Callback"}>
+              <MdOutlineBuild  className='mx-1 w-6 h-6 content-center'/>
+            </CardIcon>
           </div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon
-              icon = {<MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>}
-              title={"Offer"}
-              number={0}/>
+            <CardIcon title={"Offer"} number={0}>
+              <MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>
+            </CardIcon>
           </div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon
-              icon = {<MdErrorOutline className='mx-1 w-6 h-6 content-center'/>}
-              title={"Error Code"}
-              subtitle={"NICE 3000"}/>
+            <CardIcon title={"Error Code"} subtitle={"NICE 3000"}>
+              <MdErrorOutline className='mx-1 w-6 h-6 content-center'/>
+            </CardIcon>
           </div>
         </div>
       </Layout>
