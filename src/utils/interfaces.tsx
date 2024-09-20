@@ -14,4 +14,5 @@ interface ProjectBalanceInterface {
     name: string
     value: number
     date?: string
+    status?: string
 }
