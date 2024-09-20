@@ -7,7 +7,7 @@ export default function TotalBalance(props:TotalBalanceInterface) {
     const dateText = props.date == null || props.date == '' ? 'Last update date not found' : 'Last updated on ' + (props.date);
 
     return (
-        <div className="rounded-lg shadow bg-slate-700 hidden md:block">
+        <div className="rounded-lg shadow bg-slate-800 hidden md:block">
             <div className="w-full mx-auto px-6 pt-2 md:flex md:items-center md:justify-between text-white">
                 <div>
                     <div className="text-xl  sm:text-center md:text-start">{titleText}</div>
