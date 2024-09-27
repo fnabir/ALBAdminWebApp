@@ -59,7 +59,7 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
           const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => ({ key, ...value }));
           setData(itemsWithKeys);
           const totalValues = Object.values(snapshotDatas).reduce((sum, snapshotData) => {
-            return sum + snapshotData.value;
+            return snapshotData.value ? sum + snapshotData.value : snapshotData.amount ? sum + snapshotData.amount : sum;
           }, 0);
           setTotal(totalValues)
         } else {
