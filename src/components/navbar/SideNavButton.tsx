@@ -1,5 +1,4 @@
 import { useRouter } from 'next/navigation';
-import { ReactNode } from 'react';
 import { logout } from '@/firebase/auth';
 
 type SideNavButtonProps = {
