@@ -1,35 +1,22 @@
 "use client"
 
+import CardIcon from "@/components/card/CardIcon";
 import Layout from "@/components/Layout";
+import CardBalance from "@/components/card/CardBalance";
 import Loading from "@/components/Loading";
 import TotalBalance from "@/components/TotalBalance";
 import { useAuth } from "@/context/AuthContext";
-import { database } from "@/firebase/config";
-import { child, get, ref } from "firebase/database";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { MdDownloading, MdError } from "react-icons/md";
+import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
 
 export default function Conveyance() {
-  const [dataLoading, setDataLoading] = useState(true)
-  const [conveyanceBalance, setConveyanceBalance] = useState<TotalBalanceInterface>({value: 0, date:""});
-
-  const { user, loading } = useAuth();
   const router = useRouter();
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    if (dataLoading) {
-      get(child(ref(database), 'balance/total/conveyance')).then((snapshot) => {
-        if (snapshot.exists()) {
-          setConveyanceBalance({value: snapshot.val().value, date: snapshot.val().date});
-        } else {
-          console.log("No data available");
-        }
-      }).catch((error) => {
-        console.error(error);
-      });
-      setDataLoading(false)
-    }
-  });
+  const { data, total, dataLoading, error } = getObjectDataWithTotal('balance/conveyance');
+  
+  const conveyanceBalanceDate = getDatabaseValue("balance/total/conveyance/date").data;
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
@@ -38,8 +25,24 @@ export default function Conveyance() {
       <Layout 
         pageTitle="Conveyance | Asian Lift Bangladesh"
         headerTitle="Conveyance">
-        <div className="flex flex-col-reverse h-full py-2">
-          <TotalBalance text='Total Conveyance' value={conveyanceBalance.value} date={conveyanceBalance.date}/>
+        <div className="flex flex-col h-full py-2 gap-y-2">
+          {
+            dataLoading ? (
+              <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
+                <MdDownloading className='mx-1 w-6 h-6 content-center'/>
+              </CardIcon>
+            ) : error ? (
+              <CardIcon title={"Error"} subtitle={error? error : ""}>
+                <MdError className='mx-1 w-6 h-6 content-center'/>
+              </CardIcon>
+            ) : (
+              data.map((item) => 
+              (
+                <CardBalance name={item.name} value={item.value} date={item.date} status={item.status}/>
+              ))
+            )
+          }
+          <TotalBalance text='Total Conveyance' value={total} date={conveyanceBalanceDate}/>
         </div>
       </Layout>
     );
