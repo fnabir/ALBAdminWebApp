@@ -1,8 +1,7 @@
-import { ImExit } from "react-icons/im"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import MobileNav from "./navbar/MobileNav"
-import { MdMenu, MdMenuOpen } from "react-icons/md"
+import MobileNav from "@/components/navbar/MobileNav"
+import { MdMenu } from "react-icons/md"
 import { FaCircleUser } from "react-icons/fa6";
 
 interface Props {
