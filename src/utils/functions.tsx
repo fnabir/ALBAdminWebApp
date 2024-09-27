@@ -1,21 +1,31 @@
 import { DatabaseReference, get } from "firebase/database";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"; 
+import { toast } from "react-toastify";
 
-export function readData(ref:DatabaseReference) : any {
-  get(ref).then((snapshot) => {
-    if (snapshot.exists()) {
-      return snapshot.val();
-    } else {
-      console.log('No data available');
-      return "";
-    }
-  }).catch((error) => {
-    console.log(error);
-    return "";
-  });
-  console.log("Not found")
-  return ""
-}
+export const successMessage = (message:string) => {
+	toast.success(message, {
+		position: "top-right",
+		autoClose: 5000,
+		hideProgressBar: false,
+		closeOnClick: true,
+		pauseOnHover: true,
+		draggable: true,
+		progress: undefined,
+		theme: "light",
+	});
+};
+export const errorMessage = (message:string) => {
+	toast.error(message, {
+		position: "top-right",
+		autoClose: 5000,
+		hideProgressBar: false,
+		closeOnClick: true,
+		pauseOnHover: true,
+		draggable: true,
+		progress: undefined,
+		theme: "light",
+	});
+};
 
 export function formatCurrency(
     initialValue: number,
