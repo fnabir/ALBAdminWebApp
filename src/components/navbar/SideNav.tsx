@@ -11,7 +11,7 @@ export default function SideNav() {
 
                 <Image
                     className="w-4/5"
-                    src="ALBw.svg"
+                    src="/ALBw.svg"
                     alt="Asian Lift Bangladesh"
                     width={200}
                     height={80}
@@ -31,7 +31,7 @@ export default function SideNav() {
                         <SideNavButton
                             children = {<MdDomain className='mx-2 w-6 h-6'/>}
                             text = 'Projects'
-                            route = 'projects'/>
+                            route = 'project'/>
                         <SideNavButton 
                             children={<MdPerson className='mx-2 w-6 h-6'/>}
                             text = 'Staff'
