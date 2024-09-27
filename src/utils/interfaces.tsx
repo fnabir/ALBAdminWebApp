@@ -10,9 +10,16 @@ interface TotalBalanceInterface {
     text?: string
 }
 
-interface ProjectBalanceInterface {
+interface BalanceInterface {
     name: string
     value: number
     date?: string
     status?: string
+}
+
+interface TransactionInterface {
+    title: string
+    amount: number
+    date?: string
+    details?: string
 }
