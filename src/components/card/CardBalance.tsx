@@ -1,31 +1,32 @@
-import { formatCurrency } from '@/utils/functions';
-import { useRouter } from 'next/navigation';
+import { formatCurrency } from "@/utils/functions";
+import { useRouter } from "next/navigation";
 
-type CardProps = {
-    title: string;
-    balance: number;
-    date?: string;
-    route?: string;
-};
-
-export default function CardBalance(props: CardProps) {
-    const dateText = props.date == null || props.date == '' ? 'Last update date not found' : 'Last updated on ' + (props.date);
+export default function CardBalance(props:BalanceInterface) {
     const router = useRouter();
+    const dateText = props.date;
+    const bg = props.status && props.status == 'cancel' ? 'bg-red-900' : props.value == 0 ? 'bg-green-900' : props.value < 0 ? 'bg-yellow-900' : 'bg-slate-700';
 
     const handleClick = async (e: any) => {
         e.preventDefault();
 		try {
-            props.route ? router.push(`/${props.route}`) : null;
+            router.push(`/project/${props.name}`);
 		} catch (error: any) {
 			console.log(error.message);
 		}
 	};
 
-    return(
-        <button className="w-full py-2 md:py-3 px-4 md:px-8 rounded-md bg-slate-800 hover:bg-slate-700" onClick={handleClick}>
-            <h3 className="capitalize font-bold">{props.title}</h3>
-            <p className="text-3xl py-2">{formatCurrency(props.balance)}</p>
-            <p className='text-sm'>{dateText}</p>
+    return (
+        <button className={"rounded-lg shadow hidden md:block sm:text-center md:text-start " + bg + " hover:bg-opacity-80"} onClick = {handleClick}>
+            <div className="w-full mx-auto px-6 pt-1 md:flex md:items-center md:justify-between text-white">
+                <div>
+                    <div className="font-semibold">{props.name}</div>
+                    <p id="updatedate" className={"text-xs pb-1 " + dateText == "" ? "hidden" : ""}>{dateText}</p>
+                </div>
+                <div className="flex flex-wrap items-center mt-3 text-2xl font-medium sm:mt-0">
+                    {formatCurrency(props.value)}
+                </div>
+            </div>
+            
         </button>
-    );
+    )
 }
