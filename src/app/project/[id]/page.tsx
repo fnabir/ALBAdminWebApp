@@ -4,8 +4,7 @@ import Layout from "@/components/Layout";
 import Loading from "@/components/Loading";
 import TotalBalance from "@/components/TotalBalance";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import CardBalance from "@/components/card/CardBalance";
+import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
@@ -14,14 +13,16 @@ import CardTransaction from "@/components/card/CardTransaction";
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const projectName = "CDDL";
+  const path = usePathname();
+  const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+  console.log(projectName)
 
-  if (projectName != null){
-    const { data, total, dataLoading, error } = getObjectDataWithTotal('transaction/project/' + projectName);
+  while (loading) return <Loading/>
+  if (!loading && !user) return router.push("login");
+  else{
+    const { dataExist, data, total, dataLoading, error } = getObjectDataWithTotal('transaction/project/' + projectName);
     const totalBalanceDate = getDatabaseValue("balance/project/" + projectName + "/date").date;
-
-    while (loading) return <Loading/>
-    if (!loading && !user) return router.push("login")
+    if (error) router.push("../project");
     else {
       return (
         <Layout 
@@ -51,5 +52,5 @@ export default function ProjectTransaction() {
         </Layout>
       );
     }
-  } else window.history.back;
-}
+  }
+};
