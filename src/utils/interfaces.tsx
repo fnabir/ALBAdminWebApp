@@ -26,3 +26,16 @@ interface TransactionInterface {
     date?: string
     details?: string
 }
+
+interface CallbackTotalInterface {
+    id: string
+    name: string
+    value: number
+}
+
+interface CallbackProjectInterface {
+    id: string
+    date: string
+    details: number
+    name: string
+}
