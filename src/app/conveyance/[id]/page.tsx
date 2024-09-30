@@ -43,7 +43,7 @@ export default function ConveyanceTransaction() {
                     <MdError className='mx-1 w-6 h-6 content-center'/>
                   </CardIcon>
                 ) : (
-                  data.map((item) =>
+                  data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
                     (
                       <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key}/>
                     )
