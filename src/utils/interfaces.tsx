@@ -11,6 +11,8 @@ interface TotalBalanceInterface {
 }
 
 interface BalanceInterface {
+    type:string
+    id: string
     name: string
     value: number
     date?: string
@@ -18,6 +20,7 @@ interface BalanceInterface {
 }
 
 interface TransactionInterface {
+    id: string
     title: string
     amount: number
     date?: string
