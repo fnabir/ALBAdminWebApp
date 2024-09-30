@@ -39,7 +39,7 @@ export default function Projects() {
               ) : (
                 data.map((item) =>
                   (
-                    <CardBalance name={item.key} value={item.value} date={item.date} status={item.status}/>
+                    <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
                   )
                 )
               )

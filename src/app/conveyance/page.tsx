@@ -38,7 +38,7 @@ export default function Conveyance() {
             ) : (
               data.map((item) => 
               (
-                <CardBalance name={item.name} value={item.value} date={item.date} status={item.status}/>
+                <CardBalance type={"conveyance"} name={item.name} value={item.value} date={item.date} status={item.status} id={item.key}/>
               ))
             )
           }

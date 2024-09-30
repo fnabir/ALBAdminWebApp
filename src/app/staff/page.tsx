@@ -39,7 +39,7 @@ export default function Staff() {
                 </CardIcon>
               ) : (
                 data.map((item) => (
-                  <CardBalance name={item.name} value={item.value} date={item.date} status={item.status}/>
+                  <CardBalance type={"staff"} id={item.key} name={item.name} value={item.value} date={item.date} status={item.status}/>
                 ))
               )
             }
