@@ -2,7 +2,33 @@ import { ref, child, get } from "firebase/database";
 import { database } from "@/firebase/config";
 import { useEffect, useState } from "react";
 
+export function getDataExist(databaseReference: string): any {
+  const [dataExist, setDataExist] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      get(child(ref(database), databaseReference)).then((snapshot) => {
+        if (snapshot.exists()) {
+          setDataExist(true)
+        }
+      }).catch((error) => {
+        console.error(error);
+        setError(error)
+      });
+      setDataLoading(false);
+    }
+    
+    fetchData();
+  }, []);
+
+  return { dataExist, dataLoading, error };
+}
+
+
 export function getDatabaseValue(databaseReference: string): any {
+  const [dataExist, setDataExist] = useState(false);
   const [data, setData] = useState<any>();
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,6 +37,7 @@ export function getDatabaseValue(databaseReference: string): any {
     const fetchData = async () => {
       get(child(ref(database), databaseReference)).then((snapshot) => {
         if (snapshot.exists()) {
+          setDataExist(true)
           setData(snapshot.val());
         } else {
           console.log("No data available");
@@ -65,7 +92,7 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
     fetchData();
   }, []);
 
-  return { data, total, dataLoading, error };
+  return { dataExist, data, total, dataLoading, error };
 };
 
 
