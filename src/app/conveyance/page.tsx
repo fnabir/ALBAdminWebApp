@@ -36,7 +36,7 @@ export default function Conveyance() {
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
             ) : (
-              data.map((item) => 
+              data.sort((a,b) => a.position - b.position).map((item) => 
               (
                 <CardBalance type={"conveyance"} name={item.name} value={item.value} date={item.date} status={item.status} id={item.key}/>
               ))
