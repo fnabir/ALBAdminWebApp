@@ -10,7 +10,7 @@ import { MdDownloading, MdError } from "react-icons/md";
 import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 
-export default function ProjectTransaction() {
+export default function ConveyanceTransaction() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const path = usePathname();
