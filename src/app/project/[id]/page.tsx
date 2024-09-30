@@ -14,15 +14,14 @@ export default function ProjectTransaction() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const path = usePathname();
-  const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-  console.log(projectName)
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login");
   else{
+    const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
     const { dataExist, data, total, dataLoading, error } = getObjectDataWithTotal('transaction/project/' + projectName);
-    const totalBalanceDate = getDatabaseValue("balance/project/" + projectName + "/date").date;
-    if (error) router.push("../project");
+    const totalBalanceDate = getDatabaseValue("balance/project/" + projectName + "/date").data;
+    if (error) return router.push("/project");
     else {
       return (
         <Layout 
@@ -38,10 +37,14 @@ export default function ProjectTransaction() {
                   <CardIcon title={"Error"} subtitle={error? error : ""}>
                     <MdError className='mx-1 w-6 h-6 content-center'/>
                   </CardIcon>
+                ) : !dataExist ? (
+                  <CardIcon title={"Not found!"} subtitle={"Project Name doesn't exist"}>
+                    <MdError className='mx-1 w-6 h-6 content-center'/>
+                  </CardIcon>
                 ) : (
                   data.map((item) =>
                     (
-                      <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details}/>
+                      <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key}/>
                     )
                   )
                 )
