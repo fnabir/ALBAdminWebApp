@@ -9,9 +9,9 @@ export default function CardBalance(props:BalanceInterface) {
     const handleClick = async (e: any) => {
         e.preventDefault();
 		try {
-            router.push(`/project/${props.name}`);
+            router.push(`/${props.type}/${props.id}`);
 		} catch (error: any) {
-			console.log(error.message);
+            console.log(error);
 		}
 	};
 
@@ -22,7 +22,7 @@ export default function CardBalance(props:BalanceInterface) {
                     <div className="font-semibold">{props.name}</div>
                     <p id="updatedate" className={"text-xs pb-1 " + dateText == "" ? "hidden" : ""}>{dateText}</p>
                 </div>
-                <div className="flex flex-wrap items-center mt-3 text-2xl font-medium sm:mt-0">
+                <div className={"flex flex-wrap items-center text-2xl font-medium sm:mt-0"}>
                     {formatCurrency(props.value)}
                 </div>
             </div>
