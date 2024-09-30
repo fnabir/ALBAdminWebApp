@@ -38,7 +38,8 @@ export default function Home() {
           </div>
 
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon title={"Callback"}>
+            <CardIcon title={"Callback"}
+            route="callback">
               <MdOutlineBuild  className='mx-1 w-6 h-6 content-center'/>
             </CardIcon>
           </div>
