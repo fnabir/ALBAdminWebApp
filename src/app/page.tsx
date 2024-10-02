@@ -7,13 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
-import { getObjectDataWithTotal } from "@/firebase/database";
+import { getObjectData, getObjectDataWithTotal } from "@/firebase/database";
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
   
   const { data, dataLoading, error } = getObjectDataWithTotal('balance/total');
+  const offer = getObjectData('-offer');
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
@@ -31,7 +32,9 @@ export default function Home() {
                   <CardBalance title={"Error Occured"} balance={0} date={error}/>
                 ) : (
                   data.sort((a:any, b:any) => b.value - a.value).map((item) => (
-                    <CardBalance title={item.key} balance={item.value} date={item.date} route={item.key}/>
+                    <div className="w-full" key={item.key}>
+                      <CardBalance title={item.key} balance={item.value} date={item.date} route={item.key}/>
+                    </div>
                   ))
                 )
               }
@@ -44,7 +47,7 @@ export default function Home() {
             </CardIcon>
           </div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon title={"Offer"} number={0}>
+            <CardIcon title={"Offer"} number={offer.count} route={"offer"}>
               <MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>
             </CardIcon>
           </div>
