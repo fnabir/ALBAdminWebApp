@@ -6,7 +6,7 @@ import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getDataExist, getObjectData } from "@/firebase/database";
+import { getObjectData } from "@/firebase/database";
 import CardOffer from "@/components/card/CardOffer";
 
 export default function OfferAll() {
