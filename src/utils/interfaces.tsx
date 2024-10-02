@@ -25,6 +25,8 @@ interface TransactionInterface {
     amount: number
     date?: string
     details?: string
+    project?:string
+    type?:string
 }
 
 interface CallbackTotalInterface {
