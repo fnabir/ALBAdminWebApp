@@ -39,3 +39,19 @@ interface CallbackProjectInterface {
     details: number
     name: string
 }
+
+interface Offer {
+    id: string
+    name: string
+    address?: string
+    ptype?: string
+    wtype: string
+    unit?: string
+    floor?: string
+    shaft?: string
+    person?: string
+    note?: string
+    refer?:string
+    date?: string
+    uid?: string
+}
