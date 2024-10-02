@@ -16,7 +16,7 @@ export default function OfferAll() {
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
   else {
-    const { dataExist, dataLoading, error } = getObjectData('offer');
+    const { dataExist, data, dataLoading, error } = getObjectData('-offer');
     
     return (
       <Layout 
@@ -32,10 +32,19 @@ export default function OfferAll() {
               <CardIcon title={"Error"} subtitle={error? error : ""}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
-            ) : (
+            ) : !dataExist ? (
               <CardIcon title={"No Offer Found!"}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
+            ) : (
+              data.map((item) =>
+                (
+                  <CardOffer id={item.key} name={item.name} address={item.address} 
+                    ptype={item.ptype} wtype={item.wtype} unit={item.unit} 
+                    floor={item.floor} person={item.person} shaft={item.shaft}
+                    date={item.date} note={item.note} refer={item.refer}/>
+                )
+              )
             )
           }
         </div>
