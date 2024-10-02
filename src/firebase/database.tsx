@@ -14,8 +14,8 @@ export function getDataExist(databaseReference: string): any {
           setDataExist(true)
         }
       }).catch((error) => {
-        console.error(error);
-        setError(error)
+        console.error(error.message);
+        setError(error.message)
       });
       setDataLoading(false);
     }
@@ -24,6 +24,32 @@ export function getDataExist(databaseReference: string): any {
   }, []);
 
   return { dataExist, dataLoading, error };
+}
+
+
+export function getDataCount(databaseReference: string): any {
+  const [dataCount, setDataCount] = useState(0);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      get(child(ref(database), databaseReference)).then((snapshot) => {
+        if (snapshot.exists()) {
+          setDataCount(snapshot.size)
+          console.log(snapshot.size)
+        } else setDataCount(0)
+      }).catch((error) => {
+        console.error(error.message);
+        setError(error.message)
+      });
+      setDataLoading(false);
+    }
+    
+    fetchData();
+  }, []);
+
+  return { dataCount, dataLoading, error };
 }
 
 
@@ -44,8 +70,8 @@ export function getDatabaseValue(databaseReference: string): any {
           setData([])
         }
       }).catch((error) => {
-        console.error(error);
-        setError(error)
+        console.error(error.message);
+        setError(error.message)
       });
   
       setDataLoading(false);
@@ -77,8 +103,8 @@ export const getObjectData = (databaseReference: string) => {
           setData([])
         }
       }).catch((error) => {
-        console.error(error);
-        setError(error)
+        console.error(error.message);
+        setError(error.message)
       });
   
       setDataLoading(false);
@@ -102,7 +128,7 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
     const fetchData = async () => {
       get(child(ref(database), databaseReference)).then((snapshot) => {
         if (snapshot.exists()) {
-          setDataExist(true)
+          setDataExist(true);
           const snapshotDatas = snapshot.val();
           const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => ({ key, ...value, childCount: Object.keys(value).length }));
           setData(itemsWithKeys);
@@ -112,12 +138,12 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
           setTotal(totalValues);
         } else {
           console.log("No data available");
-          setData([])
-          setTotal(0)
+          setData([]);
+          setTotal(0);
         }
       }).catch((error) => {
-        console.error(error);
-        setError(error)
+        console.error(error.message);
+        setError(error.message)
       });
   
       setDataLoading(false);
@@ -128,32 +154,3 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
 
   return { dataExist, data, total, dataLoading, error };
 };
-
-
-export function getDatabaseChildrenCount(databaseReference: string): any {
-  const [childCount, setChildCount] = useState(0);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      get(child(ref(database), databaseReference)).then((snapshot) => {
-        if (snapshot.exists()) {
-          setChildCount(snapshot.size);
-        } else {
-          console.log("No data available");
-          setChildCount(snapshot.size);
-        }
-      }).catch((error) => {
-        console.error(error);
-        setError(error)
-      });
-  
-      setDataLoading(false);
-    }
-    
-    fetchData();
-  }, []);
-
-  return { childCount, dataLoading, error };
-}

@@ -7,14 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
-import { getObjectData, getObjectDataWithTotal } from "@/firebase/database";
+import { getDataCount, getObjectDataWithTotal } from "@/firebase/database";
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
   
   const { data, dataLoading, error } = getObjectDataWithTotal('balance/total');
-  const offer = getObjectData('-offer');
+  const offerCount = getDataCount('-offer');
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
@@ -47,7 +47,7 @@ export default function Home() {
             </CardIcon>
           </div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon title={"Offer"} number={offer.count} route={"offer"}>
+            <CardIcon title={"Offer"} number={offerCount.dataCount} route={"offer"}>
               <MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>
             </CardIcon>
           </div>
