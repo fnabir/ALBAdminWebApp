@@ -38,7 +38,7 @@ export default function UpdateProfile() {
         <Layout 
             pageTitle="User | Asian Lift Bangladesh"
             headerTitle="Update Profile">
-            <div className="flex flex-col h-full py-2 gap-y-2 justify-center w-full items-center">
+            <div className="flex flex-col py-2 gap-y-2 justify-center w-full items-center">
                 <div className="flex w-[50%] items-center">
                     <div className="w-[33%]">Full Name</div>
                     <span className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">

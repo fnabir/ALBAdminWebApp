@@ -41,36 +41,37 @@ export default function Projects() {
               <button className={sort == "value" ? activeButtonClass : notActiveButtonClass} onClick={() => handleSortChange("value")}>Value</button>
               <button className={sort == "register" ? activeButtonClass : notActiveButtonClass} onClick={() => handleSortChange("register")}>Register</button>
             </div>
-          <div className="flex flex-col h-full py-2 gap-y-2">
-            {
-              dataLoading ? (
-                <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                  <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : error ? (
-                <CardIcon title={"Error"} subtitle={error? error : ""}>
-                  <MdError className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : sort == "value" ? (
-                data.sort((a,b) => a.value - b.value).map((item) =>
-                  (
-                    <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+            
+            <div className="flex flex-col py-2 gap-y-2">
+              {
+                dataLoading ? (
+                  <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
+                    <MdDownloading className='mx-1 w-6 h-6 content-center'/>
+                  </CardIcon>
+                ) : error ? (
+                  <CardIcon title={"Error"} subtitle={error? error : ""}>
+                    <MdError className='mx-1 w-6 h-6 content-center'/>
+                  </CardIcon>
+                ) : sort == "value" ? (
+                  data.sort((a,b) => a.value - b.value).map((item) =>
+                    (
+                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                    )
                   )
-                )
-              ) : sort == "register" ? (
-                data.sort((a,b) => a.register - b.register)).map((item) =>
-                  (
-                    <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
-                  )
-              ) : (
-                data.sort((a, b) => a.key.localeCompare(b.key)).map((item) =>
-                  (
-                    <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
-                  )
-              ))
-            }
-            <TotalBalance value={total} date={totalBalanceDate}/>
-          </div>
+                ) : sort == "register" ? (
+                  data.sort((a,b) => a.register - b.register)).map((item) =>
+                    (
+                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                    )
+                ) : (
+                  data.sort((a, b) => a.key.localeCompare(b.key)).map((item) =>
+                    (
+                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                    )
+                ))
+              }
+              <TotalBalance value={total} date={totalBalanceDate}/>
+            </div>
           </div>
       </Layout>
     );

@@ -17,7 +17,7 @@ export default function Layout(props: LayoutProps) {
             <SideNav/>
             <div className="w-full md:w-[75%] lg:w-[85%] py-2 px-2 bg-gray-950 flex flex-col">
                 <Header title={props.headerTitle} username={user.username} email={user.email}/>
-                {props.children}
+                <div className="h-full">{props.children}</div>
                 <Footer/>
             </div>
                 

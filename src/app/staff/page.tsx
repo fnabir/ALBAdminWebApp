@@ -27,7 +27,7 @@ export default function Staff() {
       <Layout 
         pageTitle="Staff | Asian Lift Bangladesh"
         headerTitle="Staff">
-          <div className="flex flex-col h-full py-2 gap-y-2">
+          <div className="flex flex-col py-2 gap-y-2">
             {
               dataLoading ? (
                 <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>

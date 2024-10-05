@@ -23,7 +23,7 @@ export default function Home() {
       <Layout 
         pageTitle="Asian Lift Bangladesh"
         headerTitle="Dashboard">
-        <div className="h-full">
+        <div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
               { 
                 dataLoading ? (
@@ -52,7 +52,7 @@ export default function Home() {
             </CardIcon>
           </div>
           <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-            <CardIcon title={"Error Code"} subtitle={"NICE 3000"}>
+            <CardIcon title={"Error Code"} subtitle={"NICE 3000"} route={'error-nice-3000'}>
               <MdErrorOutline className='mx-1 w-6 h-6 content-center'/>
             </CardIcon>
           </div>
