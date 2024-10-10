@@ -6,7 +6,7 @@ import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getObjectData } from "@/firebase/database";
+import { GetObjectData } from "@/firebase/database";
 import CardOffer from "@/components/card/CardOffer";
 
 export default function OfferAll() {
@@ -16,7 +16,7 @@ export default function OfferAll() {
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
   else {
-    const { dataExist, data, dataLoading, error } = getObjectData('-offer');
+    const { dataExist, data, dataLoading, error } = GetObjectData('-offer');
     
     return (
       <Layout 
@@ -39,10 +39,12 @@ export default function OfferAll() {
             ) : (
               data.map((item) =>
                 (
-                  <CardOffer id={item.key} name={item.name} address={item.address} 
-                    ptype={item.ptype} wtype={item.wtype} unit={item.unit} 
-                    floor={item.floor} person={item.person} shaft={item.shaft}
-                    date={item.date} note={item.note} refer={item.refer}/>
+                  <div className="flex flex-col" key={item.key}>
+                    <CardOffer id={item.key} name={item.name} address={item.address} 
+                      ptype={item.ptype} wtype={item.wtype} unit={item.unit} 
+                      floor={item.floor} person={item.person} shaft={item.shaft}
+                      date={item.date} note={item.note} refer={item.refer}/>
+                  </div>
                 )
               )
             )

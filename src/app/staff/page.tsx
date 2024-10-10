@@ -8,17 +8,17 @@ import { useRouter } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import CardBalance from "@/components/card/CardBalance";
-import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
+import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 
 export default function Staff() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const { data, total, dataLoading, error } = getObjectDataWithTotal('balance/staff');
+  const { data, total, dataLoading, error } = GetObjectDataWithTotal('balance/staff');
 
-  const staffBalanceDate = getDatabaseValue("balance/total/staff/date").data;
-  const conveyanceBalance = getDatabaseValue("balance/total/conveyance/value").data;
-  const conveyanceBalanceDate = getDatabaseValue("balance/total/staff/date").data;
+  const staffBalanceDate = GetDatabaseValue("balance/total/staff/date").data;
+  const conveyanceBalance = GetDatabaseValue("balance/total/conveyance/value").data;
+  const conveyanceBalanceDate = GetDatabaseValue("balance/total/staff/date").data;
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
@@ -39,7 +39,9 @@ export default function Staff() {
                 </CardIcon>
               ) : (
                 data.sort((a,b) => a.position - b.position).map((item) => (
-                  <CardBalance type={"staff"} id={item.key} name={item.name} value={item.value} date={item.date} status={item.status}/>
+                  <div className="flex flex-col" key={item.key}>
+                    <CardBalance type={"staff"} id={item.key} name={item.name} value={item.value} date={item.date} status={item.status}/>
+                  </div>
                 ))
               )
             }

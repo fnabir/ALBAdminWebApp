@@ -6,14 +6,14 @@ import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getObjectData } from "@/firebase/database";
+import { GetObjectData } from "@/firebase/database";
 import CardCallbackTotal from "@/components/card/CardCallbackTotal";
 
 export default function Callback() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-  const { data, dataLoading, error } = getObjectData('callback');
+  const { data, dataLoading, error } = GetObjectData('callback');
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
   else {
@@ -34,7 +34,9 @@ export default function Callback() {
             ) : (
               data.map((item) => 
               (
-                <CardCallbackTotal name={item.key} value={item.childCount} id={item.key}/>
+                <div className="flex flex-col" key={item.key}>
+                  <CardCallbackTotal name={item.key} value={item.childCount} id={item.key}/>
+                </div>
               ))
             )
           }

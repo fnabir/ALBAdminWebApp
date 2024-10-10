@@ -8,15 +8,15 @@ import TotalBalance from "@/components/TotalBalance";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
+import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 
 export default function Conveyance() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-  const { data, total, dataLoading, error } = getObjectDataWithTotal('balance/conveyance');
+  const { data, total, dataLoading, error } = GetObjectDataWithTotal('balance/conveyance');
   
-  const conveyanceBalanceDate = getDatabaseValue("balance/total/conveyance/date").data;
+  const conveyanceBalanceDate = GetDatabaseValue("balance/total/conveyance/date").data;
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
@@ -38,7 +38,9 @@ export default function Conveyance() {
             ) : (
               data.sort((a,b) => a.position - b.position).map((item) => 
               (
-                <CardBalance type={"conveyance"} name={item.name} value={item.value} date={item.date} status={item.status} id={item.key}/>
+                <div className="flex flex-col" key={item.key}>
+                  <CardBalance type={"conveyance"} name={item.name} value={item.value} date={item.date} status={item.status} id={item.key}/>
+                </div>
               ))
             )
           }

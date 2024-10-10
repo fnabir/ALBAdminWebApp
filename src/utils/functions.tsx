@@ -1,5 +1,3 @@
-import { DatabaseReference, get } from "firebase/database";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"; 
 import { toast } from "react-toastify";
 
 export const successMessage = (message:string) => {
@@ -17,13 +15,13 @@ export const successMessage = (message:string) => {
 export const errorMessage = (message:string) => {
 	toast.error(message, {
 		position: "top-right",
-		autoClose: 5000,
+		autoClose: 3000,
 		hideProgressBar: false,
 		closeOnClick: true,
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "light",
+		theme: "colored",
 	});
 };
 

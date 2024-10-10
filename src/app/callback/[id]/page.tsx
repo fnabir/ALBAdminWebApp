@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getDatabaseValue, getObjectData } from "@/firebase/database";
+import { GetDatabaseValue, GetObjectData } from "@/firebase/database";
 import CardCallbackProject from "@/components/card/CardCallbackProject";
 
 export default function CallbackProject() {
@@ -18,7 +18,7 @@ export default function CallbackProject() {
   if (!loading && !user) return router.push("login");
   else{
     const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-    const { dataExist, data, dataLoading, error } = getObjectData('callback/' + projectName);
+    const { dataExist, data, dataLoading, error } = GetObjectData('callback/' + projectName);
     if (error) return router.push("/project");
     else {
       return (
@@ -42,7 +42,9 @@ export default function CallbackProject() {
                 ) : (
                   data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
                     (
-                      <CardCallbackProject date={item.date} details={item.details} name={item.name} id={item.key}/>
+                      <div className="flex flex-col" key={item.key}>
+                        <CardCallbackProject date={item.date} details={item.details} name={item.name} id={item.key}/>
+                      </div>
                     )
                   )
                 )

@@ -20,45 +20,36 @@ export default function SideNav() {
 
                 <div className="divide-y">
                     <div className='flex-col'>
-                        <SideNavButton
-                            children = {<MdDashboard className='mx-2 w-6 h-6'/>}
-                            text = {'Dashboard'}
-                            route={'/'}
-                        />
+                        <SideNavButton text = {'Dashboard'} route={'/'}>
+                            <MdDashboard className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
                     </div>
 
                     <div className='flex-col'>
-                        <SideNavButton
-                            children = {<MdDomain className='mx-2 w-6 h-6'/>}
-                            text = 'Projects'
-                            route = 'project'/>
-                        <SideNavButton 
-                            children={<MdPerson className='mx-2 w-6 h-6'/>}
-                            text = 'Staff'
-                            route = 'staff'/>
-                        <SideNavButton
-                            children = {<MdDirectionsBus className='mx-2 w-6 h-6'/>}
-                            text = 'Conveyance'
-                            route = 'conveyance'/>
+                        <SideNavButton text = 'Projects' route = 'project'>
+                            <MdDomain className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
+                        <SideNavButton text = 'Staff' route = 'staff'>
+                            <MdPerson className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
+                        <SideNavButton text = 'Conveyance' route = 'conveyance'>
+                            <MdDirectionsBus className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
                     </div>
 
                     <div className='flex-col'>
-                        <SideNavButton 
-                            children = {<MdLink className='mx-2 w-6 h-6'/>}
-                            text = 'Website'
-                            link ='https://asianliftbd.com'/>
-                        <SideNavButton 
-                            children = {<MdFacebook className='mx-2 w-6 h-6'/>}
-                            text = 'Facebook'
-                            link = 'https://www.facebook.com/asianliftbangladesh'/>
+                        <SideNavButton text = 'Website' link ='https://asianliftbd.com'>
+                            <MdLink className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
+                        <SideNavButton text = 'Facebook' link = 'https://www.facebook.com/asianliftbangladesh'>
+                            <MdFacebook className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
                     </div>
 
                     <div className='flex-col'>
-                        <SideNavButton
-                            children = {<MdLogout className='mx-2 w-6 h-6'/>}
-                            text = {'Logout'}
-                            route={'logout'}
-                            />
+                        <SideNavButton text = {'Logout'} route={'logout'}>
+                            <MdLogout className='mx-2 w-6 h-6'/>
+                        </SideNavButton>
                     </div>
                 </div>
             </nav>

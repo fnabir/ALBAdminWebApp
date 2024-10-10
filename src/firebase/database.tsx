@@ -2,7 +2,7 @@ import { ref, child, get } from "firebase/database";
 import { database } from "@/firebase/config";
 import { useEffect, useState } from "react";
 
-export function getDataExist(databaseReference: string): any {
+export default function GetDataExist(databaseReference: string): any {
   const [dataExist, setDataExist] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,13 +21,13 @@ export function getDataExist(databaseReference: string): any {
     }
     
     fetchData();
-  }, []);
+  }, [databaseReference]);
 
   return { dataExist, dataLoading, error };
 }
 
 
-export function getDataCount(databaseReference: string): any {
+export function GetDataCount(databaseReference: string): any {
   const [dataCount, setDataCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,13 +47,13 @@ export function getDataCount(databaseReference: string): any {
     }
     
     fetchData();
-  }, []);
+  }, [databaseReference]);
 
   return { dataCount, dataLoading, error };
 }
 
 
-export function getDatabaseValue(databaseReference: string): any {
+export function GetDatabaseValue(databaseReference: string): any {
   const [dataExist, setDataExist] = useState(false);
   const [data, setData] = useState<any>();
   const [dataLoading, setDataLoading] = useState(true);
@@ -78,13 +78,13 @@ export function getDatabaseValue(databaseReference: string): any {
     }
     
     fetchData();
-  }, []);
+  }, [databaseReference]);
 
   return { data, dataLoading, error };
 }
 
 
-export const getObjectData = (databaseReference: string) => {
+export const GetObjectData = (databaseReference: string) => {
   const [dataExist, setDataExist] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
@@ -96,7 +96,13 @@ export const getObjectData = (databaseReference: string) => {
         if (snapshot.exists()) {
           setDataExist(true)
           const snapshotDatas = snapshot.val();
-          const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => ({ key, ...value, childCount: Object.keys(value).length }));
+          const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => {
+            if (typeof value === 'object' && value !== null) {
+              return { key, ...value, childCount: Object.keys(value).length };
+            } else {
+              return null;
+            }
+          });
           setData(itemsWithKeys);
         } else {
           console.log("No data available");
@@ -111,13 +117,13 @@ export const getObjectData = (databaseReference: string) => {
     }
     
     fetchData();
-  }, []);
+  }, [databaseReference]);
 
   return { dataExist, data, dataLoading, error };
 };
 
 
-export const getObjectDataWithTotal = (databaseReference: string) => {
+export const GetObjectDataWithTotal = (databaseReference: string) => {
   const [dataExist, setDataExist] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -130,12 +136,22 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
         if (snapshot.exists()) {
           setDataExist(true);
           const snapshotDatas = snapshot.val();
-          const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => ({ key, ...value, childCount: Object.keys(value).length }));
+          const itemsWithKeys = Object.entries(snapshotDatas).map(([key, value]) => {
+            if (typeof value === 'object' && value !== null) {
+              return { key, ...value, childCount: Object.keys(value).length };
+            } else {
+              return null;
+            }
+          });
           setData(itemsWithKeys);
           const totalValues = Object.values(snapshotDatas).reduce((sum, snapshotData) => {
-            return snapshotData.value ? sum + snapshotData.value : snapshotData.amount ? sum + snapshotData.amount : sum;
+            if (typeof snapshotData === 'object' && snapshotData != null && typeof sum === 'number') {
+              if ('value' in snapshotData && typeof snapshotData.value === 'number') return sum + snapshotData.value;
+              else if ('amount' in snapshotData && typeof snapshotData.amount === 'number') return sum + snapshotData.amount;
+            }
+            return sum;
           }, 0);
-          setTotal(totalValues);
+          setTotal(Number(totalValues));
         } else {
           console.log("No data available");
           setData([]);
@@ -150,7 +166,7 @@ export const getObjectDataWithTotal = (databaseReference: string) => {
     }
     
     fetchData();
-  }, []);
+  }, [databaseReference]);
 
   return { dataExist, data, total, dataLoading, error };
 };

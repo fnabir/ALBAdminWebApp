@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
+import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 
 export default function StaffTransaction() {
@@ -19,9 +19,9 @@ export default function StaffTransaction() {
   if (!loading && !user) return router.push("login");
   else{
     const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-    const staffName = getDatabaseValue("balance/staff/" + staffID + "/name").data;
-    const { dataExist, data, total, dataLoading, error } = getObjectDataWithTotal('transaction/staff/' + staffID);
-    const totalBalanceDate = getDatabaseValue("balance/staff/" + staffID + "/date").data;
+    const staffName = GetDatabaseValue("balance/staff/" + staffID + "/name").data;
+    const { dataExist, data, total, dataLoading, error } = GetObjectDataWithTotal('transaction/staff/' + staffID);
+    const totalBalanceDate = GetDatabaseValue("balance/staff/" + staffID + "/date").data;
     if (error) return router.push("/staff");
     else {
       return (
@@ -45,7 +45,9 @@ export default function StaffTransaction() {
                 ) : (
                   data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
                     (
-                      <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key}/>
+                      <div className="flex flex-col" key={item.key}>
+                        <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key}/>
+                      </div>
                     )
                   )
                 )

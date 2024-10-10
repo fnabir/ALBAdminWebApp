@@ -27,9 +27,9 @@ export default function UpdateProfile() {
             }).catch((error) => {
                 console.error(error);
             });
-            setDataLoading(false)
+            setDataLoading(false);
         }
-    });
+    }, [dataLoading, user]);
 
     while (loading) return <Loading/>
     if (!loading && !user) return router.push("login")

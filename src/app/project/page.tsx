@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import CardBalance from "@/components/card/CardBalance";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
-import { getDatabaseValue, getObjectDataWithTotal } from "@/firebase/database";
+import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import { useState } from "react";
 
 export default function Projects() {
@@ -19,8 +19,8 @@ export default function Projects() {
   const activeButtonClass = "bg-blue-600 hover:bg-blue-800 text-white font-semibold py-1 px-4 rounded-full";
   const notActiveButtonClass = "bg-transparent hover:bg-blue-800 text-blue-400 font-semibold hover:text-white py-1 px-4 border border-blue-400 hover:border-transparent rounded-full"
 
-  const { data, total, dataLoading, error } = getObjectDataWithTotal('balance/project');
-  const resultTotal = getDatabaseValue("balance/total/project/date");
+  const { data, total, dataLoading, error } = GetObjectDataWithTotal('balance/project');
+  const resultTotal = GetDatabaseValue("balance/total/project/date");
   const totalBalanceDate = resultTotal.data ? resultTotal.data : ""
 
   const handleSortChange = (option: string) => {
@@ -55,18 +55,24 @@ export default function Projects() {
                 ) : sort == "value" ? (
                   data.sort((a,b) => a.value - b.value).map((item) =>
                     (
-                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      <div className="flex flex-col" key={item.key}>
+                        <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      </div>
                     )
                   )
                 ) : sort == "register" ? (
                   data.sort((a,b) => a.register - b.register)).map((item) =>
                     (
-                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      <div className="flex flex-col" key={item.key}>
+                        <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      </div>
                     )
                 ) : (
                   data.sort((a, b) => a.key.localeCompare(b.key)).map((item) =>
                     (
-                      <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      <div className="flex flex-col" key={item.key}>
+                        <CardBalance type={"project"} id={item.key} name={item.key} value={item.value} date={item.date} status={item.status}/>
+                      </div>
                     )
                 ))
               }
