@@ -11,7 +11,6 @@ type SideNavButtonProps = {
 
 const SideNavButton: FC<SideNavButtonProps & { children: ReactNode }> = ({
     text,
-    icon,
     route,
     link,
     children

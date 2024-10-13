@@ -1,10 +1,8 @@
 import { MdDashboard, MdDomain, MdPerson , MdDirectionsBus, MdLogout, MdLink , MdFacebook  } from "react-icons/md"
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import SideNavButton from "@/components/navbar/SideNavButton";
 
-export default function SideNav() { 
-     const router = useRouter()
+export default function SideNav() {
     return (
         <div className='md:w-[25%] lg:w-[15%] md:block hidden'>
             <nav className='md:w-[25%] lg:w-[15%] fixed flex flex-col left-0 h-[100vh] bg-slate-900 p-4 space-y-8'>
