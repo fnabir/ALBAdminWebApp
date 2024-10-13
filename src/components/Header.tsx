@@ -26,21 +26,23 @@ export default function Header(props: Props) {
     return (
      <header className='flex items-center justify-between py-2 px-6 bg-slate-800 border-transparent rounded-md'>
             <h2 className='text-2xl font-semibold cursor-default select-none'>{props.title}</h2>
-            <button className='flex space-x-3' onClick={handleClick}>
-                <div className="flex-col text-right hidden md:block">
-                    <p className='text-white'>{props.username}</p>
-                    <p className="text-sm text-slate-300">{props.email}</p>
-                </div>
-                <FaCircleUser className='text-5xl text-white md:block hidden cursor-pointer' />
+            <div>
+                <button className='flex space-x-3' onClick={handleClick}>
+                    <div className="flex-col text-right hidden md:block">
+                        <p className='text-white'>{props.username}</p>
+                        <p className="text-sm text-slate-300">{props.email}</p>
+                    </div>
+                    <FaCircleUser className='text-5xl text-white md:block hidden cursor-pointer' />
+                </button>
                 <div className="bg-white p-2 cursor-pointer md:hidden block rounded" onClick={()=> setShowModal(true)}>
                     <MdMenu className='text-3xl text-slate-900'/>
-                </div>   
-            </button>
+                </div>
+            </div>
             {showModal && (
                 <div>
                     <MobileNav setShowModal={setShowModal} />
                 </div>
-                    )}
+            )}
         </header>
 
     )
