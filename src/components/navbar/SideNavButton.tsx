@@ -4,20 +4,20 @@ import { FC, ReactNode } from 'react';
 
 type SideNavButtonProps = {
     text: String;
-    icon?: String;
     route?: String;
     link?: string;
+    show?: Boolean;
 };
 
 const SideNavButton: FC<SideNavButtonProps & { children: ReactNode }> = ({
     text,
     route,
     link,
+    show = true,
     children
   }) => {
 
     const router = useRouter();
-
     const handleLogout = async () => {
         try {
             await logout();
@@ -38,11 +38,12 @@ const SideNavButton: FC<SideNavButtonProps & { children: ReactNode }> = ({
 	};
 
     return (
-        <button className="w-full flex h-12 items-center rounded-lg my-3 p-2 bg-slate-800 hover:bg-slate-700"
-        onClick = {handleClick}>
-            {children}
-            <h2 className='pl-2'>{text}</h2>
-        </button>
+        <div className={show ? "" : "hidden"}>
+            <button className="flex w-full h-12 items-center rounded-lg my-3 p-2 bg-slate-800 hover:bg-slate-700" onClick = {handleClick}>
+                {children}
+                <h2 className='pl-2'>{text}</h2>
+            </button>
+        </div>
     );
 };
 
