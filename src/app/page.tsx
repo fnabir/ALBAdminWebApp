@@ -7,13 +7,13 @@ import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
-import { GetDataCount, GetObjectDataWithTotal } from "@/firebase/database";
+import { GetDataCount, GetObjectData } from "@/firebase/database";
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
   
-  const { data, dataLoading, error } = GetObjectDataWithTotal('balance/total');
+  const { data, dataLoading, error } = GetObjectData('balance/total');
   const offerCount = GetDataCount('-offer');
 
   while (loading) return <Loading/>
