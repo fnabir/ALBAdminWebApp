@@ -1,8 +1,12 @@
 import { MdDashboard, MdDomain, MdPerson , MdDirectionsBus, MdLogout, MdLink , MdFacebook  } from "react-icons/md"
 import Image from "next/image";
 import SideNavButton from "@/components/navbar/SideNavButton";
+import { GetUserRole } from "@/firebase/database";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SideNav() {
+    const {user} = useAuth();
+    const role = user ? GetUserRole(user.uid) : "";
     return (
         <div className='md:w-[25%] lg:w-[15%] md:block hidden'>
             <nav className='md:w-[25%] lg:w-[15%] fixed flex flex-col left-0 h-[100vh] bg-slate-900 p-4 space-y-8'>
@@ -23,14 +27,14 @@ export default function SideNav() {
                         </SideNavButton>
                     </div>
 
-                    <div className='flex-col'>
-                        <SideNavButton text = 'Projects' route = 'project'>
+                    <div className={role == "admin" || role == "manager" ? 'flex-col' : 'hidden'}>
+                        <SideNavButton text = 'Projects' route = 'project' show={role == "admin" || role == "manager"}>
                             <MdDomain className='mx-2 w-6 h-6'/>
                         </SideNavButton>
-                        <SideNavButton text = 'Staff' route = 'staff'>
+                        <SideNavButton text = 'Staff' route = 'staff' show={role == "admin"}>
                             <MdPerson className='mx-2 w-6 h-6'/>
                         </SideNavButton>
-                        <SideNavButton text = 'Conveyance' route = 'conveyance'>
+                        <SideNavButton text = 'Conveyance' route = 'conveyance' show={role == "admin"}>
                             <MdDirectionsBus className='mx-2 w-6 h-6'/>
                         </SideNavButton>
                     </div>
