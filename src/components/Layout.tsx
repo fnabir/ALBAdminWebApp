@@ -2,25 +2,31 @@ import SideNav from "@/components/navbar/SideNav";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { FC, ReactNode } from "react";
 
 interface LayoutProps {
     pageTitle: string,
-    headerTitle: string,
-    children?: React.ReactNode
+    headerTitle: string
 }
 
-export default function Layout(props: LayoutProps) {
+const Layout: FC<LayoutProps & { children: ReactNode }> = ({
+    pageTitle,
+    headerTitle,
+    children
+  }) => {
     const { user } = useAuth();
     return(
         <main className="flex min-h-screen w-full relative">
-            <title>{props.pageTitle}</title>
+            <title>{pageTitle}</title>
             <SideNav/>
             <div className="w-full md:w-[75%] lg:w-[85%] py-2 px-2 bg-gray-950 flex flex-col">
-                <Header title={props.headerTitle} username={user.username} email={user.email}/>
-                <div className="h-full">{props.children}</div>
+                <Header title={headerTitle} username={user.username} email={user.email}/>
+                <div className="h-full">{children}</div>
                 <Footer/>
             </div>
                 
         </main>
     )
 }
+
+export default Layout;
