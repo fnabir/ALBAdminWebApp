@@ -1,4 +1,4 @@
-import { ref, child, get } from "firebase/database";
+import { ref, child, get, DatabaseReference, remove, set } from "firebase/database";
 import { database } from "@/firebase/config";
 import { useEffect, useState } from "react";
 
@@ -37,7 +37,6 @@ export function GetDataCount(databaseReference: string): any {
       get(child(ref(database), databaseReference)).then((snapshot) => {
         if (snapshot.exists()) {
           setDataCount(snapshot.size)
-          console.log(snapshot.size)
         } else setDataCount(0)
       }).catch((error) => {
         console.error(error.message);
@@ -80,7 +79,7 @@ export function GetDatabaseValue(databaseReference: string): any {
     fetchData();
   }, [databaseReference]);
 
-  return { data, dataLoading, error };
+  return { dataExist, data, dataLoading, error };
 }
 
 
@@ -170,3 +169,106 @@ export const GetObjectDataWithTotal = (databaseReference: string) => {
 
   return { dataExist, data, total, dataLoading, error };
 };
+
+
+export function GetUserRole(userUid: string): any {
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      get(child(ref(database), "info/user/" + userUid)).then((snapshot) => {
+        if (snapshot.exists()) {
+          setRole(snapshot.val().role);
+        } else {
+          console.log("No data available");
+          setRole("")
+        }
+      }).catch((error) => {
+        console.error(error.message);
+      });
+    }
+    
+    fetchData();
+  }, [userUid]);
+
+  return role;
+}
+
+
+export const SetData = (databaseReference: string, data: object) => {
+  const [total, setTotal] = useState(0);
+  const [dataUploading, setDataUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const writeData = async () => {
+      setDataUploading(true);
+
+      set(ref(database, databaseReference), data)
+      .then(() => {
+        console.log("Data saved successfully!");
+      })
+      .catch((error) => {
+        console.error(error.message);
+        setError(error.message);
+      })
+      .finally(() => {
+        setDataUploading(false);
+      })
+    };
+
+    writeData();
+  }, [databaseReference, data]);
+};
+
+
+export const UpdateData = (databaseReference: string, data: object) => {
+  const [total, setTotal] = useState(0);
+  const [dataUploading, setDataUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const updateData = async () => {
+      setDataUploading(true);
+
+      set(ref(database, databaseReference), data)
+      .then(() => {
+        console.log("Data saved successfully!");
+      })
+      .catch((error) => {
+        console.error(error.message);
+        setError(error.message);
+      })
+      .finally(() => {
+        setDataUploading(false);
+      })
+    };
+
+    updateData();
+  }, [databaseReference, data]);
+};
+
+
+export const DeleteData = (databaseReference: string) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const removeData = async () => {
+      setIsDeleting(true);
+
+      try {
+        await remove(child(ref(database), databaseReference));
+        console.log('Data deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting data:', error);
+        setError(String(error));
+      } finally {
+        setIsDeleting(false);
+      }
+    };
+
+    removeData();
+  }, [databaseReference]);
+  return { isDeleting, error };
+}
