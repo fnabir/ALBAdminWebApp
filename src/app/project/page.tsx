@@ -10,6 +10,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import { useState } from "react";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function Projects() {
   const { user, loading } = useAuth();
@@ -23,13 +24,9 @@ export default function Projects() {
   const resultTotal = GetDatabaseValue("balance/total/project/date");
   const totalBalanceDate = resultTotal.data ? resultTotal.data : ""
 
-  const handleSortChange = (option: string) => {
-    setSort(option);
-  };
-
   while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
-  else {
+  if (!loading && !user) return router.push("/login");
+  else if (user.role == "admin" || user.role == "manager") {
     return (
       <Layout 
         pageTitle="Projects | Asian Lift Bangladesh"
@@ -37,9 +34,9 @@ export default function Projects() {
           <div>
             <div className="flex items-center mt-2 gap-x-2">
               <div>Sort by</div>
-              <button className={sort == "name" ? activeButtonClass : notActiveButtonClass} onClick={() => handleSortChange("name")}>Name</button>
-              <button className={sort == "value" ? activeButtonClass : notActiveButtonClass} onClick={() => handleSortChange("value")}>Value</button>
-              <button className={sort == "register" ? activeButtonClass : notActiveButtonClass} onClick={() => handleSortChange("register")}>Register</button>
+              <button className={sort == "name" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("name")}>Name</button>
+              <button className={sort == "value" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("value")}>Value</button>
+              <button className={sort == "register" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("register")}>Register</button>
             </div>
             
             <div className="flex flex-col py-2 gap-y-2">
@@ -81,5 +78,5 @@ export default function Projects() {
           </div>
       </Layout>
     );
-  }
+  } else return <AccessDenied/>;
 }

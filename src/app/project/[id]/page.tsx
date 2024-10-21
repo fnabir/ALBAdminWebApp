@@ -9,6 +9,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -16,8 +17,8 @@ export default function ProjectTransaction() {
   const path = usePathname();
 
   while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login");
-  else{
+  if (!loading && !user) return router.push("/login");
+  else if (user.role == "admin" || user.role == "manager") {
     const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
     const { dataExist, data, total, dataLoading, error } = GetObjectDataWithTotal('transaction/project/' + projectName);
     const totalBalanceDate = GetDatabaseValue("balance/project/" + projectName + "/date").data;
@@ -57,5 +58,5 @@ export default function ProjectTransaction() {
         </Layout>
       );
     }
-  }
+  } else return <AccessDenied/>;
 };

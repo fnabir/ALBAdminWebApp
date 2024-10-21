@@ -19,12 +19,13 @@ export default function Home() {
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
   else {
+console.log(user.role)
     return (
       <Layout 
         pageTitle="Asian Lift Bangladesh"
         headerTitle="Dashboard">
         <div>
-          <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
+          <div className={(user.role != "admin" || user.role != "manager") ? "hidden" : 'flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'}>
               { 
                 dataLoading ? (
                   <CardBalance title={"Loading"} balance={0} date={"Loading"}/>
@@ -32,7 +33,7 @@ export default function Home() {
                   <CardBalance title={"Error Occured"} balance={0} date={error}/>
                 ) : (
                   data.sort((a:any, b:any) => b.value - a.value).map((item) => (
-                    <div className="w-full" key={item.key}>
+                    <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
                       <CardBalance title={item.key} balance={item.value} date={item.date} route={item.key}/>
                     </div>
                   ))

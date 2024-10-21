@@ -9,6 +9,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function StaffTransaction() {
   const { user, loading } = useAuth();
@@ -17,7 +18,7 @@ export default function StaffTransaction() {
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login");
-  else{
+  else if (user.role == "admin") {
     const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
     const staffName = GetDatabaseValue("balance/staff/" + staffID + "/name").data;
     const { dataExist, data, total, dataLoading, error } = GetObjectDataWithTotal('transaction/staff/' + staffID);
@@ -58,5 +59,5 @@ export default function StaffTransaction() {
         </Layout>
       );
     }
-  }
+  } else return <AccessDenied/>;
 };

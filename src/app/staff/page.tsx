@@ -9,6 +9,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import CardBalance from "@/components/card/CardBalance";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function Staff() {
   const { user, loading } = useAuth();
@@ -21,8 +22,8 @@ export default function Staff() {
   const conveyanceBalanceDate = GetDatabaseValue("balance/total/staff/date").data;
 
   while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
-  else {
+  if (!loading && !user) return router.push("/login");
+  else if (user.role != "admin") {
     return (
       <Layout 
         pageTitle="Staff | Asian Lift Bangladesh"
@@ -50,5 +51,5 @@ export default function Staff() {
           </div>
       </Layout>
     );
-  }
+  } else return <AccessDenied/>;
 }

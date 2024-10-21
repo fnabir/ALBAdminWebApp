@@ -9,6 +9,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function ConveyanceTransaction() {
   const { user, loading } = useAuth();
@@ -16,8 +17,8 @@ export default function ConveyanceTransaction() {
   const path = usePathname();
 
   while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login");
-  else{
+  if (!loading && !user) return router.push("/login");
+  else if (user.role == "admin") {
     const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
     const staffName = GetDatabaseValue("balance/conveyance/" + staffID + "/name").data;
     const { dataExist, data, total, dataLoading, error } = GetObjectDataWithTotal('transaction/conveyance/' + staffID);
@@ -35,7 +36,7 @@ export default function ConveyanceTransaction() {
                     <MdDownloading className='mx-1 w-6 h-6 content-center'/>
                   </CardIcon>
                 ) : error ? (
-                  <CardIcon title={"Error"} subtitle={error? error : ""}>
+                  <CardIcon title={"Error"} subtitle={error ? error : ""}>
                     <MdError className='mx-1 w-6 h-6 content-center'/>
                   </CardIcon>
                 ) : !dataExist ? (
@@ -58,5 +59,5 @@ export default function ConveyanceTransaction() {
         </Layout>
       );
     }
-  }
+  } else return <AccessDenied/>;
 };

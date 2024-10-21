@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function Conveyance() {
   const router = useRouter();
@@ -19,8 +20,8 @@ export default function Conveyance() {
   const conveyanceBalanceDate = GetDatabaseValue("balance/total/conveyance/date").data;
 
   while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
-  else {
+  if (!loading && !user) return router.push("/login");
+  else if (user.role == "admin") {
     return (
       <Layout 
         pageTitle="Conveyance | Asian Lift Bangladesh"
@@ -48,5 +49,5 @@ export default function Conveyance() {
         </div>
       </Layout>
     );
-  }
+  } else return <AccessDenied/>;
 }

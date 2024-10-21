@@ -8,6 +8,7 @@ import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectData } from "@/firebase/database";
 import CardCallbackProject from "@/components/card/CardCallbackProject";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function CallbackProject() {
   const { user, loading } = useAuth();
@@ -16,7 +17,7 @@ export default function CallbackProject() {
 
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login");
-  else{
+  else if (user.role == "admin" || user.role == "manager") {
     const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
     const { dataExist, data, dataLoading, error } = GetObjectData('callback/' + projectName);
     if (error) return router.push("/project");
@@ -54,5 +55,5 @@ export default function CallbackProject() {
         </Layout>
       );
     }
-  }
+  } else return <AccessDenied/>;
 };

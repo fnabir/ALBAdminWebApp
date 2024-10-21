@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
 import { GetObjectData } from "@/firebase/database";
 import CardCallbackTotal from "@/components/card/CardCallbackTotal";
+import AccessDenied from "@/components/AccessDenied";
 
 export default function Callback() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function Callback() {
   const { data, dataLoading, error } = GetObjectData('callback');
   while (loading) return <Loading/>
   if (!loading && !user) return router.push("login")
-  else {
+  else if (user.role == "admin" || user.role == "manager") {
     return (
       <Layout 
         pageTitle="Callback | Asian Lift Bangladesh"
@@ -43,5 +44,5 @@ export default function Callback() {
         </div>
       </Layout>
     );
-  }
+  } else return <AccessDenied/>;
 }
