@@ -24,7 +24,7 @@ export default function Loading() {
 				<span className="relative inline-flex rounded-full h-5 w-5 bg-sky-500"></span>
 			</span>
 			<h2 className='text-2xl font-bold'>{showTime < 0 ? "Please refresh" : "Loading, please wait..."}</h2>
-			<p>{showTime > 0 ? `If the page doesn't load in ${showTime/1000} seconds, it will reload automatically` : ""}</p>
+			<p>{showTime > 0 ? `If the page doesn't load in ${showTime/1000} seconds, please refresh` : ""}</p>
 		</div>
 	);
 };
