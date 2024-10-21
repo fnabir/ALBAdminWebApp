@@ -16,16 +16,15 @@ export default function Home() {
   const { data, dataLoading, error } = GetObjectData('balance/total');
   const offerCount = GetDataCount('-offer');
 
-  while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
+  if (loading) return <Loading/>
+  else if (!user) return router.push("login")
   else {
-console.log(user.role)
     return (
       <Layout 
         pageTitle="Asian Lift Bangladesh"
         headerTitle="Dashboard">
         <div>
-          <div className={(user.role != "admin" || user.role != "manager") ? "hidden" : 'flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'}>
+          <div className={(user.role == "admin" || user.role == "manager") ? 'flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3' : "hidden"}>
               { 
                 dataLoading ? (
                   <CardBalance title={"Loading"} balance={0} date={"Loading"}/>
