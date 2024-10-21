@@ -7,6 +7,7 @@ interface User {
 	email: string | null;
 	uid: string | null;
     username?: string | null;
+	role?: string | null;
 }
 
 interface AuthContextType {
@@ -31,10 +32,14 @@ export const AuthProvider = ({children}: {children: React.ReactNode;}) => {
 	useEffect(() => {
 		return onAuthStateChanged(auth, (user) => {
 			if (user) {
+				const admin = ["HrnlOpNxfpTJ4JHjEE7E7lZXJ3n2", "STFXbv1ZzrbxDSWPCMpATVbOekh2", "WhAnZZh7CfNGhe1ejIUlAy1QAh33", "yB7jBuPIo7PxuhpliZ7VNnsL21l2"];
+				const manager = ["LzcKIs2huyaK83FEOqbkJCumezu2"]
+				const staff = ["BrY63rJXVifG4ywnhstNhmpjKqU2", "CCZjPhuI8CbaTV4sVnoRS0WDENI2", "MFsOlJGGx4QOtBDQhng6OLtCjGt2", "OUL5Xzi3lBT5bucafWGd0hfI3q32"]
 				setUser({
 					email: user.email,
 					uid: user.uid,
                     username: user.displayName,
+					role: admin.includes(user.uid) ? "admin" : manager.includes(user.uid) ? "manager" : staff.includes(user.uid) ? "staff" : "",
 				});
 			} else {
 				setUser(null);
