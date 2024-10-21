@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 export default function Loading() {
 	const [showTime, setShowTime] = useState(10000);
-	const [loaded, setloaded] = useState(true);
 
 	useEffect(() => { 
 		const timeoutId = setTimeout(() => {
