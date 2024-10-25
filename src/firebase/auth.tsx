@@ -1,6 +1,6 @@
 import '@/firebase/config'
 import {auth} from '@/firebase/config'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 // Login the user
 export const login = (email: string, password: string) => {
