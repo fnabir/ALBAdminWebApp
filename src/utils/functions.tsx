@@ -9,7 +9,7 @@ export const successMessage = (message:string) => {
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "light",
+		theme: "colored",
 	});
 };
 export const errorMessage = (message:string) => {
