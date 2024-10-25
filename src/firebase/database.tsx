@@ -1,6 +1,9 @@
 import { ref, child, get, DatabaseReference, remove, set } from "firebase/database";
 import { database } from "@/firebase/config";
 import { useEffect, useState } from "react";
+import {auth} from '@/firebase/config'
+import { getAuth, updateProfile } from "firebase/auth";
+import { errorMessage, successMessage } from "@/utils/functions";
 
 export default function GetDataExist(databaseReference: string): any {
   const [dataExist, setDataExist] = useState(false);
@@ -271,4 +274,17 @@ export const DeleteData = (databaseReference: string) => {
     removeData();
   }, [databaseReference]);
   return { isDeleting, error };
+}
+
+
+export const UpdateUserDisplayName = (newDisplayName: string) => {
+    if (auth.currentUser) {
+      updateProfile(auth.currentUser, {
+        displayName: newDisplayName
+      }).then(() => {
+        successMessage("Display name updated")
+      }).catch((error) => {
+        errorMessage(error.code + ": " + error.message)
+      })
+    }
 }
