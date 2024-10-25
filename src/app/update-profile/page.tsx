@@ -7,6 +7,10 @@ import { useRouter } from "next/navigation";
 import { database } from "@/firebase/config";
 import { child, get, ref } from "firebase/database";
 import { useEffect, useState } from "react";
+import Input from "@/components/generic/Input";
+import Button from "@/components/generic/Button";
+import { UpdateUserDisplayName } from "@/firebase/database";
+import { logout } from "@/firebase/auth";
 
 export default function UpdateProfile() {
     const { user, loading } = useAuth();
@@ -16,11 +20,17 @@ export default function UpdateProfile() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
 
+    let initialName = "";
+    let initialPhone = "";
+
     useEffect(() => {
         if (dataLoading && user) {
             get(child(ref(database), 'info/user/'+user.uid+'/phone')).then((snapshot) => {
                 if (snapshot.exists()) {
+                    initialName = user.username
+                    initialPhone = snapshot.val()
                     setPhone(snapshot.val());
+                    setName(user.username);
                 } else {
                     setPhone("Not available");
                 }
@@ -31,6 +41,13 @@ export default function UpdateProfile() {
         }
     }, [dataLoading, user]);
 
+    const handleSubmit = async () => {
+        if(user.displayName != name) {
+            UpdateUserDisplayName(name);
+            logout();
+        }
+	};
+
     while (loading) return <Loading/>
     if (!loading && !user) return router.push("login")
     else {
@@ -38,25 +55,47 @@ export default function UpdateProfile() {
         <Layout 
             pageTitle="User | Asian Lift Bangladesh"
             headerTitle="Update Profile">
-            <div className="flex flex-col py-2 gap-y-2 justify-center w-full items-center">
-                <div className="flex w-[50%] items-center">
-                    <div className="w-[33%]">Full Name</div>
-                    <span className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">
-                        {user.username}
-                    </span>
+            
+            <div className="w-full max-w-lg mx-auto mt-5 items-center">
+
+                <Input
+                    id="full-name"
+                    label="Full Name"
+                    type="text"
+                    className="my-3"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    message="*Required"
+                />
+
+                <Input
+                    id="email"
+                    label="Email Address"
+                    type="email"
+                    className="my-3"
+                    value={user.email}
+                    onChange={(e) => null}
+                    disabled
+                />
+
+                <Input
+                    id="phone"
+                    label="Phone Number"
+                    type="number"
+                    className="my-3"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    message="*Required"
+                    />
+
+                <div className="w-full flex space-x-2">
+                    <Button 
+                        type = "submit"
+                        label="Save"
+                        onClick={handleSubmit}/>
                 </div>
-                <div className="flex w-[50%] items-center">
-                    <div className="w-[33%]">Email address</div>
-                    <span className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">
-                        {user.email}
-                    </span>
-                </div>
-                <div className="flex w-[50%] items-center">
-                    <div className="w-[33%]">Phone Number</div>
-                    <span className="block w-full rounded-md border-0 p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">
-                        {phone}
-                    </span>
-                </div>
+
+                <p className="text-red-400 text-sm text-center mt-2">Changes may require you to login again</p>
             </div>
         </Layout>
         );
