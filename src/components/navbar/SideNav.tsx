@@ -1,7 +1,6 @@
 import { MdDashboard, MdDomain, MdPerson , MdDirectionsBus, MdLogout, MdLink , MdFacebook  } from "react-icons/md"
 import Image from "next/image";
 import SideNavButton from "@/components/navbar/SideNavButton";
-import { GetUserRole } from "@/firebase/database";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SideNav() {
