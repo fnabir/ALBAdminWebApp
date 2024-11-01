@@ -1,5 +1,3 @@
-import { useRouter } from "next/navigation";
-
 export default function CardOffer(props:Offer) {
     const line1 = props.address ?  `${props.name} - ${props.address}` : `${props.name}`;
     const line2 = props.wtype + " - " + (props.ptype ? props.ptype + (props.unit ? `(${props.unit})` : "") : "");

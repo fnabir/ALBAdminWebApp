@@ -1,7 +1,4 @@
-import { useRouter } from "next/navigation";
-
 export default function CardCallbackProject(props:CallbackProjectInterface) {
-    const router = useRouter();
     const name = props.name ?  ` - ${props.name}` : "";
 
     return (
@@ -12,7 +9,6 @@ export default function CardCallbackProject(props:CallbackProjectInterface) {
                     </div>
                     <div className="font-semibold flex-auto">{`${props.details}${name}`}</div>
             </div>
-            
         </button>
     )
 }
