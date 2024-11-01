@@ -23,10 +23,11 @@ interface TransactionInterface {
     id: string
     title: string
     amount: number
-    date?: string
+    date: string
     details?: string
     project?:string
     type?:string
+    access?:string
 }
 
 interface CallbackTotalInterface {

@@ -46,7 +46,7 @@ export default function ProjectTransaction() {
                   data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
                     (
                       <div className="flex flex-col" key={item.key}>
-                        <CardTransaction type={"project"} project={projectName} title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key}/>
+                        <CardTransaction type={"project"} project={projectName} title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key} access={user.role}/>
                       </div>
                     )
                   )
