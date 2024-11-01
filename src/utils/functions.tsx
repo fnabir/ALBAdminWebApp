@@ -25,6 +25,12 @@ export const errorMessage = (message:string) => {
 	});
 };
 
+
+export function dateFormatter(date: string) : string {
+  const [year, month, day] = date.split('-');
+  return `${day}.${month}.${year.slice(-2)}`
+};
+
 export function formatCurrency(
     initialValue: number,
     options?: {
