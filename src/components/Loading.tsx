@@ -3,18 +3,13 @@ import { useEffect, useState } from "react";
 export default function Loading() {
 	const [showTime, setShowTime] = useState(10000);
 
-	useEffect(() => { 
+	useEffect(() => {
 		const timeoutId = setTimeout(() => {
-			window.location.reload();
-		}, 10000);
-	
-		return () => clearTimeout(timeoutId);
-	  }, []);
-
-	  useEffect(() => {
-		const showTimer = setTimeout(() => {
 			setShowTime(showTime-1000);
+			if (showTime <= 0) window.location.reload();
 		}, 1000);
+
+		return () => clearTimeout(timeoutId);
 	  }, [showTime]);
 
 	return (
