@@ -24,9 +24,11 @@ export default function Projects() {
   const resultTotal = GetDatabaseValue("balance/total/project/date");
   const totalBalanceDate = resultTotal.data ? resultTotal.data : ""
 
-  while (loading) return <Loading/>
+  if (loading) return <Loading/>
+
   if (!loading && !user) return router.push("/login");
-  else if (user.role == "admin" || user.role == "manager") {
+
+  if (user.role == "admin" || user.role == "manager") {
     return (
       <Layout 
         pageTitle="Projects | Asian Lift Bangladesh"

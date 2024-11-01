@@ -9,7 +9,7 @@ import { child, get, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import Input from "@/components/generic/Input";
 import Button from "@/components/generic/Button";
-import { UpdateUserDisplayName } from "@/firebase/database";
+import {GetObjectData, UpdateUserDisplayName} from "@/firebase/database";
 import { logout } from "@/firebase/auth";
 
 export default function UpdateProfile() {
@@ -20,23 +20,13 @@ export default function UpdateProfile() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
 
-    let initialName = "";
-    let initialPhone = "";
-
     useEffect(() => {
         if (dataLoading && user) {
-            get(child(ref(database), 'info/user/'+user.uid+'/phone')).then((snapshot) => {
-                if (snapshot.exists()) {
-                    initialName = user.username
-                    initialPhone = snapshot.val()
-                    setPhone(snapshot.val());
-                    setName(user.username);
-                } else {
-                    setPhone("Not available");
-                }
-            }).catch((error) => {
-                console.error(error);
-            });
+            const { data } = GetObjectData(`info/user/${user.uid}`);
+            if (data) {
+                setPhone(userData.phone);
+                setName(userData.name);
+            }
             setDataLoading(false);
         }
     }, [dataLoading, user]);
@@ -44,11 +34,12 @@ export default function UpdateProfile() {
     const handleSubmit = async () => {
         if(user.displayName != name) {
             UpdateUserDisplayName(name);
-            logout();
+            await logout();
         }
 	};
 
-    while (loading) return <Loading/>
+    if (loading || dataLoading) return <Loading/>
+
     if (!loading && !user) return router.push("login")
     else {
         return (
@@ -74,7 +65,7 @@ export default function UpdateProfile() {
                     type="email"
                     className="my-3"
                     value={user.email}
-                    onChange={(e) => null}
+                    onChange={(e) => setName(e.target.value)}
                     disabled
                 />
 

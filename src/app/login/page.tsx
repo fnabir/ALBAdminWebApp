@@ -41,7 +41,8 @@ export default function Login() {
 		}
 	};
 
-  while (loading) return <Loading/>
+  if (loading) return <Loading/>
+
   if (!loading && user) return router.push("/")
   else {
     return (

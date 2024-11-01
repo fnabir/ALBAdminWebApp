@@ -19,7 +19,8 @@ export default function Conveyance() {
   
   const conveyanceBalanceDate = GetDatabaseValue("balance/total/conveyance/date").data;
 
-  while (loading) return <Loading/>
+  if (loading) return <Loading/>
+
   if (!loading && !user) return router.push("/login");
   else if (user.role == "admin") {
     return (

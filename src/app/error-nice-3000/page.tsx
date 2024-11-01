@@ -14,13 +14,13 @@ export default function ErrorNice3000() {
   const { user, loading } = useAuth();
   const [ errorCode, setErrorCode] = useState("");
   const [ errorTitle, setErrorTitle] = useState("");
-  const [ level, setlevel] = useState("");
+  const [ level, setLevel] = useState("");
   const [ description, setDescription] = useState("");
   const [ cause, setCause] = useState("");
   const [ solution, setSolution] = useState("");
 
   const level1a = "1A\nThe elevator running is not affected on any condition.";
-  const level2a = "2A\nThe parallel/group control function is disabled.";
+  //const level2a = "2A\nThe parallel/group control function is disabled.";
   const level2b = "2B\nThe door pre-open/re-leveling function is disabled.";
   const level3a = "3A\nIn low-speed running, the elevator stops at special deceleration rate, and cannot restart.";
   const level3b = "3B\nIn low-speed running, the elevator does not stop. In normal-speed running, the elevator stops, and then can start running at low speed after a delay of 3s.";
@@ -28,7 +28,7 @@ export default function ErrorNice3000() {
   const level4b = "4B\nIn low-speed running, the elevator does not stop. In normal-speed running, the elevator stops, and then can start running at low speed after a delay of 3s.";
   const level4c = "4C\nIn low-speed running, the elevator does not stop. In normal-speed running, the elevator stops, and then can start running at low speed after a delay of 3s.";
   const level5a = "5A\nIn low-speed running, the elevator stops immediately and cannot restart.";
-  const level5b = "5B\nIn low-speed running, the elevator does not stop. In normal-speed running, the elevator stops, and then can start running at low speed after a delay of 3s.";
+  //const level5b = "5B\nIn low-speed running, the elevator does not stop. In normal-speed running, the elevator stops, and then can start running at low speed after a delay of 3s.";
 
   const description1 = "Invert unit protection";
   const description2 = "Overcurrent during acceleration";
@@ -195,313 +195,313 @@ export default function ErrorNice3000() {
       case "1":
         setErrorTitle("E01")
         setDescription(description1);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause1);
         setSolution(solution1);
         break;
       case "2":
         setDescription(description2);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause2);
         setSolution(solution234);
         break;
       case "3":
         setDescription(description3);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause3);
         setSolution(solution234);
         break;
       case "4":
         setDescription(description4);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause4);
         setSolution(solution234);
         break;
       case "5":
         setDescription(description5);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause5);
         setSolution(solution567);
         break;
       case "6":
         setDescription(description6);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause6);
         setSolution(solution567);
         break;
       case "7":
         setDescription(description7);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause7);
         setSolution(solution567);
         break;
       case "8":
         setDescription(description8);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause8);
         setSolution(solution8);
         break;
       case "9":
         setDescription(description9);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause9);
         setSolution(solution9);
         break;
       case "10":
         setDescription(description10);
-        setlevel(level4a)
+        setLevel(level4a)
         setCause(cause10);
         setSolution(solution10);
         break;
       case "11":
         setDescription(description11);
-        setlevel(level3a)
+        setLevel(level3a)
         setCause(cause11);
         setSolution(solution11);
         break;
       case "12":
         setDescription(description12);
-        setlevel(level4a)
+        setLevel(level4a)
         setCause(cause12);
         setSolution(solution12);
         break;
       case "13":
         setDescription(description13);
-        setlevel(level4a)
+        setLevel(level4a)
         setCause(cause13);
         setSolution(solution13);
         break;
       case "14":
         setDescription(description14);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause14);
         setSolution(solution14);
         break;
       case "15":
         setDescription(description15);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause15);
         setSolution(solution15);
         break;
       case "16":
         setDescription(description16);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause16);
         setSolution(solution16);
         break;
       case "17":
         setDescription(description17);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause17);
         setSolution(solution17);
         break;
       case "18":
         setDescription(description18);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause18);
         setSolution(solution18);
         break;
       case "19":
         setDescription(description19);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause19);
         setSolution(solution19);
         break;
       case "20":
         setDescription(description20);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause20);
         setSolution(solution20);
         break;
       case "22":
         setDescription(description22);
-        setlevel(level1a)
+        setLevel(level1a)
         setCause(cause22);
         setSolution(solution22);
         break;
       case "23":
         setDescription(description23);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause23);
         setSolution(solution23);
         break;
       case "24":
         setDescription(description24);
-        setlevel(level3b)
+        setLevel(level3b)
         setCause(cause24);
         setSolution(solution24);
         break;
       case "25":
         setDescription(description25);
-        setlevel(level4a)
+        setLevel(level4a)
         setCause(cause25);
         setSolution(solution25);
         break;
       case "26":
         setDescription(description26);
-        setlevel(level3b)
+        setLevel(level3b)
         setCause(cause26);
         setSolution(solution26);
         break;
       case "29":
         setDescription(description29);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause29);
         setSolution(solution29);
         break;
       case "30":
         setDescription(description30);
-        setlevel(level4a)
+        setLevel(level4a)
         setCause(cause30);
         setSolution(solution30);
         break;
       case "33":
         setDescription(description33);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause33);
         setSolution(solution33);
         break;
       case "34":
         setDescription(description34);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause34);
         setSolution(solution34);
         break;
       case "35":
         setDescription(description35);
-        setlevel(level4c)
+        setLevel(level4c)
         setCause(cause35);
         setSolution(solution35);
         break;
       case "36":
         setDescription(description36);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause36);
         setSolution(solution36);
         break;
       case "37":
         setDescription(description37);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause37);
         setSolution(solution37);
         break;
       case "38":
         setDescription(description38);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause38);
         setSolution(solution38);
         break;
       case "39":
         setDescription(description39);
-        setlevel(level3a)
+        setLevel(level3a)
         setCause(cause39);
         setSolution(solution39);
         break;
       case "41":
         setDescription(description41);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause41);
         setSolution(solution41);
         break;
       case "42":
         setDescription(description42);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause42);
         setSolution(solution42);
         break;
       case "43":
         setDescription(description43);
-        setlevel(level4c)
+        setLevel(level4c)
         setCause(cause43);
         setSolution(solution43);
         break;
       case "44":
         setDescription(description44);
-        setlevel(level4c)
+        setLevel(level4c)
         setCause(cause44);
         setSolution(solution44);
         break;
       case "45":
         setDescription(description45);
-        setlevel(level4b)
+        setLevel(level4b)
         setCause(cause45);
         setSolution(solution45);
         break;
       case "46":
         setDescription(description46);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause46);
         setSolution(solution46);
         break;
       case "47":
         setDescription(description47);
-        setlevel(level2b)
+        setLevel(level2b)
         setCause(cause47);
         setSolution(solution47);
         break;
       case "48":
         setDescription(description48);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause48);
         setSolution(solution48);
         break;
       case "49":
         setDescription(description49);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause49);
         setSolution(solution49);
         break;
       case "50":
         setDescription(description50);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause50);
         setSolution(solution50);
         break;
       case "51":
         setDescription(description51);
-        setlevel(level1a)
+        setLevel(level1a)
         setCause(cause51);
         setSolution(solution51);
         break;
       case "52":
         setDescription(description52);
-        setlevel(level1a)
+        setLevel(level1a)
         setCause(cause52);
         setSolution(solution52);
         break;
       case "53":
         setDescription(description53);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause53);
         setSolution(solution53);
         break;
       case "54":
         setDescription(description54);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause54);
         setSolution(solution54);
         break;
       case "55":
         setDescription(description55);
-        setlevel(level1a)
+        setLevel(level1a)
         setCause(cause55);
         setSolution(solution55);
         break;
       case "57":
         setDescription(description57);
-        setlevel(level5a)
+        setLevel(level5a)
         setCause(cause57);
         setSolution(solution57);
         break;
       case "58":
         setDescription(description58);
-        setlevel(level4b)
+        setLevel(level4b)
         setCause(cause58);
         setSolution(solution58);
         break;
       case "62":
         setDescription(description62);
-        setlevel(level1a)
+        setLevel(level1a)
         setCause(cause62);
         setSolution(solution62);
         break;
@@ -514,7 +514,8 @@ export default function ErrorNice3000() {
     }
 	};
 
-  while (loading) return <Loading/>
+  if (loading) return <Loading/>
+
   if (!loading && !user) return router.push("login")
   else {
     return (

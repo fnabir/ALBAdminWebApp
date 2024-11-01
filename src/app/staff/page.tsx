@@ -21,9 +21,11 @@ export default function Staff() {
   const conveyanceBalance = GetDatabaseValue("balance/total/conveyance/value").data;
   const conveyanceBalanceDate = GetDatabaseValue("balance/total/staff/date").data;
 
-  while (loading) return <Loading/>
+  if (loading) return <Loading/>
+
   if (!loading && !user) return router.push("/login");
-  else if (user.role == "admin") {
+
+  if (user.role == "admin") {
     return (
       <Layout 
         pageTitle="Staff | Asian Lift Bangladesh"

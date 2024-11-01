@@ -13,11 +13,13 @@ import AccessDenied from "@/components/AccessDenied";
 export default function Callback() {
   const router = useRouter();
   const { user, loading } = useAuth();
-
   const { data, dataLoading, error } = GetObjectData('callback');
-  while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
-  else if (user.role == "admin" || user.role == "manager") {
+
+  if (loading) return <Loading/>
+
+  if (!loading && !user) return router.push("/login")
+
+  if (user.role == "admin" || user.role == "manager") {
     return (
       <Layout 
         pageTitle="Callback | Asian Lift Bangladesh"

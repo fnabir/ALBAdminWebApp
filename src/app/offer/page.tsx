@@ -13,8 +13,9 @@ export default function OfferAll() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-  while (loading) return <Loading/>
-  if (!loading && !user) return router.push("login")
+  if (loading) return <Loading/>
+
+  if (!loading && !user) return router.push("/login")
   else {
     const { dataExist, data, dataLoading, error } = GetObjectData('-offer');
     
