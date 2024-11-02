@@ -100,7 +100,6 @@ export default function UpdateProfile() {
                     message="*Required"
                     minLength={0}
                     maxLength={11}
-                    max={999999999999}
                 />
 
                 <div className="w-full flex space-x-2">
