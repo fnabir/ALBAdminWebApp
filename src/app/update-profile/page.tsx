@@ -5,12 +5,13 @@ import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { database } from "@/firebase/config";
-import { child, get, ref } from "firebase/database";
+import {child, get, ref, update} from "firebase/database";
 import { useEffect, useState } from "react";
 import Input from "@/components/generic/Input";
 import Button from "@/components/generic/Button";
-import {GetObjectData, UpdateUserDisplayName} from "@/firebase/database";
+import { UpdateUserDisplayName} from "@/firebase/database";
 import { logout } from "@/firebase/auth";
+import {errorMessage, successMessage} from "@/utils/functions";
 
 export default function UpdateProfile() {
     const { user, loading } = useAuth();
@@ -20,21 +21,41 @@ export default function UpdateProfile() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
 
+    let previousValue: string[] = []
+
     useEffect(() => {
-        if (dataLoading && user) {
-            const { data } = GetObjectData(`info/user/${user.uid}`);
-            if (data) {
-                setPhone(userData.phone);
-                setName(userData.name);
-            }
-            setDataLoading(false);
+        if (user) {
+            get(child(ref(database), `info/user/${user.uid}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    setName(snapshot.val().name);
+                    setPhone(snapshot.val().phone);
+                    previousValue.push(name, phone);
+                }
+            }).catch((error) => {
+                console.error(error.message);
+                errorMessage(error.message)
+            }).finally(() => {
+                setDataLoading(false);
+            });
         }
-    }, [dataLoading, user]);
+    }, [user]);
 
     const handleSubmit = async () => {
-        if(user.displayName != name) {
-            UpdateUserDisplayName(name);
-            await logout();
+        if (name == previousValue[0] && phone == previousValue[1]) {
+            successMessage("No data has been changed.")
+        } else {
+            update(ref(database, `info/user/${user.uid}`), {
+                name: name,
+                phone: phone,
+            }).then(() => {
+                successMessage("Data saved successfully!");
+            }).catch((error) => {
+                errorMessage(error.message);
+            })
+            if(user.displayName != name) {
+                UpdateUserDisplayName(name);
+                await logout();
+            }
         }
 	};
 
@@ -56,7 +77,7 @@ export default function UpdateProfile() {
                     className="my-3"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    message="*Required"
+                    message={"Change in display name requires you to login again"}
                 />
 
                 <Input
@@ -77,7 +98,10 @@ export default function UpdateProfile() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     message="*Required"
-                    />
+                    minLength={0}
+                    maxLength={11}
+                    max={999999999999}
+                />
 
                 <div className="w-full flex space-x-2">
                     <Button 
@@ -85,8 +109,6 @@ export default function UpdateProfile() {
                         label="Save"
                         onClick={handleSubmit}/>
                 </div>
-
-                <p className="text-red-400 text-sm text-center mt-2">Changes may require you to login again</p>
             </div>
         </Layout>
         );
