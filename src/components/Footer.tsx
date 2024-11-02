@@ -1,8 +1,6 @@
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function Footer() {
-    const router = useRouter()
     return (
         <footer className="rounded-lg shadow bg-slate-800 hidden md:block">
             <div className="w-full mx-auto px-6 py-3 md:flex md:items-center md:justify-between">
@@ -10,10 +8,10 @@ export default function Footer() {
             </span>
             <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-300 sm:mt-0">
                 <li>
-                    <Link href="/" className="hover:underline me-4 md:me-6">Privacy Policy</Link>
+                    <Link href="https://asianliftbd.com/privacy-policy" className="hover:underline me-4 md:me-6">Privacy Policy</Link>
                 </li>
                 <li>
-                    <a href="#" className="hover:underline">Terms Of Use</a>
+                    <Link href="https://asianliftbd.com/terms-of-use" className="hover:underline">Terms Of Use</Link>
                 </li>
             </ul>
             </div>
