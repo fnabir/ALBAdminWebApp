@@ -5,6 +5,7 @@ import "@/styles/globals.css"
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import React from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 

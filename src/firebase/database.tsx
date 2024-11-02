@@ -1,8 +1,8 @@
-import { ref, child, get, DatabaseReference, remove, set } from "firebase/database";
+import { ref, child, get, remove, set, update } from "firebase/database";
 import { database } from "@/firebase/config";
 import { useEffect, useState } from "react";
-import {auth} from '@/firebase/config'
-import { getAuth, updateProfile } from "firebase/auth";
+import { auth } from '@/firebase/config'
+import { updateProfile } from "firebase/auth";
 import { errorMessage, successMessage } from "@/utils/functions";
 
 export default function GetDataExist(databaseReference: string): any {
@@ -22,7 +22,7 @@ export default function GetDataExist(databaseReference: string): any {
       });
       setDataLoading(false);
     }
-    
+
     fetchData();
   }, [databaseReference]);
 
@@ -234,7 +234,7 @@ export const UpdateData = (databaseReference: string, data: object) => {
     const updateData = async () => {
       setDataUploading(true);
 
-      set(ref(database, databaseReference), data)
+      update(ref(database, databaseReference), data)
       .then(() => {
         console.log("Data saved successfully!");
       })
