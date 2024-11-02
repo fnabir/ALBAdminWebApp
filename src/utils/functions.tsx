@@ -3,13 +3,13 @@ import { toast } from "react-toastify";
 export const successMessage = (message:string) => {
 	toast.success(message, {
 		position: "top-right",
-		autoClose: 5000,
+		autoClose: 3000,
 		hideProgressBar: false,
 		closeOnClick: true,
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "colored",
+		theme: "dark",
 	});
 };
 export const errorMessage = (message:string) => {
@@ -21,7 +21,7 @@ export const errorMessage = (message:string) => {
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "colored",
+		theme: "dark",
 	});
 };
 
@@ -29,7 +29,7 @@ export const errorMessage = (message:string) => {
 export function dateFormatter(date: string) : string {
   const [year, month, day] = date.split('-');
   return `${day}.${month}.${year.slice(-2)}`
-};
+}
 
 export function formatCurrency(
     initialValue: number,
