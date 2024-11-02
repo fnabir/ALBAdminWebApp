@@ -30,7 +30,7 @@ const SideNavButton: FC<SideNavButtonProps & { children: ReactNode }> = ({
     const handleClick = async (e: any) => {
         e.preventDefault();
 		try {
-            route ? route == 'logout' ? handleLogout() : router.push(`/${route}`) : null;
+            route ? route == 'logout' ? await handleLogout() : router.push(`/${route}`) : null;
             link ? window.open(link) : null;
 		} catch (error: any) {
 			console.log(error.message);
