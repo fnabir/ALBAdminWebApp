@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React from "react";
 
 interface Props {
-    type: string;
+    type?: string;
     label: string;
     onClick?: () => void;
     className?: string;
@@ -16,14 +16,29 @@ interface Props {
     disabled,
     ...rest
   }) => {
+    let backgroundColour: string;
+    switch(type) {
+      case "cancel": {
+        backgroundColour = "bg-gray-600";
+        break;
+      }
+      case "warning": {
+        backgroundColour = "bg-red-600";
+        break;
+      }
+      default: {
+        backgroundColour = "bg-blue-600";
+        break;
+      }
 
+    }
     return (
       <button
         onClick={onClick}
         className={"w-full justify-center rounded-md px-3 py-1.5 font-semibold leading-6 text-white shadow-sm " + 
-            (type == "cancel" ? "bg-gray-600 " : "bg-blue-600 ") + 
+            backgroundColour + " " +  
             className + 
-            (disabled? "text-opacity-50 " : "text-opacity-0 hover:bg-opacity-60 ")}
+            (disabled? "text-opacity-50 " : "text-opacity-0 hover:bg-opacity-70 ")}
         disabled={disabled}
         {...rest}
       >
