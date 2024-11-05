@@ -19,17 +19,22 @@ export default function UpdateProfile() {
 
     const [dataLoading, setDataLoading] = useState(true)
     const [name, setName] = useState('');
+    const [nameError, setNameError] = useState('');
     const [phone, setPhone] = useState('');
-
-    let previousValue: string[] = []
+    const [phoneError, setPhoneError] = useState('');
+    const [title, setTitle] = useState('');
+    const [previousName, setPreviousName] = useState('');
+    const [previousPhone, setPreviousPhone] = useState('');
 
     useEffect(() => {
-        if (user) {
+        if (user && dataLoading) {
             get(child(ref(database), `info/user/${user.uid}`)).then((snapshot) => {
                 if (snapshot.exists()) {
                     setName(snapshot.val().name);
                     setPhone(snapshot.val().phone);
-                    previousValue.push(name, phone);
+                    setTitle(snapshot.val().title);
+                    setPreviousName(snapshot.val().name);
+                    setPreviousPhone(snapshot.val().phone);
                 }
             }).catch((error) => {
                 console.error(error.message);
@@ -38,23 +43,40 @@ export default function UpdateProfile() {
                 setDataLoading(false);
             });
         }
-    }, [user]);
+    }, [dataLoading, user]);
 
     const handleSubmit = async () => {
-        if (name == previousValue[0] && phone == previousValue[1]) {
-            successMessage("No data has been changed.")
-        } else {
-            update(ref(database, `info/user/${user.uid}`), {
-                name: name,
-                phone: phone,
-            }).then(() => {
-                successMessage("Data saved successfully!");
-            }).catch((error) => {
-                errorMessage(error.message);
-            })
-            if(user.displayName != name) {
-                UpdateUserDisplayName(name);
-                await logout();
+        if (name == "") {
+            setNameError("Please input name!")
+            errorMessage(nameError);
+        } else setNameError("")
+
+        if (phone.length == 0 || phone == "") {
+            setPhoneError("Please input phone number!")
+            errorMessage(phoneError);
+        } else if (phone.length < 11 || phone.length > 11) {
+            setPhoneError("Phone number must be 11 digit!")
+            errorMessage(phoneError);
+        } else setPhoneError("")
+
+        if (name != "" && phone.length == 11) {
+            if (name == previousName && phone == previousPhone) {
+                successMessage("No data has been changed.")
+            } else {
+                update(ref(database, `info/user/${user.uid}`), {
+                    name: name,
+                    phone: phone,
+                }).then(() => {
+                    successMessage("Data saved successfully!");
+                    setPreviousName(name);
+                    setPreviousPhone(phone);
+                }).catch((error) => {
+                    errorMessage(error.message);
+                })
+                if (user.username != name) {
+                    UpdateUserDisplayName(name);
+                    await logout();
+                }
             }
         }
 	};
@@ -68,25 +90,24 @@ export default function UpdateProfile() {
             pageTitle="User | Asian Lift Bangladesh"
             headerTitle="Update Profile">
             
-            <div className="w-full max-w-lg mx-auto mt-5 items-center">
+            <div className="w-full max-w-lg mx-auto mt-5 items-center space-y-5">
 
                 <Input
                     id="full-name"
                     label="Full Name"
                     type="text"
-                    className="my-3"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     message={"Change in display name requires you to login again"}
+                    result={"error"}
+                    resultMessage={nameError}
                 />
 
                 <Input
                     id="email"
                     label="Email Address"
                     type="email"
-                    className="my-3"
                     value={user.email}
-                    onChange={(e) => setName(e.target.value)}
                     disabled
                 />
 
@@ -94,12 +115,23 @@ export default function UpdateProfile() {
                     id="phone"
                     label="Phone Number"
                     type="number"
-                    className="my-3"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     message="*Required"
-                    minLength={0}
+                    minLength={11}
                     maxLength={11}
+                    min={0}
+                    max={9999999999}
+                    result={"error"}
+                    resultMessage={phoneError}
+                />
+
+                <Input
+                    id="title"
+                    label="Title"
+                    type="text"
+                    value={title}
+                    disabled
                 />
 
                 <div className="w-full flex space-x-2">
