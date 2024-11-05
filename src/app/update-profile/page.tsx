@@ -120,8 +120,6 @@ export default function UpdateProfile() {
                     message="*Required"
                     minLength={11}
                     maxLength={11}
-                    min={0}
-                    max={9999999999}
                     result={"error"}
                     resultMessage={phoneError}
                 />
@@ -136,7 +134,7 @@ export default function UpdateProfile() {
 
                 <div className="w-full flex space-x-2">
                     <Button 
-                        type = "submit"
+                        type= "submit"
                         label="Save"
                         onClick={handleSubmit}/>
                 </div>

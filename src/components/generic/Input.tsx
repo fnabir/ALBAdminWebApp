@@ -6,7 +6,7 @@ interface Props {
     type: string
     placeholder?: string;
     value?: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     className?: string
     minLength?: number,
     maxLength?: number,
@@ -34,7 +34,9 @@ const Input: FC<Props> = ({
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
-        onChange(event);
+        if (onChange) {
+            onChange(event);
+        }
       };
 
     return (
