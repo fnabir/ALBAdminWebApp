@@ -1,69 +1,81 @@
-import { FC, useState } from "react"
+import React, { FC, useState } from "react"
 
 interface Props {
     id?: string,
     label: string
     type: string
     placeholder?: string;
-    value?: string;
+    value?: string | number;
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     className?: string
     minLength?: number,
     maxLength?: number,
-    message?: string,
-    result?: string
-    resultMessage?: string,
-    disabled?: boolean
+    minNumber?: number,
+    maxNumber?: number,
+    minDate?: string,
+    maxDate?: string,
+    helperText?: string,
+    color?: string
+    disabled?: boolean,
+    required?: boolean,
+    pre?:string,
 }
 
 const Input: FC<Props> = ({
     id,
     label,
-    type="text",
+    type="text", placeholder="",
     value,
     onChange,
     className,
     minLength=0,
-    maxLength=64,
-    message,
-    result,
-    resultMessage,
-    disabled
+    maxLength=64, helperText, color,
+    minNumber, maxNumber, minDate, maxDate,
+    disabled,
+    required=false,
+    pre="",
+    ...rest
   }) => {
     const [inputValue, setInputValue] = useState(value);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(event.target.value);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
         if (onChange) {
-            onChange(event);
+            onChange(e);
         }
       };
 
     return (
         <div className={className}>
-            <div className = {"relative mt-5"}>
-                <input 
+            <div className={"relative mt-5"}>
+                <div className={pre ? "absolute text-gray-400 pl-2.5 pb-2.5 pt-2.5 peer-focus:text-blue-400" : "hidden"}>{pre}</div>
+                <input
                     type={type}
-                    id={id} 
-                    className={(disabled ? "text-gray-400 bg-gray-700" : "text-white bg-transparent") + " block px-2.5 pb-2 pt-4 w-full text-md rounded-lg border appearance-none border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-0 peer" }
-                    placeholder=""
-                    value={value}
+                    id={id}
+                    className={(disabled ? "bg-gray-700" : "text-white bg-transparent") + " " +
+                        (color == "error" ? "text-red-400 border-red-600" : (disabled ? "text-gray-400 border-gray-600" : "text-white border-gray-600")) +
+                        (pre ? " pl-9 pr-2.5" : " px-2.5") +
+                        " block pb-2.5 pt-2.5 w-full text-md rounded-lg border appearance-none focus:border-blue-400 focus:outline-none focus:ring-0 peer" }
+                    placeholder={placeholder}
+                    value={inputValue}
                     onChange={handleInputChange}
                     minLength={minLength}
                     maxLength={maxLength}
+                    min={type == "number" ? minNumber : type == "date" ? minDate : ""}
+                    max={type == "number" ? maxNumber : type == "date" ? maxDate : ""}
                     disabled={disabled}
+                    required={required}
+                    {...rest}
                 />
-                <label 
+                <label
                     htmlFor={id}
-                    className="absolute text-md text-gray-400 duration-300 scale-[0.85] transform -translate-y-5 top-2 z-10 origin-[0] bg-gray-950 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
-                        {label}
+                    className={(color=="error" ? "text-red-400" : "text-gray-200") + " absolute text-md duration-300 scale-[0.85] transform -translate-y-5 top-2 z-10 origin-[0] bg-gray-950 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"}>
+                    {label}
+                    <span className={required ? "absolute text-red-600 text-xl pl-[0.1rem] -translate-y-1" : "hidden"}>*</span>
                 </label>
             </div>
-            <div className={message || resultMessage ? "flex mt-1 ml-1 text-xs" : "hidden"}>
-                <span className="text-sky-300">{message}</span>
-                <span className={resultMessage ? ((result == "error" ? "text-red-400" : "text-gray-400") + (message ? " ml-2" : "")) : "hidden"}>
-                    {`| ${resultMessage}`}
-                </span>
+            <div className={helperText ? ((color=="error" ? "text-red-400" : "text-sky-300") + " flex mt-1 ml-1 text-xs") : "hidden"}>
+                {helperText}
             </div>
         </div>
     )
