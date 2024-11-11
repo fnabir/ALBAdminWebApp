@@ -19,9 +19,7 @@ export default function UpdateProfile() {
 
     const [dataLoading, setDataLoading] = useState(true)
     const [name, setName] = useState('');
-    const [nameError, setNameError] = useState('');
     const [phone, setPhone] = useState('');
-    const [phoneError, setPhoneError] = useState('');
     const [title, setTitle] = useState('');
     const [previousName, setPreviousName] = useState('');
     const [previousPhone, setPreviousPhone] = useState('');
@@ -47,17 +45,14 @@ export default function UpdateProfile() {
 
     const handleSubmit = async () => {
         if (name == "") {
-            setNameError("Please input name!")
-            errorMessage(nameError);
-        } else setNameError("")
+            errorMessage("Please input name!");
+        }
 
         if (phone.length == 0 || phone == "") {
-            setPhoneError("Please input phone number!")
-            errorMessage(phoneError);
-        } else if (phone.length < 11 || phone.length > 11) {
-            setPhoneError("Phone number must be 11 digit!")
-            errorMessage(phoneError);
-        } else setPhoneError("")
+            errorMessage("Please input phone number!");
+        } else if (phone.length != 11) {
+            errorMessage("Phone number must be 11 digit!");
+        }
 
         if (name != "" && phone.length == 11) {
             if (name == previousName && phone == previousPhone) {
@@ -98,9 +93,8 @@ export default function UpdateProfile() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    message={"Change in display name requires you to login again"}
-                    result={"error"}
-                    resultMessage={nameError}
+                    helperText={name == "" ? "Please input name!" : name != previousName ? "Change in display name requires you to login again" : ""}
+                    color={name == "" ? "error" : "default"}
                 />
 
                 <Input
@@ -117,11 +111,12 @@ export default function UpdateProfile() {
                     type="number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    message="*Required"
                     minLength={11}
                     maxLength={11}
-                    result={"error"}
-                    resultMessage={phoneError}
+                    minNumber={0}
+                    maxNumber={99999999999}
+                    color={phone.length != 11 ? "error" : "default"}
+                    helperText={phone.length == 0 || phone == "" ? "Please input phone number!" : phone.length != 11 ? "Phone number must be 11 digit!" : ""}
                 />
 
                 <Input
