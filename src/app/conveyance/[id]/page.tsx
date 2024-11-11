@@ -47,7 +47,9 @@ export default function ConveyanceTransaction() {
               data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
                 (
                   <div className="flex flex-col" key={item.key}>
-                    <CardTransaction title={item.title} amount={item.amount} date={item.date} details={item.details} id={item.key} access={user.role}/>
+                    <CardTransaction type={"conveyance"} uid={staffID} transactionId={item.key}
+                                     title={item.title} details={item.details}
+                                     amount={item.amount} date={item.date} access={user.role}/>
                   </div>
                 )
               )
