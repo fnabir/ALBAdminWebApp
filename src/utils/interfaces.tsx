@@ -20,13 +20,13 @@ interface BalanceInterface {
 }
 
 interface TransactionInterface {
-    id: string
+    type:string
+    uid: string
+    transactionId: string
     title: string
+    details?: string
     amount: number
     date: string
-    details?: string
-    project?:string
-    type?:string
     access?:string
 }
 
@@ -57,4 +57,12 @@ interface Offer {
     refer?:string
     date?: string
     uid?: string
+}
+
+interface UserInfoInterface {
+    name: string
+    phone: string
+    role: number
+    roll?: string
+    version?: string
 }
