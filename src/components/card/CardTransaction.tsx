@@ -129,7 +129,7 @@ export default function CardTransaction(props:TransactionInterface) {
                         <Input type="text" label="Title"
                                value={inputTitle}
                                onChange={(e) => setInputTitle(e.target.value)}
-                               color={inputTitle == "" ? "error" : "default"} helperText={"Required"}
+                               color={inputTitle == "" ? "error" : "default"} helperText={props.title == "" ? "Please input title" : ""}
                                required
                         />
                         <Input type="text" label="Details"
