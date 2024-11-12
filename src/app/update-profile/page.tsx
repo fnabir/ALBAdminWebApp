@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import { database } from "@/firebase/config";
 import {child, get, ref, update} from "firebase/database";
 import { useEffect, useState } from "react";
-import Input from "@/components/generic/Input";
-import Button from "@/components/generic/Button";
+import CustomInput from "@/components/generic/CustomInput";
+import CustomButton from "@/components/generic/CustomButton";
 import { UpdateUserDisplayName} from "@/firebase/database";
 import { logout } from "@/firebase/auth";
 import {errorMessage, successMessage} from "@/utils/functions";
@@ -87,7 +87,7 @@ export default function UpdateProfile() {
             
             <div className="w-full max-w-lg mx-auto mt-5 items-center space-y-5">
 
-                <Input
+                <CustomInput
                     id="full-name"
                     label="Full Name"
                     type="text"
@@ -97,7 +97,7 @@ export default function UpdateProfile() {
                     color={name == "" ? "error" : "default"}
                 />
 
-                <Input
+                <CustomInput
                     id="email"
                     label="Email Address"
                     type="email"
@@ -105,7 +105,7 @@ export default function UpdateProfile() {
                     disabled
                 />
 
-                <Input
+                <CustomInput
                     id="phone"
                     label="Phone Number"
                     type="number"
@@ -119,7 +119,7 @@ export default function UpdateProfile() {
                     helperText={phone.length == 0 || phone == "" ? "Please input phone number!" : phone.length != 11 ? "Phone number must be 11 digit!" : ""}
                 />
 
-                <Input
+                <CustomInput
                     id="title"
                     label="Title"
                     type="text"
@@ -128,7 +128,7 @@ export default function UpdateProfile() {
                 />
 
                 <div className="w-full flex space-x-2">
-                    <Button 
+                    <CustomButton 
                         type= "submit"
                         label="Save"
                         onClick={handleSubmit}/>
