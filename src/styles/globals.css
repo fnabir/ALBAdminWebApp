@@ -55,3 +55,19 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 0 4px 4px 0;
+  opacity: 0.8;
+  background-color: #233876;
+  padding: 10px;
+  margin: -10px;
+  width: 24px;
+  height: 24px;
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1
+}
