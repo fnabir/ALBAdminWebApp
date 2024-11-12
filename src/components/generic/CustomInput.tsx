@@ -21,7 +21,7 @@ interface Props {
     pre?:string,
 }
 
-const Input: FC<Props> = ({
+const CustomInput: FC<Props> = ({
     id,
     label,
     type="text", placeholder="",
@@ -81,4 +81,4 @@ const Input: FC<Props> = ({
     )
 }
 
-export default Input;
+export default CustomInput;

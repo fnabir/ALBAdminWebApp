@@ -8,7 +8,7 @@ interface Props {
     disabled?:boolean;
   }
   
-  const Button: React.FC<Props> = ({
+  const CustomButton: React.FC<Props> = ({
     type,
     label,
     onClick,
@@ -47,4 +47,4 @@ interface Props {
     );
   };
   
-  export default Button;
+  export default CustomButton;
