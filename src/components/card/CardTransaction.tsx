@@ -4,12 +4,12 @@ import { MdDelete, MdEditNote } from "react-icons/md";
 import { Modal } from "flowbite-react";
 import { useState} from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import Input from "../generic/Input";
+import CustomInput from "@/components/generic/CustomInput";
 import { Button } from "flowbite-react";
 import {child, ref, remove, update} from "firebase/database";
 import { database } from "@/firebase/config";
 import { format } from "date-fns";
-import { TZDate } from "@date-fns/tz";
+import {formatInTimeZone} from "date-fns-tz";
 
 
 export default function CardTransaction(props:TransactionInterface) {
@@ -29,7 +29,7 @@ export default function CardTransaction(props:TransactionInterface) {
 
     const updateDate = async() => {
         const today = new Date();
-        const todayTZ = new TZDate(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours(), "Asia/Dhaka");
+        const todayTZ = formatInTimeZone(today, 'Asia/Dhaka', 'dd MMM yyyy');
         const formattedDate = format(todayTZ, "dd MMM yyyy")
 
         update(ref(database, `balance/total/${props.type}`), {
@@ -126,20 +126,20 @@ export default function CardTransaction(props:TransactionInterface) {
                 </Modal.Header>
                 <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                     <form className="space-y-4">
-                        <Input type="text" label="Title"
+                        <CustomInput type="text" label="Title"
                                value={inputTitle}
                                onChange={(e) => setInputTitle(e.target.value)}
                                color={inputTitle == "" ? "error" : "default"} helperText={props.title == "" ? "Please input title" : ""}
                                required
                         />
-                        <Input type="text" label="Details"
+                        <CustomInput type="text" label="Details"
                                value={inputDetails}
                                onChange={(e) => setInputDetails(e.target.value)}
                                color={"default"} helperText={""}
                         />
-                        <Input label="Amount" value={String(inputAmount)} type="number" pre={`৳ ${inputAmountType == "-" ? "-" : ""}`}
+                        <CustomInput label="Amount" value={String(inputAmount)} type="number" pre={`৳ ${inputAmountType == "-" ? "-" : ""}`}
                                onChange={(e) => setInputAmount(Number(e.target.value))} required/>
-                        <Input label="Date" value={(inputDate)} type="date" disabled
+                        <CustomInput label="Date" value={(inputDate)} type="date" disabled
                                onChange={(e) => setInputDate(e.target.value)}
                                helperText={"Date cannot be edited"}/>
 
