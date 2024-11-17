@@ -11,6 +11,9 @@ import { MdDownloading, MdError } from "react-icons/md";
 import { GetDatabaseValue, GetObjectDataWithTotal } from "@/firebase/database";
 import { useState } from "react";
 import AccessDenied from "@/components/AccessDenied";
+import {ref, update} from "firebase/database";
+import {database} from "@/firebase/config";
+import {errorMessage, successMessage} from "@/utils/functions";
 
 export default function Projects() {
   const { user, loading } = useAuth();
@@ -21,8 +24,20 @@ export default function Projects() {
   const notActiveButtonClass = "bg-transparent hover:bg-blue-800 text-blue-400 font-semibold hover:text-white py-1 px-4 border border-blue-400 hover:border-transparent rounded-full"
 
   const { data, total, dataLoading, error } = GetObjectDataWithTotal('balance/project');
-  const resultTotal = GetDatabaseValue("balance/total/project/date");
-  const totalBalanceDate = resultTotal.data ? resultTotal.data : ""
+  const totalBalanceValue = GetDatabaseValue(`balance/total/project/value`).data;
+  const totalBalanceDate = GetDatabaseValue("balance/total/project/date").data;
+
+  const updateTotal = async() => {
+    update(ref(database, `balance/total/project`), {
+      value: total,
+    }).then(() => {
+      successMessage("Total balance updated successfully!");
+      window.location.reload();
+    }).catch((error) => {
+      console.error(error.message);
+      errorMessage(error.message);
+    })
+  }
 
   if (loading) return <Loading/>
 
@@ -75,7 +90,7 @@ export default function Projects() {
                     )
                 ))
               }
-              <TotalBalance value={total} date={totalBalanceDate}/>
+              <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
             </div>
           </div>
       </Layout>

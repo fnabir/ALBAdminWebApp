@@ -1,21 +1,42 @@
 import { formatCurrency } from "@/utils/functions";
+import { MdUpdate } from "react-icons/md";
+import React from "react";
 
-export default function TotalBalance(props:TotalBalanceInterface) {
-    const titleText = props.text ? props.text : "Total Balance";
-    const dateText = props.date == null || props.date == '' ? 'Last update date not found' : 'Last updated on ' + (props.date);
+interface Props {
+    value: number
+    date: string
+    text?: string
+    update?: boolean
+    onClick?: () => void;
+}
+
+const TotalBalance: React.FC<Props> = ({
+                                         value,
+                                         date,
+                                         text,
+                                         update = false,
+                                         onClick
+}) => {
+    const titleText = text ? text : "Total Balance";
+    const dateText = date == null || date == '' ? 'Last update date not found' : 'Last updated on ' + (date);
 
     return (
-        <div className="rounded-lg shadow bg-slate-800 hidden md:block">
-            <div className="w-full mx-auto px-6 pt-2 md:flex md:items-center md:justify-between text-white">
-                <div>
-                    <div className="text-xl  sm:text-center md:text-start">{titleText}</div>
-                    <p id="updatedate" className="text-sm pb-2 sm:text-center md:text-start">{dateText}</p>
-                </div>
-                <div className="flex flex-wrap items-center mt-3 text-3xl font-medium sm:mt-0">
-                    {formatCurrency(props.value)}
-                </div>
-            </div>
-            
-        </div>
+      <div className="rounded-lg shadow bg-slate-800 flex pl-6 pr-2 pt-2">
+          <div className={(update ? "" : "pr-2") + " w-full mx-auto md:flex md:items-center md:justify-between text-white"}>
+              <div>
+                  <div className="text-xl sm:text-center md:text-start">{titleText}</div>
+                  <p id="updatedate" className="text-sm pb-2 sm:text-center md:text-start">{dateText}</p>
+              </div>
+              <div className="items-center text-right mt-3 text-3xl font-medium sm:mt-0">
+                  {formatCurrency(value)}
+              </div>
+          </div>
+          <button className={update ? "w-10 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 m-2 p-2" : "hidden"}
+                  onClick={onClick}>
+              <MdUpdate className='w-6 h-6'/>
+          </button>
+      </div>
     )
 }
+
+export default TotalBalance;
