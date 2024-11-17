@@ -36,7 +36,7 @@ const CustomInput: FC<Props> = ({
     pre="",
     ...rest
   }) => {
-    const [inputValue, setInputValue] = useState(value);
+    const [, setInputValue] = useState(value);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -57,7 +57,7 @@ const CustomInput: FC<Props> = ({
                         (pre ? " pl-9 pr-2.5" : " px-2.5") +
                         " block pb-2.5 pt-2.5 w-full text-md rounded-lg border appearance-none focus:border-blue-400 focus:outline-none focus:ring-0 peer" }
                     placeholder={placeholder}
-                    value={inputValue}
+                    value={value}
                     onChange={handleInputChange}
                     minLength={minLength}
                     maxLength={maxLength}
@@ -65,6 +65,7 @@ const CustomInput: FC<Props> = ({
                     max={type == "number" ? maxNumber : type == "date" ? maxDate : ""}
                     disabled={disabled}
                     required={required}
+                    autoComplete={"off"}
                     {...rest}
                 />
                 <label
