@@ -4,12 +4,6 @@ interface HeaderProps {
     email: string
 }
 
-interface TotalBalanceInterface {
-    value: number
-    date: string
-    text?: string
-}
-
 interface BalanceInterface {
     type:string
     id: string
