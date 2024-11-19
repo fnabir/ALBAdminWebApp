@@ -185,7 +185,7 @@ export default function ProjectTransaction() {
 
               <Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
                   <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-                      <h3 className="text-xl font-medium text-white">New Transaction</h3>
+                      <div className="text-xl font-medium text-white">New Transaction</div>
                   </Modal.Header>
                   <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                       <div className="space-y-4 pt-4">

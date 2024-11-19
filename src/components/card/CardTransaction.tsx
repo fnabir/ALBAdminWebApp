@@ -122,7 +122,7 @@ export default function CardTransaction(props:TransactionInterface) {
 
             <Modal show={editModal} size="md" popup onClose={() => setEditModal(false)} className="bg-black bg-opacity-50">
                 <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-                    <h3 className="text-xl font-medium text-white">Edit Transaction</h3>
+                    <div className="text-xl font-medium text-white">Edit Transaction</div>
                 </Modal.Header>
                 <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                     <form className="space-y-4">
