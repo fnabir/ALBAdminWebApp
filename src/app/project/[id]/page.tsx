@@ -85,7 +85,6 @@ export default function ProjectTransaction() {
       value: total,
     }).then(() => {
       successMessage("Total balance updated successfully!");
-      window.location.reload();
     }).catch((error) => {
       console.error(error.message);
       errorMessage(error.message);
