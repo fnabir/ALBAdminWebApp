@@ -4,7 +4,7 @@ type DropdownProps = {
   options: { value: string; label: string }[];
   id?: string,
   label: string,
-  onChange?: (value: string, label:string) => void
+  onChange?: (value: string, label:string) => void,
   helperText?: string,
   color?: string,
   disabled?: boolean,

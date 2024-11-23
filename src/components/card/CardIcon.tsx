@@ -20,7 +20,7 @@ const CardIcon: FC<CardProps & { children: ReactNode }> = ({
     const handleClick = async (e: any) => {
         e.preventDefault();
 		try {
-            route ? router.push(`/${route}`) : null;
+      route ? router.push(`/${route}`) : null;
 		} catch (error: any) {
 			console.log(error.message);
 		}
