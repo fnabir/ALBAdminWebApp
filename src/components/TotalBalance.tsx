@@ -19,7 +19,6 @@ const TotalBalance: React.FC<Props> = ({
 }) => {
 	const titleText = text ? text : "Total Balance";
 	const dateText = date == null || date == '' ? 'Last update date not found' : 'Last updated on ' + (date);
-
 	const [updateState, setUpdateState] = useState(update);
 	const handleOnClick = () => {
 		if (onClick !== undefined) {
@@ -30,7 +29,7 @@ const TotalBalance: React.FC<Props> = ({
 
     return (
       <div className="rounded-lg shadow bg-slate-800 flex pl-6 pr-2 pt-2">
-          <div className={(updateState ? "" : "pr-2") + " w-full mx-auto md:flex md:items-center md:justify-between text-white"}>
+          <div className={(updateState && update ? "" : "pr-2") + " w-full mx-auto md:flex md:items-center md:justify-between text-white"}>
               <div>
                   <div className="text-xl sm:text-center md:text-start">{titleText}</div>
                   <p id="updatedate" className="text-sm pb-2 sm:text-center md:text-start">{dateText}</p>
@@ -39,7 +38,7 @@ const TotalBalance: React.FC<Props> = ({
                   {formatCurrency(value)}
               </div>
           </div>
-          <button className={updateState ? "w-10 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 m-2 p-2" : "hidden"}
+          <button className={updateState && update ? "w-10 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 m-2 p-2" : "hidden"}
                   onClick={handleOnClick}>
               <MdUpdate className='w-6 h-6'/>
           </button>
