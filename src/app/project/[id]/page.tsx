@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdAddCircle, MdDownloading, MdError} from "react-icons/md";
-import { GetDatabaseValue, useGetObjectDataWithTotal } from "@/firebase/database";
+import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import { Button, Modal } from "flowbite-react";
@@ -20,6 +20,7 @@ import { child, push, ref, update } from "firebase/database";
 import { database } from "@/firebase/config";
 import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import {formatInTimeZone} from "date-fns-tz";
+import {useList, useObject} from "react-firebase-hooks/database";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -56,23 +57,25 @@ export default function ProjectTransaction() {
 
   const titleOptions = transactionType == "Expense" ? expenseOptions : paymentOptions;
   const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-  const { dataExist, data, total, dataLoading, error } = useGetObjectDataWithTotal('transaction/project/' + projectName);
-  const totalBalanceValue = GetDatabaseValue(`balance/project/${projectName}/value`).data;
-  const totalBalanceDate = GetDatabaseValue(`balance/project/${projectName}/date`).data;
+  const [ data, dataLoading, errorData ] = useList(GetDatabaseReference(`transaction/project/${projectName}`));
+  const total = GetTotalValue(data);
+  const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/project/${projectName}`));
+  const totalBalanceValue: number = totalBalanceData?.val().value;
+  const totalBalanceDate: string = totalBalanceData?.val().date;
 
   const updateDate = async() => {
     const today = new Date();
     const todayTZ = formatInTimeZone(today, 'Asia/Dhaka', 'dd MMM yyyy');
     const formattedDate = format(todayTZ, "dd MMM yyyy")
 
-    update(ref(database, `balance/total/project`), {
+    update(GetDatabaseReference(`balance/total/project`), {
         date: formattedDate,
     }).catch((error) => {
         console.error(error.message);
         errorMessage(error.message);
     })
 
-    update(ref(database, `balance/project/${projectName}`), {
+    update(GetDatabaseReference(`balance/project/${projectName}`), {
         date: formattedDate,
     }).catch((error) => {
         console.error(error.message);
@@ -81,7 +84,7 @@ export default function ProjectTransaction() {
   }
 
   const updateTotal = async() => {
-    update(ref(database, `balance/project/${projectName}`), {
+    update(GetDatabaseReference(`balance/project/${projectName}`), {
       value: total,
     }).then(() => {
       successMessage("Total balance updated successfully!");
@@ -224,24 +227,26 @@ export default function ProjectTransaction() {
                                     subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
                           <MdDownloading className='mx-1 w-6 h-6 content-center'/>
                       </CardIcon>
-                  ) : error ? (
-                      <CardIcon title={"Error"} subtitle={error ? error : ""}>
+                  ) : errorData ? (
+                      <CardIcon title={"Error"} subtitle={errorData.message}>
                         <MdError className='mx-1 w-6 h-6 content-center'/>
                       </CardIcon>
-                  ) : !dataExist ? (
-                      <CardIcon title={"Not found!"} subtitle={"Project Name doesn't exist"}>
+                  ) : data?.length == 0 ? (
+                      <CardIcon title={"No record found!"}>
                         <MdError className='mx-1 w-6 h-6 content-center'/>
                       </CardIcon>
                   ) : (
-                      data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
-                          (
-                              <div className="flex flex-col" key={item.key}>
-                                <CardTransaction type={"project"} uid={projectName} transactionId={item.key}
-                                                 title={item.title} details={item.details}
-                                                 amount={item.amount} date={item.date}
-                                                 access={user.role}/>
-                              </div>
+                      data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                          const snapshot = item.val();
+                          return (
+                            <div className="flex flex-col" key={item.key}>
+                              <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
+                                               title={snapshot.title} details={snapshot.details}
+                                               amount={snapshot.amount} date={snapshot.date}
+                                               access={user.role}/>
+                            </div>
                           )
+                        }
                       )
                   )
                 }

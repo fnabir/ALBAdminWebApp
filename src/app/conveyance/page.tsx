@@ -8,14 +8,10 @@ import TotalBalance from "@/components/TotalBalance";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
-import {
-  GetDatabaseReference,
-  GetTotalValue
-} from "@/firebase/database";
+import { GetDatabaseReference, GetTotalValue } from "@/firebase/database";
 import AccessDenied from "@/components/AccessDenied";
 import {useList, useObject} from "react-firebase-hooks/database";
-import {ref, update} from "firebase/database";
-import {database} from "@/firebase/config";
+import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
 
 export default function Conveyance() {
@@ -28,7 +24,7 @@ export default function Conveyance() {
   const conveyanceBalanceDate: string = conveyanceBalance?.val().date;
 
   const updateTotal = async() => {
-    update(ref(database, `balance/total/conveyance`), {
+    update(GetDatabaseReference(`balance/total/conveyance`), {
       value: total,
     }).then(() => {
       successMessage("Total balance updated successfully!");

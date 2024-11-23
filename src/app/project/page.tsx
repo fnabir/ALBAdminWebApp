@@ -8,34 +8,29 @@ import { useRouter } from "next/navigation";
 import CardBalance from "@/components/card/CardBalance";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
-import {
-  GetDatabaseReference,
-  GetDatabaseValue,
-  GetTotalValue
-} from "@/firebase/database";
+import { GetDatabaseReference, GetTotalValue } from "@/firebase/database";
 import { useState } from "react";
 import AccessDenied from "@/components/AccessDenied";
-import {ref, update} from "firebase/database";
-import {database} from "@/firebase/config";
+import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
-import {useList} from "react-firebase-hooks/database";
+import {useList, useObject} from "react-firebase-hooks/database";
 
 export default function Projects() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [sort, setSort] = useState("name");
 
+  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference("balance/project"));
+  const total = GetTotalValue(data);
+  const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/total/project`));
+  const totalBalanceValue: number = totalBalanceData?.val().value;
+  const totalBalanceDate: string = totalBalanceData?.val().date;
+
   const activeButtonClass = "bg-blue-600 hover:bg-blue-800 text-white font-semibold py-1 px-4 rounded-full";
   const notActiveButtonClass = "bg-transparent hover:bg-blue-800 text-blue-400 font-semibold hover:text-white py-1 px-4 border border-blue-400 hover:border-transparent rounded-full"
 
-  const totalBalanceValue = GetDatabaseValue(`balance/total/project/value`).data;
-  const totalBalanceDate = GetDatabaseValue("balance/total/project/date").data;
-
-  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference("balance/project"));
-  const total = GetTotalValue(data);
-
   const updateTotal = async() => {
-    update(ref(database, `balance/total/project`), {
+    update(GetDatabaseReference(`balance/total/project`), {
       value: total,
     }).then(() => {
       successMessage("Total balance updated successfully!");

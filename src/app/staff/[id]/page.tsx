@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import {MdAddCircle, MdDownloading, MdError} from "react-icons/md";
-import {GetDatabaseValue, useGetObjectDataWithTotal} from "@/firebase/database";
+import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import {Button, Modal} from "flowbite-react";
@@ -19,11 +19,15 @@ import {errorMessage, successMessage} from "@/utils/functions";
 import {child, push, ref, update} from "firebase/database";
 import {database} from "@/firebase/config";
 import {formatInTimeZone} from "date-fns-tz";
+import {useList, useObject} from "react-firebase-hooks/database";
 
 export default function StaffTransaction() {
 	const {user, loading} = useAuth();
 	const router = useRouter();
 	const path = usePathname();
+	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+	const [staffData] = useObject(GetDatabaseReference(`balance/conveyance/${staffID}`));
+	const staffName = staffData?.val().name;
 
 	const [newModal, setNewModal] = useState(false);
 	const [transactionType, setTransactionType] = useState("+");
@@ -43,11 +47,11 @@ export default function StaffTransaction() {
 		{ value: 'Others', label: 'Others'},
 	];
 
-	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-	const staffName = GetDatabaseValue("balance/staff/" + staffID + "/name").data;
-	const {dataExist, data, total, dataLoading, error} = useGetObjectDataWithTotal('transaction/staff/' + staffID);
-	const totalBalanceValue = GetDatabaseValue(`balance/staff/${staffID}/value`).data;
-	const totalBalanceDate = GetDatabaseValue(`balance/staff/${staffID}/date`).data;
+	const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('transaction/staff/' + staffID));
+	const total = GetTotalValue(data);
+	const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/staff/${staffID}`));
+	const totalBalanceValue = totalBalanceData?.val().value;
+	const totalBalanceDate = totalBalanceData?.val().date;
 
 	const handleTitleChange = (value: string, label:string) => {
 		setInputTitle(value);
@@ -121,10 +125,8 @@ export default function StaffTransaction() {
 			}
 			const newKey = push(child(ref(database), `transaction/staff/${staffID}`)).key
 			const newTransactionRef = `transaction/staff/${staffID}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
-			update(ref(database, newTransactionRef), updatedData)
+			update(GetDatabaseReference(newTransactionRef), updatedData)
 				.then(() => {
-					// @ts-ignore
-					data.join(updatedData);
 					setNewModal(false);
 					updateDate();
 					successMessage("Saved the changes.")
@@ -193,24 +195,25 @@ export default function StaffTransaction() {
 								<CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
 									<MdDownloading className='mx-1 w-6 h-6 content-center'/>
 								</CardIcon>
-							) : error ? (
-								<CardIcon title={"Error"} subtitle={error ? error : ""}>
+							) : dataError ? (
+								<CardIcon title={"Error"} subtitle={dataError.message}>
 									<MdError className='mx-1 w-6 h-6 content-center'/>
 								</CardIcon>
-							) : !dataExist ? (
+							) : data?.length == 0 ? (
 								<CardIcon title={"No Record Found!"} subtitle={""}>
 									<MdError className='mx-1 w-6 h-6 content-center'/>
 								</CardIcon>
 							) : (
-								data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
-									(
+								data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+									const snapshot = item.val();
+									return (
 										<div className="flex flex-col" key={item.key}>
-											<CardTransaction type={"staff"} uid={staffID} transactionId={item.key}
-																			 title={item.title} details={item.details}
-																			 amount={item.amount} date={item.date} access={user.role}/>
+											<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
+																			 title={snapshot.title} details={snapshot.details}
+																			 amount={snapshot.amount} date={snapshot.date} access={user.role}/>
 										</div>
 									)
-								)
+								})
 							)
 						}
 						<TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>

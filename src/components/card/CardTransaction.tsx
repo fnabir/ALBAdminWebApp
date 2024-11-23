@@ -1,4 +1,3 @@
-import { useGetObjectDataWithTotal} from "@/firebase/database";
 import { errorMessage, formatCurrency, successMessage } from "@/utils/functions";
 import { MdDelete, MdEditNote } from "react-icons/md";
 import { Modal } from "flowbite-react";
@@ -8,8 +7,10 @@ import CustomInput from "@/components/generic/CustomInput";
 import { Button } from "flowbite-react";
 import {child, ref, remove, update} from "firebase/database";
 import { database } from "@/firebase/config";
-import { format } from "date-fns";
+import {format, parse} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
+import {useList} from "react-firebase-hooks/database";
+import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 
 
 export default function CardTransaction(props:TransactionInterface) {
@@ -20,11 +21,11 @@ export default function CardTransaction(props:TransactionInterface) {
     const [inputDetails, setInputDetails] = useState(props.details);
     const [inputAmount, setInputAmount] = useState(Math.abs(props.amount));
     const inputAmountType = props.amount < 0 ? "-" : "+";
-    const [date, month, year] = props.date.split('.');
-    const [inputDate, setInputDate] = useState(format(new Date(2000+Number(year), Number(month), Number(date)), 'yyyy-MM-dd'));
+    const [inputDate, setInputDate] = useState(format(parse(props.date, "yy.MM.dd", new Date()), 'yyyy-MM-dd'));
     const detailsText = props.details;
     const databaseRef = `transaction/${props.type}/${props.uid}/${props.transactionId}`;
-    const {data, total} =  useGetObjectDataWithTotal(`${databaseRef}/data`);
+    const [data] =  useList(GetDatabaseReference(`${databaseRef}/data`));
+    const total = GetTotalValue(data, "amount");
     const bg = props.amount <= 0 || props.amount == total? 'bg-green-900' : props.amount > 0 ? props.amount < total ? 'bg-amber-900' : 'bg-red-900' : 'bg-slate-700';
 
     const updateDate = async() => {
@@ -100,15 +101,16 @@ export default function CardTransaction(props:TransactionInterface) {
                     </div>
                 </div>
                 <div className={"border-0 bg-black rounded-md bg-opacity-50"}>
-                    { data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
-                        (
-                            <div className="w-full flex justify-between px-2 text-sm pt-1" key={item.key}>
-                                <div className="flex-wrap w-[5.5rem]">{(item.details).substring(0, 8)}</div>
-                                <div className="flex-auto">{(item.details).substring(8, )}</div>
-                                <div className="flex flex-wrap">{formatCurrency(item.amount)}</div>
-                            </div>
+                    { data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="w-full flex justify-between px-2 text-sm pt-1" key={item.key}>
+                              <div className="flex-wrap w-[5.5rem]">{(snapshot.details).substring(0, 8)}</div>
+                              <div className="flex-auto">{(snapshot.details).substring(8,)}</div>
+                              <div className="flex flex-wrap">{formatCurrency(snapshot.amount)}</div>
+                          </div>
                         )
-                    )}
+                    })}
                 </div>
             </div>
             <button className={"mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block " + (props.access == "admin" ? "" : "hidden")}
