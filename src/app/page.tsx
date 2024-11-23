@@ -7,13 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
-import { GetDataCount, GetObjectData } from "@/firebase/database";
+import {GetDatabaseReference} from "@/firebase/database";
+import { useList } from 'react-firebase-hooks/database';
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const { data, dataLoading, error } = GetObjectData('balance/total');
-  const offerCount = GetDataCount('-offer');
+
+  const [snapshotTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(GetDatabaseReference('balance/total'));
+  const [snapshotOffer] = useList(GetDatabaseReference('-offer'));
 
   if (loading) return <Loading/>
 
@@ -26,15 +28,17 @@ export default function Home() {
       <div>
         <div className={(user.role == "admin" || user.role == "manager") ? 'flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3' : "hidden"}>
             {
-              dataLoading ? (
+              loadingTotalBalance ? (
                 <CardBalance title={"Loading"} balance={0} date={"Loading"}/>
-              ) : error ? (
-                <CardBalance title={"Error Occurred"} balance={0} date={error}/>
+              ) : errorTotalBalance ? (
+                <CardBalance title={"Error Occurred"} balance={0} date={errorTotalBalance.message}/>
               ) : (
-                data.sort((a:any, b:any) => b.value - a.value).map((item) => (
-                  <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
-                    <CardBalance title={item.key} balance={item.value} date={item.date} route={item.key}/>
-                  </div>
+                snapshotTotalBalance?.sort((a:any, b:any) => b.val().value - a.val().value).map((item) => (
+                  (item.key != null ) ? (
+                    <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
+                      <CardBalance title={item.key} balance={item.val().value} date={item.val().date} route={item.val().key}/>
+                    </div>
+                  ) : null
                 ))
               )
             }
@@ -47,7 +51,7 @@ export default function Home() {
           </CardIcon>
         </div>
         <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-          <CardIcon title={"Offer"} number={offerCount.dataCount} route={"offer"}>
+          <CardIcon title={"Offer"} number={snapshotOffer?.length} route={"offer"}>
             <MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>
           </CardIcon>
         </div>
