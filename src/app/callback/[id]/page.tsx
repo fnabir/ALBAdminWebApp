@@ -6,22 +6,23 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdDownloading, MdError } from "react-icons/md";
-import { GetObjectData } from "@/firebase/database";
 import CardCallbackProject from "@/components/card/CardCallbackProject";
 import AccessDenied from "@/components/AccessDenied";
+import {useList} from "react-firebase-hooks/database";
+import {GetDatabaseReference} from "@/firebase/database";
 
 export default function CallbackProject() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const path = usePathname();
+  const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference(`callback/${projectName}`));
 
   if (loading) return <Loading/>
 
   if (!loading && !user) return router.push("/login");
 
   if (user.role == "admin" || user.role == "manager") {
-    const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-    const { dataExist, data, dataLoading, error } = GetObjectData('callback/' + projectName);
     return (
       <Layout
         pageTitle={projectName + " | Asian Lift Bangladesh"}
@@ -32,22 +33,23 @@ export default function CallbackProject() {
                 <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
                   <MdDownloading className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
-              ) : error ? (
-                <CardIcon title={"Error"} subtitle={error? error : ""}>
+              ) : dataError ? (
+                <CardIcon title={"Error"} subtitle={dataError.message}>
                   <MdError className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
-              ) : !dataExist ? (
-                <CardIcon title={"Not found!"} subtitle={"Project Name doesn't exist"}>
+              ) : data?.length == 0 ? (
+                <CardIcon title={"No record found!"} >
                   <MdError className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
               ) : (
-                data.sort((a, b) => b.key.localeCompare(a.key)).map((item) =>
-                  (
+                data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                  const snapshot = item.val();
+                  return (
                     <div className="flex flex-col" key={item.key}>
-                      <CardCallbackProject date={item.date} details={item.details} name={item.name} id={item.key}/>
+                      <CardCallbackProject date={snapshot.date} details={snapshot.details} name={snapshot.name} id={item.key!}/>
                     </div>
                   )
-                )
+                })
               )
             }
           </div>
