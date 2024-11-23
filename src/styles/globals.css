@@ -56,7 +56,8 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{
   cursor: pointer;
   border-radius: 0 4px 4px 0;
   opacity: 0.8;
@@ -68,6 +69,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color-scheme: dark;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1
 }
