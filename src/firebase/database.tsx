@@ -1,6 +1,5 @@
-import {child, DataSnapshot, get, push, ref} from "firebase/database";
+import {child, DataSnapshot, push, ref} from "firebase/database";
 import {auth, database} from "@/firebase/config";
-import {useEffect, useState} from "react";
 import {updateProfile} from "firebase/auth";
 import {errorMessage, successMessage} from "@/utils/functions";
 

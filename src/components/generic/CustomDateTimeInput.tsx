@@ -1,5 +1,4 @@
 import React, { FC, useState } from "react"
-import {format} from "date-fns";
 
 interface Props {
 	id?: string,
