@@ -5,8 +5,7 @@ import { useState} from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import CustomInput from "@/components/generic/CustomInput";
 import { Button } from "flowbite-react";
-import {child, ref, remove, update} from "firebase/database";
-import { database } from "@/firebase/config";
+import {remove, update} from "firebase/database";
 import {format, parse} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList} from "react-firebase-hooks/database";
@@ -33,14 +32,14 @@ export default function CardTransaction(props:TransactionInterface) {
         const todayTZ = formatInTimeZone(today, 'Asia/Dhaka', 'dd MMM yyyy');
         const formattedDate = format(todayTZ, "dd MMM yyyy")
 
-        update(ref(database, `balance/total/${props.type}`), {
+        update(GetDatabaseReference(`balance/total/${props.type}`), {
             date: formattedDate,
         }).catch((error) => {
                 console.error(error.message);
                 errorMessage(error.message);
             })
 
-        update(ref(database, `balance/${props.type}/${props.uid}`), {
+        update(GetDatabaseReference(`balance/${props.type}/${props.uid}`), {
             date: formattedDate,
         }).catch((error) => {
             console.error(error.message);
@@ -60,7 +59,7 @@ export default function CardTransaction(props:TransactionInterface) {
             setEditModal(false);
             successMessage("No changes has been made.")
         } else {
-            update(ref(database, databaseRef), updatedData)
+            update(GetDatabaseReference(databaseRef), updatedData)
                 .then(() => {
                     setEditModal(false);
                     updateDate();
@@ -76,7 +75,7 @@ export default function CardTransaction(props:TransactionInterface) {
     };
 
     const handleDelete = () => {
-        remove(child(ref(database), databaseRef)).then(() => {
+        remove(GetDatabaseReference(databaseRef)).then(() => {
             setDeleteModal(false);
             successMessage("Deleted successfully.")
             window.location.reload();
