@@ -60,3 +60,12 @@ interface UserInfoInterface {
     roll?: string
     version?: string
 }
+
+interface CalendarEventInterface {
+    title: string
+    details?: string
+    assigned?: string
+    start: string
+    end?: string
+    allDay: boolean
+}
