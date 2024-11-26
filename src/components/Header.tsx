@@ -3,15 +3,16 @@ import { useState } from "react"
 import MobileNav from "@/components/navbar/MobileNav"
 import { MdMenu } from "react-icons/md"
 import { FaCircleUser } from "react-icons/fa6";
+import {useAuthState} from "react-firebase-hooks/auth";
+import {auth} from "@/firebase/config";
 
 interface Props {
     title: string
-    username: string
-    email: string
 }
 
 export default function Header(props: Props) {
     const router = useRouter()
+    const [user] = useAuthState(auth);
     const [showModal, setShowModal] = useState(false)
 
     const handleClick = async (e: any) => {
@@ -29,8 +30,8 @@ export default function Header(props: Props) {
             <div>
                 <button className='flex space-x-3' onClick={handleClick}>
                     <div className="flex-col text-right hidden md:block">
-                        <p className='text-white'>{props.username}</p>
-                        <p className="text-sm text-slate-300">{props.email}</p>
+                        <p className='text-white'>{user?.displayName}</p>
+                        <p className="text-sm text-slate-300">{user?.email}</p>
                     </div>
                     <FaCircleUser className='text-5xl text-white md:block hidden cursor-pointer' />
                 </button>
