@@ -9,12 +9,13 @@ import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
 import {GetDatabaseReference} from "@/firebase/database";
 import { useList } from 'react-firebase-hooks/database';
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-  const [snapshotTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(GetDatabaseReference('balance/total'));
+  const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(GetDatabaseReference('balance/total'));
   const [snapshotOffer] = useList(GetDatabaseReference('-offer'));
 
   if (loading) return <Loading/>
@@ -30,16 +31,19 @@ export default function Home() {
             {
               loadingTotalBalance ? (
                 <CardBalance title={"Loading"} balance={0} date={"Loading"}/>
-              ) : errorTotalBalance ? (
-                <CardBalance title={"Error Occurred"} balance={0} date={errorTotalBalance.message}/>
+              ) : errorTotalBalance || dataTotalBalance?.length == 0 ? (
+                <CardBalance title={"Error Occurred"} balance={0} date={errorTotalBalance?.message}/>
               ) : (
-                snapshotTotalBalance?.sort((a:any, b:any) => b.val().value - a.val().value).map((item) => (
-                  (item.key != null ) ? (
-                    <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
-                      <CardBalance title={item.key} balance={item.val().value} date={item.val().date} route={item.val().key}/>
-                    </div>
-                  ) : null
-                ))
+                <UniqueChildren>
+                  {(
+                    dataTotalBalance!.sort((a:any, b:any) => b.val().value - a.val().value).map((item) => (
+                        <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
+                          <CardBalance title={item.key!} balance={item.val().value} date={item.val().date} route={item.val().key}/>
+                        </div>
+                      )
+                    )
+                  )}
+                </UniqueChildren>
               )
             }
         </div>
