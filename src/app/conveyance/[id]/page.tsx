@@ -23,7 +23,7 @@ export default function ConveyanceTransaction() {
   const staffName = staffData?.val().name;
 
   const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('transaction/conveyance/' + staffID));
-  const total = GetTotalValue(data);
+  const total = GetTotalValue(data, "amount");
   const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/conveyance/${staffID}`));
   const totalBalanceValue: number = totalBalanceData?.val().value;
   const totalBalanceDate: string = totalBalanceData?.val().date;

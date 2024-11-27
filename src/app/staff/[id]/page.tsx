@@ -48,7 +48,7 @@ export default function StaffTransaction() {
 	];
 
 	const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('transaction/staff/' + staffID));
-	const total = GetTotalValue(data);
+	const total = GetTotalValue(data, "amount");
 	const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/staff/${staffID}`));
 	const totalBalanceValue = totalBalanceData?.val().value;
 	const totalBalanceDate = totalBalanceData?.val().date;

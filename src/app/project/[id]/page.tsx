@@ -58,7 +58,7 @@ export default function ProjectTransaction() {
   const titleOptions = transactionType == "Expense" ? expenseOptions : paymentOptions;
   const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
   const [ data, dataLoading, errorData ] = useList(GetDatabaseReference(`transaction/project/${projectName}`));
-  const total = GetTotalValue(data);
+  const total = GetTotalValue(data, "amount");
   const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/project/${projectName}`));
   const totalBalanceValue: number = totalBalanceData?.val().value;
   const totalBalanceDate: string = totalBalanceData?.val().date;
