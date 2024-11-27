@@ -1,4 +1,13 @@
-import { MdDashboard, MdDomain, MdPerson , MdDirectionsBus, MdLogout, MdLink , MdFacebook  } from "react-icons/md"
+import {
+    MdDashboard,
+    MdDomain,
+    MdPerson,
+    MdDirectionsBus,
+    MdLogout,
+    MdLink,
+    MdFacebook,
+    MdCalendarMonth
+} from "react-icons/md"
 import Image from "next/image";
 import SideNavButton from "@/components/navbar/SideNavButton";
 import { useAuth } from "@/context/AuthContext";
@@ -23,34 +32,40 @@ export default function SideNav() {
 
                     <div className="divide-y">
                         <div className='flex-col'>
-                            <SideNavButton text = {'Dashboard'} route={'/'}>
+                            <SideNavButton text={'Dashboard'} route={'/'}>
                                 <MdDashboard className='mx-2 w-6 h-6'/>
                             </SideNavButton>
                         </div>
 
                         <div className={role == "admin" || role == "manager" ? 'flex-col' : 'hidden'}>
-                            <SideNavButton text = 'Projects' route = 'project' show={role == "admin" || role == "manager"}>
+                            <SideNavButton text='Projects' route='project' show={role == "admin" || role == "manager"}>
                                 <MdDomain className='mx-2 w-6 h-6'/>
                             </SideNavButton>
-                            <SideNavButton text = 'Staff' route = 'staff' show={role == "admin"}>
+                            <SideNavButton text='Staff' route='staff' show={role == "admin"}>
                                 <MdPerson className='mx-2 w-6 h-6'/>
                             </SideNavButton>
-                            <SideNavButton text = 'Conveyance' route = 'conveyance' show={role == "admin"}>
+                            <SideNavButton text='Conveyance' route='conveyance' show={role == "admin"}>
                                 <MdDirectionsBus className='mx-2 w-6 h-6'/>
                             </SideNavButton>
                         </div>
 
+                        <div className={role == "admin" || role == "manager" ? 'flex-col' : 'hidden'}>
+                            <SideNavButton text='Calendar' route='calendar'>
+                                <MdCalendarMonth className='mx-2 w-6 h-6'/>
+                            </SideNavButton>
+                        </div>
+
                         <div className='flex-col'>
-                            <SideNavButton text = 'Website' link ='https://asianliftbd.com'>
+                            <SideNavButton text='Website' link='https://asianliftbd.com'>
                                 <MdLink className='mx-2 w-6 h-6'/>
                             </SideNavButton>
-                            <SideNavButton text = 'Facebook' link = 'https://www.facebook.com/asianliftbangladesh'>
+                            <SideNavButton text='Facebook' link='https://www.facebook.com/asianliftbangladesh'>
                                 <MdFacebook className='mx-2 w-6 h-6'/>
                             </SideNavButton>
                         </div>
 
                         <div className='flex-col'>
-                            <SideNavButton text = {'Logout'} route={'logout'}>
+                            <SideNavButton text={'Logout'} route={'logout'}>
                                 <MdLogout className='mx-2 w-6 h-6'/>
                             </SideNavButton>
                         </div>
