@@ -43,7 +43,7 @@ const CardCalendarEvent: FC<CalendarEventInterface & { id:string }> = ({
   };
 
     return(
-      <div className="flex w-full h-auto p-2 rounded-md bg-slate-700 text-left items-center space-x-1">
+      <div className="flex w-full h-auto p-2 rounded-md bg-slate-700 text-left items-center space-x-2">
         <div className="flex-col -space-y-1 items-center border rounded-md p-1">
           <div className={"text-xl"}>{format(new Date(start), "dd")}</div>
           <div className={"text-xs"}>{format(new Date(start), "MMM")}</div>
@@ -53,18 +53,20 @@ const CardCalendarEvent: FC<CalendarEventInterface & { id:string }> = ({
           <div className="capitalize font-semibold">{title}</div>
           {details ? <p className='text'>{details}</p> : null}
           {assigned ? <p className='text-sm'>{assigned}</p> : null}
-          <Badge className={`w-fit`}>{!allDay && end ? `${format(new Date(start), "dd.MM.yy HH:mm aa")} - ${format(new Date(end), "dd.MM.yy HH:mm aa")}` : "All Day"}</Badge>
+          <Badge className={`w-fit`}>{!allDay && end ? `${format(new Date(start), "HH:mm aa")}-${format(new Date(end), "HH:mm aa")}` : "All Day"}</Badge>
         </div>
 
-        <button
-          className={"flex mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
-          onClick={() => setEditEventModal(true)}>
-          <MdEditNote className='w-6 h-6'/>
-        </button>
-        <button className={"flex mr-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
-                onClick={() => setDeleteEventModal(true)}>
-          <MdDelete className='w-6 h-6'/>
-        </button>
+        <div className={`flex space-x-1`}>
+          <button
+            className={"flex p-1 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
+            onClick={() => setEditEventModal(true)}>
+            <MdEditNote className='w-5 h-5'/>
+          </button>
+          <button className={"flex p-1 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
+                  onClick={() => setDeleteEventModal(true)}>
+            <MdDelete className='w-5 h-5'/>
+          </button>
+        </div>
 
         <Modal show={editEventModal} size="md" popup onClose={() => setEditEventModal(false)}
                className="bg-black bg-opacity-50">
