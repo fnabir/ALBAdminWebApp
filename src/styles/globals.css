@@ -32,6 +32,17 @@ body {
   }
 }
 
+/* FullCalendar Style */
+.fc {
+  & .fc-list-sticky .fc-list-day > * {
+    background-color: rgb(2, 6, 23);
+  }
+
+  & .fc-list-event:hover td {
+    background-color: rgb(51, 65, 85);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }
