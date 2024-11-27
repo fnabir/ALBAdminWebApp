@@ -6,12 +6,13 @@ import {
     MdLogout,
     MdLink,
     MdFacebook,
-    MdCalendarMonth
+    MdCalendarMonth, MdLocalOffer
 } from "react-icons/md"
 import { AiFillCloseCircle } from "react-icons/ai"
 import SideNavButton from "./SideNavButton";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import {HiWrenchScrewdriver} from "react-icons/hi2";
 
 export default function MobileNav({setShowModal}: any) {
     const {user} = useAuth();
@@ -59,6 +60,12 @@ export default function MobileNav({setShowModal}: any) {
                         </div>
 
                         <div className={role == "admin" || role == "manager" ? 'flex-col' : 'hidden'}>
+                            <SideNavButton text='Callback' route='callback'>
+                                <HiWrenchScrewdriver className='mx-2 w-6 h-6'/>
+                            </SideNavButton>
+                            <SideNavButton text='Offer' route='offer'>
+                                <MdLocalOffer className='mx-2 w-6 h-6'/>
+                            </SideNavButton>
                             <SideNavButton text='Calendar' route='calendar'>
                                 <MdCalendarMonth className='mx-2 w-6 h-6'/>
                             </SideNavButton>

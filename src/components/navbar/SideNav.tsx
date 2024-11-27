@@ -6,11 +6,12 @@ import {
     MdLogout,
     MdLink,
     MdFacebook,
-    MdCalendarMonth
+    MdCalendarMonth, MdLocalOffer
 } from "react-icons/md"
 import Image from "next/image";
 import SideNavButton from "@/components/navbar/SideNavButton";
 import { useAuth } from "@/context/AuthContext";
+import {HiWrenchScrewdriver} from "react-icons/hi2";
 
 export default function SideNav() {
     const {user} = useAuth();
@@ -50,6 +51,12 @@ export default function SideNav() {
                         </div>
 
                         <div className={role == "admin" || role == "manager" ? 'flex-col' : 'hidden'}>
+                            <SideNavButton text='Callback' route='callback'>
+                                <HiWrenchScrewdriver className='mx-2 w-6 h-6'/>
+                            </SideNavButton>
+                            <SideNavButton text='Offer' route='offer'>
+                                <MdLocalOffer className='mx-2 w-6 h-6'/>
+                            </SideNavButton>
                             <SideNavButton text='Calendar' route='calendar'>
                                 <MdCalendarMonth className='mx-2 w-6 h-6'/>
                             </SideNavButton>
