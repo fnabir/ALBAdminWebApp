@@ -21,7 +21,7 @@ export default function Staff() {
   const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('balance/staff'));
   const total = GetTotalValue(data);
 
-  const [ staffBalanceData ] = useObject(GetDatabaseReference(`balance/total/conveyance`))
+  const [ staffBalanceData ] = useObject(GetDatabaseReference(`balance/total/staff`))
   const staffBalanceValue = staffBalanceData?.val().value;
   const staffBalanceDate = staffBalanceData?.val().date;
   const [ conveyanceBalanceData ] = useObject(GetDatabaseReference(`balance/total/conveyance`))
@@ -71,7 +71,7 @@ export default function Staff() {
               )
             }
             <TotalBalance text="Total Conveyance" value={conveyanceBalanceValue} date={conveyanceBalanceDate}/>
-            <TotalBalance value={total + conveyanceBalanceValue} date={staffBalanceDate} update={ total != staffBalanceValue} onClick={updateTotal}/>
+            <TotalBalance value={total + conveyanceBalanceValue} date={staffBalanceDate} update={total != staffBalanceValue} onClick={updateTotal}/>
           </div>
       </Layout>
     );
