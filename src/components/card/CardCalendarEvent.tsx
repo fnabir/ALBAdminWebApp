@@ -43,28 +43,25 @@ const CardCalendarEvent: FC<CalendarEventInterface & { id:string }> = ({
   };
 
     return(
-      <div
-        className="w-full h-auto p-2 rounded-md bg-slate-700 flex text-left items-center space-x-2">
-        <div className="flex flex-col -space-y-2 items-center border rounded-md p-1">
-          <div
-            className={"text-2xl"}>{format(new Date(start), "dd")}</div>
-          <div
-            className={"text-sm"}>{format(new Date(start), "MMM")}</div>
+      <div className="flex w-full h-auto p-2 rounded-md bg-slate-700 text-left items-center space-x-1">
+        <div className="flex-col -space-y-1 items-center border rounded-md p-1">
+          <div className={"text-xl"}>{format(new Date(start), "dd")}</div>
+          <div className={"text-xs"}>{format(new Date(start), "MMM")}</div>
         </div>
 
-        <div>
-          <div className="flex-nowrap capitalize font-semibold">{title}</div>
+        <div className={`flex-auto`}>
+          <div className="capitalize font-semibold">{title}</div>
           {details ? <p className='text'>{details}</p> : null}
           {assigned ? <p className='text-sm'>{assigned}</p> : null}
-          <Badge>{!allDay && end ? `${format(new Date(start), "dd.MM.yy HH:mm aa")} - ${format(new Date(end), "dd.MM.yy HH:mm aa")}` : "All Day"}</Badge>
+          <Badge className={`w-fit`}>{!allDay && end ? `${format(new Date(start), "dd.MM.yy HH:mm aa")} - ${format(new Date(end), "dd.MM.yy HH:mm aa")}` : "All Day"}</Badge>
         </div>
 
         <button
-          className={"mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block"}
+          className={"flex mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
           onClick={() => setEditEventModal(true)}>
           <MdEditNote className='w-6 h-6'/>
         </button>
-        <button className={"mr-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block"}
+        <button className={"flex mr-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
                 onClick={() => setDeleteEventModal(true)}>
           <MdDelete className='w-6 h-6'/>
         </button>
