@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import {MdAddCircle, MdDownloading, MdError} from "react-icons/md";
-import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
+import {GenerateDatabaseKey, GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import {Button, Modal} from "flowbite-react";
@@ -16,7 +16,7 @@ import CustomInput from "@/components/generic/CustomInput";
 import {useState} from "react";
 import {format, parse} from "date-fns";
 import {errorMessage, successMessage} from "@/utils/functions";
-import {child, push, ref, update} from "firebase/database";
+import {ref, update} from "firebase/database";
 import {database} from "@/firebase/config";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
@@ -123,7 +123,7 @@ export default function StaffTransaction() {
 				amount: transactionType == "Expense" ? inputAmount : inputAmount * (-1),
 				date: format(parse(inputDate, "yyyy-MM-dd", new Date()), "dd.MM.yy")
 			}
-			const newKey = push(child(ref(database), `transaction/staff/${staffID}`)).key
+			const newKey = GenerateDatabaseKey(`transaction/staff/${staffID}`);
 			const newTransactionRef = `transaction/staff/${staffID}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
 			update(GetDatabaseReference(newTransactionRef), updatedData)
 				.then(() => {
