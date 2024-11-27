@@ -95,7 +95,7 @@ export default function CardTransaction(props:TransactionInterface) {
                     <div className="flex-auto">
                         <div className="font-semibold">{detailsText == "" || detailsText == undefined? props.title : `${props.title} - ${detailsText}`}</div>
                     </div>
-                    <div className="flex flex-wrap items-center text-base md:text-2xl font-medium sm:mt-0">
+                    <div className="flex-wrap items-center text-base md:text-2xl font-medium sm:mt-0">
                         {formatCurrency(props.amount)}
                     </div>
                 </div>
@@ -104,9 +104,9 @@ export default function CardTransaction(props:TransactionInterface) {
                         const snapshot = item.val();
                         return (
                           <div className="w-full flex justify-between px-2 text-sm pt-1" key={item.key}>
-                              <div className="flex-wrap w-[5.5rem]">{(snapshot.details).substring(0, 8)}</div>
+                              <div className="flex-wrap w-[6rem]">{(snapshot.details).substring(0, 8)}</div>
                               <div className="flex-auto">{(snapshot.details).substring(8,)}</div>
-                              <div className="flex flex-wrap">{formatCurrency(snapshot.amount)}</div>
+                              <div className="flex-wrap">{formatCurrency(snapshot.amount)}</div>
                           </div>
                         )
                     })}
