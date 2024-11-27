@@ -4,7 +4,7 @@ interface CustomCheckboxProps {
 	id: string;
 	label: string;
 	checked?: boolean;
-	onChange: (checked: boolean) => void;
+	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
 	hidden?: boolean;
 }
@@ -30,7 +30,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
 	return (
 		<label htmlFor={id}
 			className={ hidden ? "" : `flex items-center space-x-3 cursor-pointer ${
-				disabled ? 'opacity-50 cursor-not-allowed' : ''
+				disabled ? 'cursor-not-allowed' : ''
 			}`}
 		>
 			<div className="relative">
@@ -41,7 +41,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
 					onChange={(e) => handleInputChange((e))}
 					disabled={disabled}
 					onMouseDown={(e) => e.currentTarget.blur()}
-					className={`w-5 h-5 rounded-md transition-colors focus:outline-none`}/>
+					className={`${disabled ? "opacity-70" : ""} w-5 h-5 rounded-md transition-colors focus:outline-none`}/>
 			</div>
 			<span className={ disabled ? 'text-gray-500' : 'text-white'}>
         {label}
