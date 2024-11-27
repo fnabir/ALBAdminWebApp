@@ -165,7 +165,7 @@ export default function Calendar() {
         pageTitle="Calendar | Asian Lift Bangladesh"
         headerTitle="Calendar">
         <div className="flex justify-between space-y-2 mt-2">
-          <div className="flex-[1_1_30%] pl-4 rounded-md">
+          <div className="flex-[1_1_25%] rounded-md">
             <h2 className={"text-xl font-semibold mb-2 text-center"}>Events</h2>
             <div className={"flex flex-col space-y-2"}>
               {
