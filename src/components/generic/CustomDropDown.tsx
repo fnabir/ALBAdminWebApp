@@ -4,6 +4,7 @@ type DropdownProps = {
   options: { value: string; label: string }[];
   id?: string,
   label: string,
+  value?: string,
   onChange?: (value: string, label:string) => void,
   helperText?: string,
   color?: string,
@@ -12,8 +13,10 @@ type DropdownProps = {
   className?: string
 };
 
-const CustomDropDown = ({ options, id, label, onChange, helperText, color, disabled = false, pre, className }: DropdownProps) => {
-  const [inputValue, setInputValue] = useState("Select");
+const CustomDropDown = ({
+                          options, id, label, value="Select", onChange, helperText, color, disabled = false, pre, className
+}: DropdownProps) => {
+  const [inputValue, setInputValue] = useState(value);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const select = e.target;
