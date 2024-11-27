@@ -226,7 +226,6 @@ export default function Calendar() {
               <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                 <div className="space-y-4 pt-4">
                   <CustomDropDown id="title" label={`Title`} options={options}
-                                  value={eventData.title}
                                   onChange={(value) => setEventData({ ...eventData, title: value })}/>
                   <CustomInput id="details" type="text" label={"Details"}
                                onChange={(e) => setEventData({ ...eventData, details: e.target.value })}/>
