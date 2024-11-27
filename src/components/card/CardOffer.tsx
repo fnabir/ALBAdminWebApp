@@ -1,6 +1,6 @@
-export default function CardOffer(props:Offer) {
+export default function CardOffer(props:OfferInterface) {
     const line1 = props.address ?  `${props.name} - ${props.address}` : `${props.name}`;
-    const line2 = props.wtype + " - " + (props.ptype ? props.ptype + (props.unit ? `(${props.unit})` : "") : "");
+    const line2 = props.work + " - " + (props.product ? props.product + (props.unit ? `(${props.unit})` : "") : "");
     const line3 = (props.floor ? `Floor/Stop: ${props.floor} | ` : "") + (props.person ? `Person/Load: ${props.person} | ` : "") + (props.shaft ? `Shaft Dimension: ${props.shaft} ` : "");
     const line4 = (props.note ? `${props.note} | ` : "") + (props.refer ? `${props.refer}` : "");
 

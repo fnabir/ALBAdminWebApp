@@ -37,12 +37,12 @@ interface CallbackProjectInterface {
     name: string
 }
 
-interface Offer {
+interface OfferInterface {
     id: string
     name: string
     address?: string
-    ptype?: string
-    wtype: string
+    product?: string
+    work: string
     unit?: string
     floor?: string
     shaft?: string
