@@ -3,11 +3,14 @@ export default function CardCallbackProject(props:CallbackProjectInterface) {
 
     return (
         <button className={"rounded-lg shadow hidden md:block sm:text-center md:text-start bg-slate-700 hover:bg-opacity-80"}>
-            <div className="w-full mx-auto px-6 pt-1 md:flex md:items-center md:justify-between text-white">
-                    <div className="flex-wrap w-24">
+            <div className="w-full mx-auto px-4 py-1 flex items-center justify-between text-white">
+                    <div className="flex-wrap w-20">
                         {props.date}
                     </div>
-                    <div className="font-semibold flex-auto">{`${props.details}${name}`}</div>
+                    <div className="flex-auto">
+                      <div className={`font-semibold`}>{props.details}</div>
+                      <p className={`text-sm`}>{props.name}</p>
+                    </div>
             </div>
         </button>
     )
