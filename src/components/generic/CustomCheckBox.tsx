@@ -35,6 +35,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
 		>
 			<div className="relative">
 				<input
+					id={id}
 					type="checkbox"
 					checked={checkedState}
 					onClick={() => setCheckedState(!checkedState)}
