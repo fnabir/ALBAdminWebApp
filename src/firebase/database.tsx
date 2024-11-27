@@ -8,16 +8,15 @@ export function GetDatabaseReference(databaseReference: string) : any {
 }
 
 export function GetTotalValue(data:DataSnapshot[] | undefined, dataName?:string) : number {
-  if (dataName == "amount") return data ? data.reduce((sum, snap) => {
+  if (!data) return 0;
+  else if (dataName == "amount") return data.reduce((sum, snap) => {
       const data = snap.val();
       return sum + (data.amount || 0);
-    }, 0)
-    : 0;
-  else return data ? data.reduce((sum, snap) => {
+    }, 0);
+  else return data.reduce((sum, snap) => {
       const data = snap.val();
       return sum + (data.value || 0);
-    }, 0)
-    : 0;
+    }, 0);
 }
 
 export function GenerateDatabaseKey(databaseReference: string) : string {
