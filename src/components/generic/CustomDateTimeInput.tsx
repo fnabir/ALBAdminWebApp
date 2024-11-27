@@ -1,21 +1,21 @@
 import React, { FC, useState } from "react"
 
 interface Props {
-	id?: string,
+	id?: string
 	label: string
 	type: string
-	value?: string;
+	value?: string
 	onChange?: (value: string) => void
-	minDate?: string,
-	maxDate?: string,
-	helperText?: string,
+	minDate?: string
+	maxDate?: string
+	helperText?: string
 	color?: string
-	disabled?: boolean,
-	required?: boolean,
+	disabled?: boolean
+	required?: boolean
 	hidden?: boolean
 }
 
-const CustomInput: FC<Props> = ({
+const CustomDateTimeInput: FC<Props> = ({
 																	id,
 																	label,
 																	type="date",
@@ -65,4 +65,4 @@ const CustomInput: FC<Props> = ({
 	)
 }
 
-export default CustomInput;
+export default CustomDateTimeInput;
