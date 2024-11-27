@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 type DropdownProps = {
-  options: { value: string; label: string }[];
+  options: { value: string; label?: string }[];
   id?: string,
   label: string,
   value?: string,
@@ -42,8 +42,8 @@ const CustomDropDown = ({
                 Select
               </option>
             {options.map((option) => (
-              <option className={"bg-slate-700 text-white"} key={option.label} value={option.value} aria-label={option.label}>
-                {option.label}
+              <option className={"bg-slate-700 text-white"} key={option.label? option.label : option.value} value={option.value} aria-label={option.label? option.label : option.value}>
+                {option.label? option.label : option.value}
               </option>
             ))}
           </select>
