@@ -3,16 +3,17 @@
 import CardIcon from "@/components/card/CardIcon";
 import Layout from "@/components/Layout";
 import Loading from "@/components/Loading";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MdDownloading, MdError } from "react-icons/md";
 import {GetDatabaseReference} from "@/firebase/database";
 import CardOffer from "@/components/card/CardOffer";
 import {useList} from "react-firebase-hooks/database";
+import {useAuthState} from "react-firebase-hooks/auth";
+import {auth} from "@/firebase/config";
 
 export default function OfferAll() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const [user, loading] = useAuthState(auth);
   const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('-offer'));
 
   if (loading) return <Loading/>
@@ -43,7 +44,7 @@ export default function OfferAll() {
               return (
                 <div className="flex flex-col" key={item.key}>
                   <CardOffer id={item.key!} name={snapshot.name} address={snapshot.address}
-                             ptype={snapshot.ptype} wtype={snapshot.wtype} unit={snapshot.unit}
+                             product={snapshot.ptype} work={snapshot.wtype} unit={snapshot.unit}
                              floor={snapshot.floor} person={snapshot.person} shaft={snapshot.shaft}
                              date={snapshot.date} note={snapshot.note} refer={snapshot.refer}/>
                 </div>
