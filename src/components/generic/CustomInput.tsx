@@ -47,22 +47,22 @@ const CustomInput: FC<Props> = ({
 
     return (
         <div className={className}>
-            <div className={"relative mt-5"}>
-                <div className={pre ? "absolute text-gray-400 pl-2.5 pb-2.5 pt-2.5 peer-focus:text-blue-400" : "hidden"}>{pre}</div>
+            <div className={"relative mt-4"}>
+                <div className={pre ? "absolute text-gray-400 pl-2.5 pb-2.5 pt-2 peer-focus:text-blue-400" : "hidden"}>{pre}</div>
                 <input
                     type={type}
                     id={id}
                     className={(disabled ? "bg-gray-700" : "text-white bg-transparent") + " " +
                         (color == "error" ? "text-red-400 border-red-600" : (disabled ? "text-gray-400 border-gray-600" : "text-white border-gray-600")) +
                         (pre ? " pl-9 pr-2.5" : " px-2.5") +
-                        " block pb-2.5 pt-2.5 w-full text-md rounded-lg border appearance-none focus:border-blue-400 focus:outline-none focus:ring-0 peer" }
+                        " block py-2 w-full text-md rounded-lg border appearance-none focus:border-blue-400 focus:outline-none focus:ring-0 peer" }
                     placeholder={placeholder}
                     value={value}
                     onChange={handleInputChange}
                     minLength={minLength}
                     maxLength={maxLength}
-                    min={type == "number" ? minNumber : type == "date" ? minDate : ""}
-                    max={type == "number" ? maxNumber : type == "date" ? maxDate : ""}
+                    min={type == "number" ? minNumber : ""}
+                    max={type == "number" ? maxNumber : ""}
                     disabled={disabled}
                     required={required}
                     autoComplete={"off"}
