@@ -136,7 +136,6 @@ export default function StaffTransaction() {
 					console.error(error.message);
 					errorMessage(error.message);
 				})
-			successMessage("Saved the changes.")
 		}
 	};
 

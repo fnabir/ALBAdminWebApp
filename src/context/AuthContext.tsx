@@ -38,7 +38,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode;}) => {
 				setUser({
 					email: user.email,
 					uid: user.uid,
-                    username: user.displayName,
+					username: user.displayName,
 					role: admin.includes(user.uid) ? "admin" : manager.includes(user.uid) ? "manager" : staff.includes(user.uid) ? "staff" : "",
 				});
 			} else {
