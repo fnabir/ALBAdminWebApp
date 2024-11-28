@@ -38,7 +38,7 @@ interface CallbackProjectInterface {
 }
 
 interface OfferInterface {
-    id: string
+    id?: string
     name: string
     address?: string
     product?: string
