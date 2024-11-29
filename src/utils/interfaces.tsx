@@ -31,10 +31,10 @@ interface CallbackTotalInterface {
 }
 
 interface CallbackProjectInterface {
-    id: string
     date: string
-    details: number
+    details: string
     name: string
+    status?: string
 }
 
 interface OfferInterface {
