@@ -134,13 +134,13 @@ export default function CardOffer(props:OfferInterface) {
 
         <Modal show={deleteModal} size="md" onClose={() => setDeleteModal(false)} popup className="bg-black bg-opacity-50">
           <Modal.Header className="bg-red-800 rounded-t-md text-white border-t border-x border-blue-500">
-            <div className="text-xl font-medium text-white">Delete Transaction</div>
+            <div className="text-xl font-medium text-white">Delete Offer</div>
           </Modal.Header>
           <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
             <div className="text-center space-y-5 m-4">
               <HiOutlineExclamationCircle className="mx-auto h-14 w-14 text-gray-200" />
               <div className="text-lg text-gray-300">
-                Are you sure you want to delete this transaction?
+                Are you sure you want to delete this offer?
               </div>
               <div className="flex justify-center gap-4">
                 <Button color={"failure"} onClick={deleteOffer}>Delete</Button>
