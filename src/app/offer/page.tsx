@@ -15,29 +15,22 @@ import {errorMessage, successMessage} from "@/utils/functions";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import {useAuth} from "@/context/AuthContext";
 import {update} from "firebase/database";
+import {OfferProductOptions, OfferWorkOptions} from "@/utils/arrays";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import {format} from "date-fns";
 
 export default function Offer() {
   const router = useRouter();
   const {user, loading} = useAuth();
   const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('-offer'));
 
-  const productOptions = [
-    {value: 'Passenger Lift'}, {value: 'Cargo Lift'}, {value: 'Hospital Lift'},
-    {value: 'Capsule Lift'}, {value: 'Escalator'}, {value: 'Dumbwaiter'},
-    {value: 'Generator'}, {value: 'Other'}
-  ];
-
-  const workOptions = [
-    {value: 'Full Project'}, {value: 'Servicing'}, {value: 'Installation'},
-    {value: 'Repair'}
-  ];
   const [newOfferModal, setNewOfferModal] = useState<boolean>(false);
   const [offerData, setOfferData] = useState<OfferInterface>({
     id: "", name: "", product: "", work:""
   });
 
   const handleClick = () => {
-    setOfferData({name: '', product: '', work: '', refer: user.username, uid: user.uid});
+    setOfferData({name: '', product: '', work: '', refer: user.username, uid: user.uid, date: format(new Date(), "dd MMM yyyy")});
     setNewOfferModal(true);
   }
 
@@ -49,7 +42,7 @@ export default function Offer() {
     } else if (offerData?.work == "" || offerData?.work == "Select") {
       errorMessage("Select work type")
     } else {
-      update(GetDatabaseReference(`-offer/${GenerateDatabaseKey(`-offer`)}`), offerData)
+      update(GetDatabaseReference(`-offer/${format(new Date(), "yyMMdd")}${GenerateDatabaseKey(`-offer`)}`), offerData)
         .then(() => {
           successMessage("Saved the changes.")
         })
@@ -90,11 +83,11 @@ export default function Offer() {
               <CustomInput id={"address"} type="text" label="Address"
                            onChange={(e) => setOfferData({...offerData, address: e.target.value})}
               />
-              <CustomDropDown id="product" label={"Product Type"} options={productOptions}
+              <CustomDropDown id="product" label={"Product Type"} options={OfferProductOptions}
                               onChange={(value) => setOfferData({...offerData, product: value})}
                               required={true}
               />
-              <CustomDropDown id="work" label={"Work Type"} options={workOptions}
+              <CustomDropDown id="work" label={"Work Type"} options={OfferWorkOptions}
                               onChange={(value) => setOfferData({...offerData, work: value})}
                               required={true}
               />
@@ -131,26 +124,30 @@ export default function Offer() {
               <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
                 <MdDownloading className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
-            ) : dataError ? (
-              <CardIcon title={"Error"} subtitle={dataError.message}>
+            ) : dataError || !data ? (
+              <CardIcon title={"Error"} subtitle={dataError?.message}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
-            ) : data?.length == 0 ? (
+            ) : data.length == 0 ? (
               <CardIcon title={"No Offer Found!"}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
             ) : (
-              data?.map((item) => {
-                const snapshot = item.val();
-                return (
-                  <div className="flex flex-col" key={item.key}>
-                    <CardOffer id={item.key!} name={snapshot.name} address={snapshot.address}
-                               product={snapshot.ptype} work={snapshot.wtype} unit={snapshot.unit}
-                               floor={snapshot.floor} person={snapshot.person} shaft={snapshot.shaft}
-                               date={snapshot.date} note={snapshot.note} refer={snapshot.refer}/>
-                  </div>
-                )
-              })
+              <UniqueChildren>
+                {(
+                  data.map((item) => {
+                    const snapshot = item.val();
+                    return (
+                      <div className="flex flex-col" key={item.key}>
+                        <CardOffer id={item.key!} name={snapshot.name} address={snapshot.address}
+                                   product={snapshot.product} work={snapshot.work} unit={snapshot.unit}
+                                   floor={snapshot.floor} person={snapshot.person} shaft={snapshot.shaft}
+                                   date={snapshot.date} note={snapshot.note} refer={snapshot.refer}/>
+                      </div>
+                    )
+                  })
+                )}
+                </UniqueChildren>
             )
           }
         </div>
