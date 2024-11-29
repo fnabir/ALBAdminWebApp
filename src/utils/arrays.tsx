@@ -1,3 +1,11 @@
+export const CallbackStatusOptions = [
+	{value: 'New'},
+	{value: 'Assigned'},
+	{value: 'In Progress'},
+	{value: 'Fixed'},
+	{value: 'Cannot be fixed'}
+];
+
 export const OfferProductOptions=[
 	{value: 'Passenger Lift'},
 	{value: 'Cargo Lift'},
