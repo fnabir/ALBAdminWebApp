@@ -32,14 +32,19 @@ export default function CardOffer(props:OfferInterface) {
   });
 
   const updateOffer = () => {
-    update(GetDatabaseReference(databaseRef), offerData).then(() => {
-      successMessage("Successfully updated offer.");
-    }).catch((e) => {
-      console.error(e);
-      errorMessage(e.response.data);
-    }).finally(() => {
-      setEditModal(false);
-    })
+    if (!offerData || offerData.name) errorMessage("Project Name required");
+    else if (!offerData.product) errorMessage("Product type required");
+    else if (!offerData.work) errorMessage("Work type required");
+    else {
+      update(GetDatabaseReference(databaseRef), offerData).then(() => {
+        successMessage("Successfully updated offer.");
+      }).catch((e) => {
+        console.error(e);
+        errorMessage(e.response.data);
+      }).finally(() => {
+        setEditModal(false);
+      })
+    }
   }
 
   const deleteOffer = () => {
