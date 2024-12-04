@@ -20,6 +20,7 @@ import {ref, update} from "firebase/database";
 import {database} from "@/firebase/config";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function StaffTransaction() {
 	const {user, loading} = useAuth();
@@ -130,7 +131,6 @@ export default function StaffTransaction() {
 					setNewModal(false);
 					updateDate();
 					successMessage("Saved the changes.")
-					window.location.reload();
 				})
 				.catch((error) => {
 					console.error(error.message);
@@ -198,21 +198,25 @@ export default function StaffTransaction() {
 								<CardIcon title={"Error"} subtitle={dataError.message}>
 									<MdError className='mx-1 w-6 h-6 content-center'/>
 								</CardIcon>
-							) : data?.length == 0 ? (
+							) : !data || data?.length == 0 ? (
 								<CardIcon title={"No Record Found!"} subtitle={""}>
 									<MdError className='mx-1 w-6 h-6 content-center'/>
 								</CardIcon>
 							) : (
-								data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-									const snapshot = item.val();
-									return (
-										<div className="flex flex-col" key={item.key}>
-											<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
-																			 title={snapshot.title} details={snapshot.details}
-																			 amount={snapshot.amount} date={snapshot.date} access={user.role}/>
-										</div>
-									)
-								})
+								<UniqueChildren>
+									{
+										data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+											const snapshot = item.val();
+											return (
+												<div className="flex flex-col" key={item.key}>
+													<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
+																					 title={snapshot.title} details={snapshot.details}
+																					 amount={snapshot.amount} date={snapshot.date} access={user.role}/>
+												</div>
+											)
+										})
+									}
+								</UniqueChildren>
 							)
 						}
 						<TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>

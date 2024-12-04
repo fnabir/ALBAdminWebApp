@@ -128,14 +128,13 @@ export default function Callback() {
                 </CardIcon>
               ) : (
                 <UniqueChildren>
-                  {(
-                    data.map((item) =>
-                      (
-                        <div className="flex flex-col" key={item.key}>
-                          <CardCallbackTotal name={item.key!} value={item.size} id={item.key!}/>
-                        </div>
-                      ))
-                  )}
+                  {
+                    data.map((item) => (
+                      <div className="flex flex-col" key={item.key}>
+                        <CardCallbackTotal name={item.key!} value={item.size} id={item.key!}/>
+                      </div>
+                    ))
+                  }
                 </UniqueChildren>
               )
             }

@@ -179,7 +179,7 @@ export default function Calendar() {
                   </CardIcon>
                 ) : eventsData && eventsData.length != 0 ? (
                   <UniqueChildren>
-                    {(
+                    {
                       eventsData.map((item) => {
                         const snapshot = item.val();
                         return (
@@ -188,7 +188,7 @@ export default function Calendar() {
                           </div>
                         )
                       })
-                    )}
+                    }
                   </UniqueChildren>
                 ) : (
                   <CardIcon title={"No Events"}>

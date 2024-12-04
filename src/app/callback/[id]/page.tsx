@@ -125,7 +125,7 @@ export default function CallbackProject() {
                 </CardIcon>
               ) : (
                 <UniqueChildren>
-                  {(
+                  {
                     data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
                       const snapshot = item.val();
                       return (
@@ -134,7 +134,7 @@ export default function CallbackProject() {
                         </div>
                       )
                     })
-                  )}
+                  }
                 </UniqueChildren>
               )
             }

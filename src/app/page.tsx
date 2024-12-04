@@ -36,14 +36,14 @@ export default function Home() {
                 <CardBalance title={"Error Occurred"} balance={0} date={errorTotalBalance?.message}/>
               ) : (
                 <UniqueChildren>
-                  {(
+                  {
                     dataTotalBalance!.sort((a:any, b:any) => b.val().value - a.val().value).map((item) => (
                         <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
                           <CardBalance title={item.key!} balance={item.val().value} date={item.val().date} route={item.val().key}/>
                         </div>
                       )
                     )
-                  )}
+                  }
                 </UniqueChildren>
               )
             }

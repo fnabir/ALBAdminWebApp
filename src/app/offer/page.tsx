@@ -129,12 +129,12 @@ export default function Offer() {
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
             ) : data.length == 0 ? (
-              <CardIcon title={"No Offer Found!"}>
+              <CardIcon title={"No offer Found!"}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
             ) : (
               <UniqueChildren>
-                {(
+                {
                   data.map((item) => {
                     const snapshot = item.val();
                     return (
@@ -146,7 +146,7 @@ export default function Offer() {
                       </div>
                     )
                   })
-                )}
+                }
                 </UniqueChildren>
             )
           }

@@ -13,6 +13,7 @@ import AccessDenied from "@/components/AccessDenied";
 import {useList, useObject} from "react-firebase-hooks/database";
 import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function Staff() {
   const { user, loading } = useAuth();
@@ -55,19 +56,27 @@ export default function Staff() {
                   <MdDownloading className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
               ) : dataError ? (
-                <CardIcon title={"Error"} subtitle={dataError.message}>
+                <CardIcon title={"Error"} subtitle={dataError?.message}>
                   <MdError className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
+              ) : !data || data.length == 0 ? (
+                  <CardIcon title={"No record found!"} >
+                    <MdError className='mx-1 w-6 h-6 content-center'/>
+                  </CardIcon>
               ) : (
-                data?.sort((a,b) => a.val().position - b.val().position).map((item) => {
-                  const snapshot = item.val();
-                  return (
-                    <div className="flex flex-col" key={item.key}>
-                      <CardBalance type={"staff"} id={item.key!} name={snapshot.name} value={snapshot.value} date={snapshot.date}
-                                   status={snapshot.status}/>
-                    </div>
-                  )
-                })
+                <UniqueChildren>
+                  ({
+                    data.sort((a,b) => a.val().position - b.val().position).map((item) => {
+                      const snapshot = item.val();
+                      return (
+                        <div className="flex flex-col" key={item.key}>
+                          <CardBalance type={"staff"} id={item.key!} name={snapshot.name} value={snapshot.value} date={snapshot.date}
+                                      status={snapshot.status}/>
+                        </div>
+                      )
+                    })
+                  })
+                </UniqueChildren>
               )
             }
             <TotalBalance text="Total Conveyance" value={conveyanceBalanceValue} date={conveyanceBalanceDate}/>

@@ -13,6 +13,7 @@ import AccessDenied from "@/components/AccessDenied";
 import {useList, useObject} from "react-firebase-hooks/database";
 import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function Conveyance() {
   const router = useRouter();
@@ -52,17 +53,25 @@ export default function Conveyance() {
               <CardIcon title={"Error"} subtitle={dataError.message}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
-            ) : data ? (
-              data.sort((a,b) => a.val().position - b.val().position).map((item) => {
-                const itemSnapShot = item.val();
-                return (
-                  <div className={"flex flex-col"} key={item.key}>
-                    <CardBalance type={"conveyance"} name={itemSnapShot.name} value={itemSnapShot.value} date={itemSnapShot.date}
-                                 status={itemSnapShot.status} id={item.key ? item.key : "undefined"}/>
-                  </div>
-                )
-              })
-            ) : null
+            ) : !data || data.length == 0 ? (
+              <CardIcon title={"No record found!"} >
+                <MdError className='mx-1 w-6 h-6 content-center'/>
+              </CardIcon>
+            ) :(
+              <UniqueChildren>
+                {
+                  data.sort((a,b) => a.val().position - b.val().position).map((item) => {
+                    const itemSnapShot = item.val();
+                    return (
+                      <div className={"flex flex-col"} key={item.key}>
+                        <CardBalance type={"conveyance"} name={itemSnapShot.name} value={itemSnapShot.value} date={itemSnapShot.date}
+                                    status={itemSnapShot.status} id={item.key ? item.key : "undefined"}/>
+                      </div>
+                    )
+                  })
+                }
+              </UniqueChildren>
+            )
           }
           <TotalBalance text='Total Conveyance' value={total} date={conveyanceBalanceDate} update={total !== conveyanceBalanceValue} onClick={updateTotal}/>
         </div>

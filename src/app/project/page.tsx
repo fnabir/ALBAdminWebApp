@@ -14,6 +14,8 @@ import AccessDenied from "@/components/AccessDenied";
 import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
 import {useList, useObject} from "react-firebase-hooks/database";
+import { Button } from "flowbite-react";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function Projects() {
   const { user, loading } = useAuth();
@@ -51,12 +53,21 @@ export default function Projects() {
         headerTitle="Projects">
           <div>
             <div className="flex items-center mt-2 gap-x-2">
-              <div>Sort by</div>
-              <button className={sort == "name" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("name")}>Name</button>
-              <button className={sort == "value" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("value")}>Value</button>
-              <button className={sort == "register" ? activeButtonClass : notActiveButtonClass} onClick={() => setSort("register")}>Register</button>
+              <div className="flex items-center gap-x-2">
+                <span>Sort by</span>
+                <button className={sort == "name" ? activeButtonClass : notActiveButtonClass}
+                        onClick={() => setSort("name")}>Name
+                </button>
+                <button className={sort == "value" ? activeButtonClass : notActiveButtonClass}
+                        onClick={() => setSort("value")}>Value
+                </button>
+                <button className={sort == "register" ? activeButtonClass : notActiveButtonClass}
+                        onClick={() => setSort("register")}>Register
+                </button>
+              </div>
+              <Button color="blue" className={total != totalBalanceValue ? "" : "hidden"} onClick={updateTotal}>Update Total Balance</Button>
             </div>
-            
+
             <div className="flex flex-col py-2 gap-y-2">
               {
                 dataLoading ? (
@@ -67,38 +78,53 @@ export default function Projects() {
                   <CardIcon title={"Error"} subtitle={dataError.message}>
                     <MdError className='mx-1 w-6 h-6 content-center'/>
                   </CardIcon>
-                ) : data && sort == "value" ? (
-                  data.sort((a,b) => a.val().value - b.val().value).map((item) => {
-                    const snapshot = item.val();
-                    return (
-                        <div className="flex flex-col" key={item.key}>
-                          <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
-                                       status={snapshot.status}/>
-                        </div>
-                      )
+                ) : !data || data.length == 0 ? (
+                  <CardIcon title={"No record found!"} >
+                    <MdError className='mx-1 w-6 h-6 content-center'/>
+                  </CardIcon>
+                ) : sort == "value" ? (
+                  <UniqueChildren>
+                    {
+                      data.sort((a,b) => a.val().value - b.val().value).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                            <div className="flex flex-col" key={item.key}>
+                              <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
+                                          status={snapshot.status}/>
+                            </div>
+                          )
+                        })
+                      }
+                    </UniqueChildren>
+                ) : sort == "register" ? (
+                  <UniqueChildren>
+                    {
+                      data.sort((a,b) => (a.val().register - b.val().register)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="flex flex-col" key={item.key}>
+                            <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
+                                         status={snapshot.status}/>
+                          </div>
+                        )
+                      })
                     }
-                  )
-                ) : data && sort == "register" ? (
-                  data.sort((a,b) => a.val().register - b.val().register)).map((item) => {
-                    const snapshot = item.val();
-                    return (
-                      <div className="flex flex-col" key={item.key}>
-                        <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
-                                     status={snapshot.status}/>
-                      </div>
-                    )
-                  }
+                  </UniqueChildren>
                 ) : (
-                  data?.sort((a, b) => a.key!.localeCompare(b.key!)).map((item) => {
-                    const snapshot = item.val();
-                    return (
-                      <div className="flex flex-col" key={item.key}>
-                        <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
-                                     status={snapshot.status}/>
-                      </div>
-                    )
-                  }
-                ))
+                  <UniqueChildren>
+                    {
+                      data.sort((a, b) => a.key!.localeCompare(b.key!)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="flex flex-col" key={item.key}>
+                            <CardBalance type={"project"} id={item.key ? item.key : "undefined"} name={item.key ? item.key : "undefined"} value={snapshot.value} date={snapshot.date}
+                                         status={snapshot.status}/>
+                          </div>
+                        )
+                      })
+                    }
+                  </UniqueChildren>
+                )
               }
               <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
             </div>

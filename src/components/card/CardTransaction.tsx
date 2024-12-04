@@ -10,6 +10,7 @@ import {format, parse} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList} from "react-firebase-hooks/database";
 import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 
 export default function CardTransaction(props:TransactionInterface) {
@@ -60,17 +61,16 @@ export default function CardTransaction(props:TransactionInterface) {
             successMessage("No changes has been made.")
         } else {
             update(GetDatabaseReference(databaseRef), updatedData)
-                .then(() => {
-                    setEditModal(false);
-                    updateDate();
-                    successMessage("Saved the changes.")
-                    window.location.reload();
-                })
-                .catch((error) => {
-                    console.error(error.message);
-                    errorMessage(error.message);
-                })
-
+            .then(() => {
+                setEditModal(false);
+                updateDate();
+                successMessage("Saved the changes.")
+            }).catch((error) => {
+                console.error(error.message);
+                errorMessage(error.message);
+            }).finally(() => {
+                setEditModal(false);
+            })
         }
     };
 
@@ -78,7 +78,6 @@ export default function CardTransaction(props:TransactionInterface) {
         remove(GetDatabaseReference(databaseRef)).then(() => {
             setDeleteModal(false);
             successMessage("Deleted successfully.")
-            window.location.reload();
         }).catch ((error) => {
             setDeleteModal(false);
             errorMessage(error.message);
@@ -100,16 +99,24 @@ export default function CardTransaction(props:TransactionInterface) {
                     </div>
                 </div>
                 <div className={"border-0 bg-black rounded-md bg-opacity-50"}>
-                    { data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-                        const snapshot = item.val();
-                        return (
-                          <div className="w-full flex justify-between px-2 text-sm pt-1" key={item.key}>
-                              <div className="flex-wrap w-[6rem]">{(snapshot.details).substring(0, 8)}</div>
-                              <div className="flex-auto">{(snapshot.details).substring(8,)}</div>
-                              <div className="flex-wrap">{formatCurrency(snapshot.amount)}</div>
-                          </div>
-                        )
-                    })}
+                    {
+                        data ? (
+                            <UniqueChildren>
+                                {
+                                    data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                                        const snapshot = item.val();
+                                        return (
+                                            <div className="w-full flex justify-between px-2 text-sm pt-1" key={item.key}>
+                                                <div className="flex-wrap w-[6rem]">{(snapshot.details).substring(0, 8)}</div>
+                                                <div className="flex-auto">{(snapshot.details).substring(8,)}</div>
+                                                <div className="flex-wrap">{formatCurrency(snapshot.amount)}</div>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </UniqueChildren>
+                        ) : null
+                    }
                 </div>
             </div>
             <button className={"mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block " + (props.access == "admin" ? "" : "hidden")}

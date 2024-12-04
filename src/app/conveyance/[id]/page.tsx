@@ -13,6 +13,7 @@ import AccessDenied from "@/components/AccessDenied";
 import {useList, useObject} from "react-firebase-hooks/database";
 import {update} from "firebase/database";
 import {errorMessage, successMessage} from "@/utils/functions";
+import UniqueChildren from "@/components/UniqueChildrenWrapper";
 
 export default function ConveyanceTransaction() {
   const { user, loading } = useAuth();
@@ -58,21 +59,25 @@ export default function ConveyanceTransaction() {
               <CardIcon title={"Error"} subtitle={dataError.message}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
-            ) : data?.length == 0 ? (
+            ) : !data || data.length == 0 ? (
               <CardIcon title={"No Record Found!"} subtitle={""}>
                 <MdError className='mx-1 w-6 h-6 content-center'/>
               </CardIcon>
             ) : (
-              data?.sort((a, b) => b.val().key.localeCompare(a.val().key)).map((item) => {
-                const snapshot = item.val();
-                return (
-                  <div className="flex flex-col" key={item.key}>
-                    <CardTransaction type={"conveyance"} uid={staffID} transactionId={item.key!}
-                                     title={snapshot.title} details={snapshot.details}
-                                     amount={snapshot.amount} date={snapshot.date} access={user.role}/>
-                  </div>
-                )
-              })
+              <UniqueChildren>
+                {
+                  data.sort((a, b) => b.val().key.localeCompare(a.val().key)).map((item) => {
+                    const snapshot = item.val();
+                    return (
+                      <div className="flex flex-col" key={item.key}>
+                        <CardTransaction type={"conveyance"} uid={staffID} transactionId={item.key!}
+                                         title={snapshot.title} details={snapshot.details}
+                                         amount={snapshot.amount} date={snapshot.date} access={user.role}/>
+                      </div>
+                    )
+                  })
+                }
+              </UniqueChildren>
             )
           }
           <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
