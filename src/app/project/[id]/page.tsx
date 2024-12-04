@@ -7,21 +7,20 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import { MdAddCircle, MdDownloading, MdError} from "react-icons/md";
-import {GenerateDatabaseKey, GetDatabaseReference, GetTotalValue} from "@/firebase/database";
+import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import { Button, Modal } from "flowbite-react";
 import { useState } from "react";
 import CustomInput from "@/components/generic/CustomInput";
-import {errorMessage, successMessage} from "@/utils/functions";
+import { errorMessage, successMessage } from "@/utils/functions";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import { format, parse } from "date-fns";
-import { update } from "firebase/database";
+import { child, push, ref, update } from "firebase/database";
+import { database } from "@/firebase/config";
 import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
-import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -29,38 +28,34 @@ export default function ProjectTransaction() {
   const path = usePathname();
 
   const [newModal, setNewModal] = useState(false);
-  const [transactionData, setTransactionData] = useState({
-    type: 'Expense', title: '', detailsLabel: 'Details', details: '', amount: 0, date: new Date(), paidStatus: "Not Paid", fullPaid: '', fullPaidAmount: 0
-  })
-
+  const [transactionType, setTransactionType] = useState("Expense");
+  const [inputTitle, setInputTitle] = useState("");
+  const [inputDetailsLabel, setInputDetailsLabel] = useState("Details");
+  const [inputDetails, setInputDetails] = useState("");
+  const [inputAmount, setInputAmount] = useState(0);
+  const [inputDate, setInputDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const transactionOptions = [
-    {value: 'Expense'},
-    {value: 'Payment'},
+    { value: 'Expense', label: 'Expense' },
+    { value: 'Payment', label: 'Payment' },
   ];
   const expenseOptions = [
-      {value: 'Servicing'},
-      {value: 'Callback'},
-      {value: 'Spare Parts'},
-      {value: 'Repairing'},
-      {value: 'Others'},
+      { value: 'Servicing', label: 'Servicing' },
+      { value: 'Callback', label: 'Callback'},
+      { value: 'Spare Parts', label: 'Spare Parts' },
+      { value: 'Repairing', label: 'Repairing'},
+      { value: 'Others', label: 'Others'},
   ];
   const paymentOptions = [
-      {value: 'Cash'},
-      {value: 'Cheque'},
-      {value: 'Account Transfer'},
-      {value: 'Bank Transfer'},
+      {value: 'Cash', label: 'Cash'},
+      {value: 'Cheque', label: 'Cheque'},
+      {value: 'Account Transfer', label: 'Account Transfer'},
+      {value: 'Bank Transfer', label: 'Bank Transfer'},
       {value: 'CellFin', label: 'CellFin (Phone)'},
       {value: 'CellFin (Account)', label: 'CellFin (Account)'},
-      {value: 'bKash'},
+      {value: 'bKash', label: 'bKash'},
   ];
-  const paidStatusOptions = [
-    {value: 'Not Paid'},
-    {value: 'Partial'},
-    {value: 'Full'},
-  ];
-  const [paidData] = useList(GetDatabaseReference(`balance/project`));
-  const paidDataOptions = paidData ? paidData.filter(transaction => transaction.val().amount < 0).map((data) => ({ value: `${data.val().date} ${data.val().title}` })) : [];
-  const titleOptions = transactionData.type == "Expense" ? expenseOptions : paymentOptions;
+
+  const titleOptions = transactionType == "Expense" ? expenseOptions : paymentOptions;
   const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
   const [ data, dataLoading, errorData ] = useList(GetDatabaseReference(`transaction/project/${projectName}`));
   const total = GetTotalValue(data, "amount");
@@ -99,74 +94,78 @@ export default function ProjectTransaction() {
     })
   }
 
-  const handleNewTransactionClick = () => {
-    setTransactionData({type: 'Expense', title: '', detailsLabel: 'Details', details: '', amount: 0, date: new Date(), paidStatus: "Not Paid", fullPaid: '', fullPaidAmount: 0})
-    setNewModal(true);
-  }
-
   const handleTypeChange = (value: string) => {
-    setTransactionData({...transactionData, type: value, title: 'Select', detailsLabel: 'Details', details: ''});
+    setTransactionType(value);
+    setInputTitle("Select");
+    setInputDetailsLabel("Details");
+    setInputDetails("");
   }
 
   const handleTitleChange = (value: string, label:string) => {
-    setTransactionData({...transactionData, title: value});
+    setInputTitle(value);
     switch (label) {
-      case "Cash":
-        setTransactionData({...transactionData, title: value, detailsLabel: 'Receiver', details: ''});
-        break;
-      case "Cheque":
-      case "Bank Transfer":
-        setTransactionData({...transactionData, title: value, detailsLabel:  'Bank Name, Branch', details: ''});
-        break;
-      case "Account Transfer":
-      case "CellFin (Account)":
-        setTransactionData({...transactionData, title: value, detailsLabel:  'Account Number', details: 'Acc No.**'});
-        break;
-      case "bKash":
-        setTransactionData({...transactionData, title: value, detailsLabel:  'bKash Number', details: ''});
-        break;
-      case "Servicing":
-        setTransactionData({...transactionData, title: value, detailsLabel:  'Month', details: ''});
-        break;
-      case "Spare Parts":
-        setTransactionData({...transactionData, title: value, detailsLabel:  'Name of Parts', details: ''});
-        break;
-      default:
-        setTransactionData({...transactionData, title: value, detailsLabel:  'Details', details: ''});
-        break;
+        case "Cash":
+            setInputDetailsLabel("Receiver");
+            setInputDetails("");
+            break;
+        case "Cheque":
+        case "Bank Transfer":
+            setInputDetailsLabel("Bank Name, Branch");
+            setInputDetails("");
+            break;
+        case "Account Transfer":
+        case "CellFin (Account)":
+            setInputDetailsLabel("Account Number");
+            setInputDetails("Acc No.**");
+            break;
+        case "bKash":
+            setInputDetailsLabel("bKash Number");
+            setInputDetails("");
+            break;
+        case "Servicing":
+            setInputDetailsLabel("Month");
+            setInputDetails("");
+            break;
+        case "Spare Parts":
+            setInputDetailsLabel("Name of Parts");
+            setInputDetails("");
+            break;
+        default:
+            setInputDetailsLabel("Details");
+            setInputDetails("");
+            break;
     }
-    console.log(transactionData);
   }
 
-  const saveNewTransaction = async () => {
-    if (transactionData.title == "Select") {
-        errorMessage(`Please select ${transactionData.type} type`)
+  const handleNew = async () => {
+    if (inputTitle == "Select") {
+        errorMessage(`Please select ${transactionType} type`)
     }
-    if (!transactionData.date) {
+    if (!inputDate) {
         errorMessage("Please select a valid date")
     }
 
-    if(transactionData && transactionData.title != "Select" && transactionData.date) {
+    if(inputTitle != "Select" && inputDate) {
       const updatedData = {
-        title: transactionData.title,
-        details: transactionData.details,
-        amount: transactionData.type == "Expense" ? transactionData.amount : transactionData.amount * (-1),
-        date: format(transactionData.date, "dd.MM.yy")
+        title: inputTitle,
+        details: inputDetails,
+        amount: transactionType == "Expense" ? inputAmount : inputAmount * (-1),
+        date: format(parse(inputDate, "yyyy-MM-dd", new Date()), "dd.MM.yy")
       }
-      const newKey = GenerateDatabaseKey(`transaction/project/${projectName}`)
-      const newTransactionRef = `transaction/project/${projectName}/${format(transactionData.date, "yyMMdd")}${newKey}`;
-      update(GetDatabaseReference(newTransactionRef), updatedData)
-        .then(() => {
-          updateDate();
-          successMessage("Saved the changes.")
+      const newKey = push(child(ref(database), `transaction/project/${projectName}`)).key
+      const newTransactionRef = `transaction/project/${projectName}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
+      update(ref(database, newTransactionRef), updatedData)
+          .then(() => {
+            setNewModal(false);
+            updateDate();
+            successMessage("Saved the changes.")
+            window.location.reload();
         })
         .catch((error) => {
             console.error(error.message);
             errorMessage(error.message);
         })
-        .finally(() => {
-          setNewModal(false);
-        })
+      successMessage("Saved the changes.")
     }
   };
 
@@ -181,7 +180,7 @@ export default function ProjectTransaction() {
           headerTitle={projectName}>
           <div>
               <div className="flex items-center mt-2 gap-x-2">
-                <Button color={"blue"} onClick={handleNewTransactionClick}>
+                <Button color={"blue"} onClick={()=> setNewModal(true)}>
                   <MdAddCircle className="mr-2 h-5 w-5"/>Add New Transaction
                 </Button>
               </div>
@@ -192,41 +191,29 @@ export default function ProjectTransaction() {
                   </Modal.Header>
                   <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                       <div className="space-y-4 pt-4">
-                        <CustomRadioGroup id={'transactionType'} options={transactionOptions}
-                                        onChange={(value) => handleTypeChange(value)}
-                                        defaultValue={transactionData.type}
-                        />
-                        <CustomDropDown id="title" label={`${transactionData.type} Type`} options={titleOptions}
-                                        onChange={(value, label) => {handleTitleChange(value, label)}}
-                        />
-                        <CustomInput type="text" label={transactionData.detailsLabel} id="details"
-                               value={transactionData.details}
-                               onChange={(e) => setTransactionData({...transactionData, details: e.target.value})}
-                               color={"default"} helperText={""}
-                        />
-                        <CustomInput label="Amount" value={transactionData.amount} type="number" id="amount"
-                               pre={`৳ ${transactionData.type == "Payment" ? "-" : ""}`}
-                               onChange={(e) => setTransactionData({...transactionData, amount: Number(e.target.value)})}
-                               required={true}
-                        />
-                        <CustomDateTimeInput label="Date" value={format(transactionData.date, "yyyy-MM-dd")} type="date" id="date"
-                               onChange={(value) => setTransactionData({...transactionData, date: parse(value, "yyyy-MM-dd", new Date())})}
-                        />
-                        <CustomRadioGroup id={'paidStatus'} options={paidStatusOptions}
-                                          onChange={(value) => setTransactionData({...transactionData, paidStatus: value})}
-                                          defaultValue={transactionData.paidStatus}
-                        />
-                        {
-                          transactionData.paidStatus == "Full" ? (
-                            <CustomDropDown id="fullPaidDate" label={`Payment Details`} options={paidDataOptions}
-                                            onChange={(value) => setTransactionData({...transactionData, fullPaid : value})}
-                            />
-                          ) : null
-                        }
-
+                          <CustomRadioGroup options={transactionOptions}
+                                          onChange={(value) => handleTypeChange(value)}
+                                          defaultValue={transactionType}
+                          />
+                          <CustomDropDown id="title" label={`${transactionType} Type`} options={titleOptions}
+                                          onChange={(value, label) => {handleTitleChange(value, label)}}
+                          />
+                          <CustomInput type="text" label={inputDetailsLabel} id="details"
+                                 value={inputDetails}
+                                 onChange={(e) => setInputDetails(e.target.value)}
+                                 color={"default"} helperText={""}
+                          />
+                          <CustomInput label="Amount" value={String(inputAmount)} type="number" id="amount"
+                                 pre={`৳ ${transactionType == "Payment" ? "-" : ""}`}
+                                 onChange={(e) => setInputAmount(Number(e.target.value))}
+                                 required
+                          />
+                          <CustomInput label="Date" value={inputDate} type="date" id="date"
+                                 onChange={(e) => setInputDate(e.target.value)}
+                          />
 
                           <div className="flex gap-4 justify-center">
-                              <Button color="blue" onClick={saveNewTransaction}>Save</Button>
+                              <Button color="blue" onClick={handleNew}>Save</Button>
                               <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
                           </div>
                       </div>
@@ -244,14 +231,12 @@ export default function ProjectTransaction() {
                       <CardIcon title={"Error"} subtitle={errorData.message}>
                         <MdError className='mx-1 w-6 h-6 content-center'/>
                       </CardIcon>
-                  ) : !data || data?.length == 0 ? (
+                  ) : data?.length == 0 ? (
                       <CardIcon title={"No record found!"}>
                         <MdError className='mx-1 w-6 h-6 content-center'/>
                       </CardIcon>
                   ) : (
-                    <UniqueChildren>
-                      {
-                        data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                      data?.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
                           const snapshot = item.val();
                           return (
                             <div className="flex flex-col" key={item.key}>
@@ -261,9 +246,8 @@ export default function ProjectTransaction() {
                                                access={user.role}/>
                             </div>
                           )
-                        })
-                      }
-                    </UniqueChildren>
+                        }
+                      )
                   )
                 }
                 <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
