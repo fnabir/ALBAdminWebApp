@@ -19,10 +19,10 @@ export default function SideNav() {
     else {
         const role = user.role;
         return (
-            <div className='md:w-[25%] lg:w-[12%] md:block hidden'>
-                <nav className='md:w-[25%] lg:w-[12%] fixed flex flex-col left-0 h-[100vh] bg-slate-900 p-4 space-y-4'>
+            <div className='md:w-[25%] lg:w-[15%] md:block hidden'>
+                <nav className='md:w-[25%] lg:w-[15%] fixed flex flex-col left-0 h-[100vh] bg-slate-900 p-4 space-y-4'>
                     <Image
-                        className="w-full"
+                        className="w-[80%]"
                         src="/ALBw.svg"
                         alt="Asian Lift Bangladesh"
                         width={200}

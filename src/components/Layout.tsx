@@ -17,7 +17,7 @@ const Layout: FC<LayoutProps & { children: ReactNode }> = ({
         <main className="flex min-h-screen w-full relative">
             <title>{pageTitle}</title>
             <SideNav/>
-            <div className="w-full flex md:w-[75%] lg:w-[88%] py-2 px-2 bg-gray-950 flex-col">
+            <div className="w-full flex md:w-[75%] lg:w-[85%] py-2 px-2 bg-gray-950 flex-col">
                 <Header title={headerTitle}/>
                 <div className="h-full">{children}</div>
                 <Footer/>
