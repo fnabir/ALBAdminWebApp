@@ -70,3 +70,15 @@ export function formatCurrency(
     return `${signed ? '-' : '' } ৳ ${chunks.join(',')}
     ${precision > 0 ? '.' + cents : ''}`;
   }
+
+
+	export function removeDuplicateData(data?: any[]) : any[] {
+		const seen = new Set<string>();
+		return data? data.filter((item) => {
+			if (seen.has(item.key)) {
+				return false;
+			}
+			seen.add(item.key);
+			return true;
+		}) : [];
+	}
