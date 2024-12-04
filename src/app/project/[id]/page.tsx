@@ -156,17 +156,15 @@ export default function ProjectTransaction() {
       const newKey = push(child(ref(database), `transaction/project/${projectName}`)).key
       const newTransactionRef = `transaction/project/${projectName}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
       update(ref(database, newTransactionRef), updatedData)
-          .then(() => {
-            setNewModal(false);
-            updateDate();
-            successMessage("Saved the changes.")
-            window.location.reload();
-        })
-        .catch((error) => {
+        .then(() => {
+          updateDate();
+          successMessage("Saved the changes.")
+        }).catch((error) => {
             console.error(error.message);
             errorMessage(error.message);
+        }).finally(() => {
+          setNewModal(false);
         })
-      successMessage("Saved the changes.")
     }
   };
 
