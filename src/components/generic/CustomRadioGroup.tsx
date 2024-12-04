@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 interface RadioGroupProps {
-  options: { value: string; label: string }[];
+  id: string;
+  options: { value: string; label?: string }[];
   onChange: (value: string) => void;
   defaultValue?: string;
 }
 
-const CustomRadioGroup: React.FC<RadioGroupProps> = ({ options, onChange, defaultValue }) => {
+const CustomRadioGroup: React.FC<RadioGroupProps> = ({ id, options, onChange, defaultValue }) => {
   const [selectedValue, setSelectedValue] = useState(defaultValue || options[0].value);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,15 +19,16 @@ const CustomRadioGroup: React.FC<RadioGroupProps> = ({ options, onChange, defaul
     <div className={"space-x-4 text-center"}>
       {
         options.map((option) => (
-          <label key={option.value}>
+          <label key={option.value} htmlFor={id}>
             <input
+              id={id}
                 className={"mr-2"}
                 type="radio"
                 value={option.value}
                 checked={selectedValue === option.value}
                 onChange={handleChange}
             />
-            {option.label}
+            {option.label ? option.label : option.value}
           </label>
         ))
       }
