@@ -65,7 +65,7 @@ export default function Staff() {
                   </CardIcon>
               ) : (
                 <UniqueChildren>
-                  ({
+                  {
                     data.sort((a,b) => a.val().position - b.val().position).map((item) => {
                       const snapshot = item.val();
                       return (
@@ -75,7 +75,7 @@ export default function Staff() {
                         </div>
                       )
                     })
-                  })
+                  }
                 </UniqueChildren>
               )
             }
