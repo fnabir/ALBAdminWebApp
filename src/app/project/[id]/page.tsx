@@ -11,7 +11,7 @@ import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import { Button, Modal } from "flowbite-react";
-import { useState } from "react";
+import {useState} from "react";
 import CustomInput from "@/components/generic/CustomInput";
 import { errorMessage, successMessage } from "@/utils/functions";
 import CustomDropDown from "@/components/generic/CustomDropDown";
@@ -22,6 +22,8 @@ import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
 import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
+import VerticalDivider from "@/components/VerticalDivider";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -29,12 +31,20 @@ export default function ProjectTransaction() {
   const path = usePathname();
 
   const [newModal, setNewModal] = useState(false);
+  const [filter, setFilter] = useState('All');
+  const [transactions, setTransactions] = useState({});
   const [transactionType, setTransactionType] = useState("Expense");
   const [inputTitle, setInputTitle] = useState("");
   const [inputDetailsLabel, setInputDetailsLabel] = useState("Details");
   const [inputDetails, setInputDetails] = useState("");
   const [inputAmount, setInputAmount] = useState(0);
   const [inputDate, setInputDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+
+  const filterOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'expense', label: 'Expense' },
+    { value: 'payment', label: 'Payment' },
+  ];
   const transactionOptions = [
     { value: 'Expense', label: 'Expense' },
     { value: 'Payment', label: 'Payment' },
@@ -177,85 +187,134 @@ export default function ProjectTransaction() {
       <Layout
           pageTitle={projectName + " | Asian Lift Bangladesh"}
           headerTitle={projectName}>
-          <div>
-              <div className="flex items-center mt-2 gap-x-2">
-                <Button color={"blue"} onClick={()=> setNewModal(true)}>
-                  <MdAddCircle className="mr-2 h-5 w-5"/>Add New Transaction
-                </Button>
-              </div>
+        <div>
+          <div className="flex items-center mt-2 gap-x-2">
+            <Button color={"blue"} onClick={()=> setNewModal(true)}>
+              <MdAddCircle className="mr-2 h-5 w-5"/>Add New Transaction
+            </Button>
 
-              <Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
-                  <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-                      <div className="text-xl font-medium text-white">New Transaction</div>
-                  </Modal.Header>
-                  <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-                      <div className="space-y-4 pt-4">
-                          <CustomRadioGroup id={'transactionType'} options={transactionOptions}
-                                          onChange={(value) => handleTypeChange(value)}
-                                          defaultValue={transactionType}
-                          />
-                          <CustomDropDown id="title" label={`${transactionType} Type`} options={titleOptions}
-                                          onChange={(value, label) => {handleTitleChange(value, label)}}
-                          />
-                          <CustomInput type="text" label={inputDetailsLabel} id="details"
-                                 value={inputDetails}
-                                 onChange={(e) => setInputDetails(e.target.value)}
-                                 color={"default"} helperText={""}
-                          />
-                          <CustomInput label="Amount" value={String(inputAmount)} type="number" id="amount"
-                                 pre={`৳ ${transactionType == "Payment" ? "-" : ""}`}
-                                 onChange={(e) => setInputAmount(Number(e.target.value))}
-                                 required
-                          />
-                          <CustomInput label="Date" value={inputDate} type="date" id="date"
-                                 onChange={(e) => setInputDate(e.target.value)}
-                          />
+            <VerticalDivider/>
 
-                          <div className="flex gap-4 justify-center">
-                              <Button color="blue" onClick={handleNew}>Save</Button>
-                              <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
-                          </div>
-                      </div>
-                  </Modal.Body>
-              </Modal>
+            <div className="flex items-center gap-x-2">
+              <span>Filter by</span>
+              <CustomButtonGroup options={filterOptions} onChange={(value) => setFilter(value)}/>
+            </div>
 
-              <div className="flex flex-col py-2 gap-y-2">
-                  {
-                    dataLoading ? (
-                        <CardIcon title={"Loading"}
-                                  subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                        <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-                    </CardIcon>
-                  ) : errorData ? (
-                      <CardIcon title={"Error"} subtitle={errorData.message}>
-                        <MdError className='mx-1 w-6 h-6 content-center'/>
-                      </CardIcon>
-                  ) : !data || data?.length == 0 ? (
-                      <CardIcon title={"No record found!"}>
-                        <MdError className='mx-1 w-6 h-6 content-center'/>
-                      </CardIcon>
-                  ) : (
-                      <UniqueChildren>
-                        {
-                          data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-                              const snapshot = item.val();
-                              return (
-                                <div className="flex flex-col" key={item.key}>
-                                  <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
-                                                   title={snapshot.title} details={snapshot.details}
-                                                   amount={snapshot.amount} date={snapshot.date}
-                                                   access={user.role}/>
-                                </div>
-                              )
-                          })
-                        }
-                      </UniqueChildren>
-                  )
-                }
-                <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
-              </div>
+            <div className={total != totalBalanceValue ? "" : "hidden"}>
+              <VerticalDivider/>
+            </div>
+
+            <Button color="blue" className={total != totalBalanceValue ? "" : "hidden"} onClick={updateTotal}>
+              Update Total Balance
+            </Button>
           </div>
+
+          <Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
+            <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
+              <div className="text-xl font-medium text-white">New Transaction</div>
+            </Modal.Header>
+            <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
+              <div className="space-y-4 pt-4">
+                <CustomRadioGroup id={'transactionType'} options={transactionOptions}
+                                  onChange={(value) => handleTypeChange(value)}
+                                  defaultValue={transactionType}
+                />
+                <CustomDropDown id="title" label={`${transactionType} Type`} options={titleOptions}
+                                onChange={(value, label) => {
+                                  handleTitleChange(value, label)
+                                }}
+                />
+                <CustomInput type="text" label={inputDetailsLabel} id="details"
+                             value={inputDetails}
+                             onChange={(e) => setInputDetails(e.target.value)}
+                             color={"default"} helperText={""}
+                />
+                <CustomInput label="Amount" value={String(inputAmount)} type="number" id="amount"
+                             pre={`৳ ${transactionType == "Payment" ? "-" : ""}`}
+                             onChange={(e) => setInputAmount(Number(e.target.value))}
+                             required
+                />
+                <CustomInput label="Date" value={inputDate} type="date" id="date"
+                             onChange={(e) => setInputDate(e.target.value)}
+                />
+
+                <div className="flex gap-4 justify-center">
+                  <Button color="blue" onClick={handleNew}>Save</Button>
+                  <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
+                </div>
+              </div>
+            </Modal.Body>
+          </Modal>
+
+          <div className="flex flex-col py-2 gap-y-2">
+            {
+              dataLoading ? (
+                <CardIcon title={"Loading"}
+                          subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
+                  <MdDownloading className='mx-1 w-6 h-6 content-center'/>
+                </CardIcon>
+              ) : errorData ? (
+                <CardIcon title={"Error"} subtitle={errorData.message}>
+                  <MdError className='mx-1 w-6 h-6 content-center'/>
+                </CardIcon>
+              ) : !data || data?.length == 0 ? (
+                <CardIcon title={"No record found!"}>
+                  <MdError className='mx-1 w-6 h-6 content-center'/>
+                </CardIcon>
+              ) : filter == "expense" ?
+                <UniqueChildren>
+                  {
+                    data.filter(transaction => transaction.val().amount <= 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                      const snapshot = item.val();
+                      return (
+                        <div className="flex flex-col" key={item.key}>
+                          <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
+                                           title={snapshot.title} details={snapshot.details}
+                                           amount={snapshot.amount} date={snapshot.date}
+                                           access={user.role}/>
+                        </div>
+                      )
+                    })
+                  }
+                </UniqueChildren>
+                : filter == "payment" ?
+                  <UniqueChildren>
+                    {
+                      data.filter(transaction => transaction.val().amount > 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="flex flex-col" key={item.key}>
+                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
+                                             title={snapshot.title} details={snapshot.details}
+                                             amount={snapshot.amount} date={snapshot.date}
+                                             access={user.role}/>
+                          </div>
+                        )
+                      })
+                    }
+                  </UniqueChildren>
+                  :
+                  <UniqueChildren>
+                    {
+                      data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="flex flex-col" key={item.key}>
+                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
+                                             title={snapshot.title} details={snapshot.details}
+                                             amount={snapshot.amount} date={snapshot.date}
+                                             access={user.role}/>
+                          </div>
+                        )
+                      })
+                    }
+                  </UniqueChildren>
+            }
+            <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue}
+                          onClick={updateTotal}/>
+          </div>
+        </div>
       </Layout>
-    );
+      );
   } else return <AccessDenied/>
 }
