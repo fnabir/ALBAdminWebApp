@@ -12,6 +12,7 @@ export const successMessage = (message:string) => {
 		theme: "dark",
 	});
 };
+
 export const errorMessage = (message:string) => {
 	toast.error(message, {
 		position: "top-right",
@@ -24,12 +25,6 @@ export const errorMessage = (message:string) => {
 		theme: "dark",
 	});
 };
-
-
-export function dateFormatter(date: string) : string {
-  const [year, month, day] = date.split('-');
-  return `${day}.${month}.${year.slice(-2)}`
-}
 
 export function formatCurrency(
     initialValue: number,
@@ -52,12 +47,12 @@ export function formatCurrency(
   
     const str = String(Math.abs(initialValue));
   
-    const splited = str.split('.');
+    const split = str.split('.');
     const cents =
-      splited.length > 1
-        ? String(splited[1]).padEnd(precision, '0')
+      split.length > 1
+        ? String(split[1]).padEnd(precision, '0')
         : '0'.repeat(precision);
-    const value = splited[0];
+    const value = split[0];
   
     var chunks: string[] = [];
   
@@ -72,13 +67,13 @@ export function formatCurrency(
   }
 
 
-	export function removeDuplicateData(data?: any[]) : any[] {
-		const seen = new Set<string>();
-		return data? data.filter((item) => {
-			if (seen.has(item.key)) {
-				return false;
-			}
-			seen.add(item.key);
-			return true;
-		}) : [];
-	}
+export function removeDuplicateData(data?: any[]) : any[] {
+	const seen = new Set<string>();
+	return data? data.filter((item) => {
+		if (seen.has(item.key)) {
+			return false;
+		}
+		seen.add(item.key);
+		return true;
+	}) : [];
+}
