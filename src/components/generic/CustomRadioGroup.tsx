@@ -5,9 +5,10 @@ interface RadioGroupProps {
   options: { value: string; label?: string }[];
   onChange: (value: string) => void;
   defaultValue?: string;
+  className?: string;
 }
 
-const CustomRadioGroup: React.FC<RadioGroupProps> = ({ id, options, onChange, defaultValue }) => {
+const CustomRadioGroup: React.FC<RadioGroupProps> = ({ id, options, onChange, defaultValue, className }) => {
   const [selectedValue, setSelectedValue] = useState(defaultValue || options[0].value);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +17,7 @@ const CustomRadioGroup: React.FC<RadioGroupProps> = ({ id, options, onChange, de
   };
 
   return (
-    <div className={"space-x-4 text-center"}>
+    <div className={`space-x-4 text-center ${className}`}>
       {
         options.map((option) => (
           <label key={option.value} htmlFor={id}>
