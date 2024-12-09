@@ -13,13 +13,14 @@ interface Props {
 	disabled?: boolean
 	required?: boolean
 	hidden?: boolean
+	className?: string
 }
 
 const CustomDateTimeInput: FC<Props> = ({
 																	id,
 																	label,
 																	type="date",
-																	value,
+																	value, className,
 																	onChange,
 																	helperText, color,
 																	minDate, maxDate,
@@ -38,14 +39,13 @@ const CustomDateTimeInput: FC<Props> = ({
 	};
 
 	return (
-		<div className={hidden ? "hidden" : ""}>
-			<div className={"relative mt-5"}>
+		<div className={`relative mt-4 ${hidden ? "hidden" : ""} ${className}`}>
+			<div>
 				<input
 					type={type}
 					id={id}
-					className={(disabled ? "bg-gray-700" : "text-white bg-transparent") + " " +
-						(color == "error" ? "text-red-400 border-red-600" : (disabled ? "text-gray-400 border-gray-600" : "text-white border-gray-600")) +
-						" px-2.5 block pb-2.5 pt-2.5 w-full text-md rounded-lg border appearance-none focus:border-blue-400 focus:outline-none focus:ring-0 peer" }
+					className={`w-full px-2.5 py-2 border rounded-lg focus:border-blue-400 focus:outline-none focus:ring-0 peer 
+											${disabled ? "bg-gray-700" : "text-white bg-transparent"} ${disabled ? "text-gray-400 border-gray-600" : color == "error" ? "text-red-400 border-red-600" : "text-white border-gray-600"}`}
 					value={inputValue}
 					onChange={handleInputChange}
 					disabled={disabled}
