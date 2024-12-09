@@ -6,14 +6,14 @@ import TotalBalance from "@/components/TotalBalance";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
-import { MdAddCircle, MdDownloading, MdError} from "react-icons/md";
+import {MdAddCircle, MdDelete, MdDownloading, MdError} from "react-icons/md";
 import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
 import CardTransaction from "@/components/card/CardTransaction";
 import AccessDenied from "@/components/AccessDenied";
 import { Button, Modal } from "flowbite-react";
 import {useState} from "react";
 import CustomInput from "@/components/generic/CustomInput";
-import { errorMessage, successMessage } from "@/utils/functions";
+import {errorMessage, formatCurrency, successMessage} from "@/utils/functions";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import { format, parse } from "date-fns";
 import { child, push, ref, update } from "firebase/database";
@@ -23,7 +23,8 @@ import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
 import UniqueChildren from "@/components/UniqueChildrenWrapper";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
-import VerticalDivider from "@/components/VerticalDivider";
+import Divider from "@/components/Divider";
+import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -31,14 +32,17 @@ export default function ProjectTransaction() {
   const path = usePathname();
 
   const [newModal, setNewModal] = useState(false);
-  const [filter, setFilter] = useState('All');
-  const [transactions, setTransactions] = useState({});
-  const [transactionType, setTransactionType] = useState("Expense");
-  const [inputTitle, setInputTitle] = useState("");
-  const [inputDetailsLabel, setInputDetailsLabel] = useState("Details");
-  const [inputDetails, setInputDetails] = useState("");
-  const [inputAmount, setInputAmount] = useState(0);
-  const [inputDate, setInputDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [filter, setFilter] = useState('all');
+  const [transactionData, setTransactionData] = useState({
+    type: 'Expense',
+    title: 'Select',
+    detailsLabel: 'Details',
+    details: '',
+    amount: 0,
+    date: format(new Date(), 'yyyy-MM-dd'),
+    paymentType: 'notPaid'
+  })
+  const [fullPaymentData, setFullPaymentData] = useState({key: '', details: ''})
 
   const filterOptions = [
     { value: 'all', label: 'All' },
@@ -65,14 +69,23 @@ export default function ProjectTransaction() {
       {value: 'CellFin (Account)', label: 'CellFin (Account)'},
       {value: 'bKash', label: 'bKash'},
   ];
+  const paymentTypeOptions = [
+    { value: 'notPaid', label: 'Not Paid' },
+    { value: 'full', label: 'Full' },
+    { value: 'partial', label: 'Partial' },
+  ];
 
-  const titleOptions = transactionType == "Expense" ? expenseOptions : paymentOptions;
+  const titleOptions = transactionData.type == "Expense" ? expenseOptions : paymentOptions;
   const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
   const [ data, dataLoading, errorData ] = useList(GetDatabaseReference(`transaction/project/${projectName}`));
   const total = GetTotalValue(data, "amount");
   const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/project/${projectName}`));
   const totalBalanceValue: number = totalBalanceData?.val().value;
   const totalBalanceDate: string = totalBalanceData?.val().date;
+  const paidDataOptions = data?.filter(t=>t.val().amount < 0).map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}${item.val().details ? `-${item.val().details}` : ''}: ${formatCurrency(item.val().amount)}`}));
+  const [partialDataSets, setPartialDataSets] = useState([
+    { id: 1, key: '', details: "", amount: 0 },
+  ]);
 
   const updateDate = async() => {
     const today = new Date();
@@ -105,69 +118,139 @@ export default function ProjectTransaction() {
     })
   }
 
+  const updatePaymentData = (key: string, amount: number) => {
+    const databaseRef = GetDatabaseReference(`transaction/project/${projectName}/${key}/data`);
+    const updateData = {
+      details: `${transactionData.title} - ${transactionData.details}`,
+      amount: amount,
+    }
+    update(databaseRef, updateData)
+      .catch((error) => console.warn(error.message))
+  }
+
+  const updatePartialPaymentData = async() => {
+    partialDataSets.forEach((partialDataSet) => {
+      if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
+        updatePaymentData(partialDataSet.key, partialDataSet.amount);
+      }
+    })
+  }
+
   const handleTypeChange = (value: string) => {
-    setTransactionType(value);
-    setInputTitle("Select");
-    setInputDetailsLabel("Details");
-    setInputDetails("");
+    setTransactionData({...transactionData, type: value, title: 'Select', detailsLabel: 'Details', details: ''});
   }
 
   const handleTitleChange = (value: string, label:string) => {
-    setInputTitle(value);
     switch (label) {
         case "Cash":
-            setInputDetailsLabel("Receiver");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Receiver', details: ''});
+          break;
         case "Cheque":
         case "Bank Transfer":
-            setInputDetailsLabel("Bank Name, Branch");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Bank Name, Branch', details: ''});
+          break;
         case "Account Transfer":
         case "CellFin (Account)":
-            setInputDetailsLabel("Account Number");
-            setInputDetails("Acc No.**");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Account Number', details: 'Acc No.**'});
+          break;
         case "bKash":
-            setInputDetailsLabel("bKash Number");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'bKash Number', details: ''});
+          break;
         case "Servicing":
-            setInputDetailsLabel("Month");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Month', details: ''});
+          break;
         case "Spare Parts":
-            setInputDetailsLabel("Name of Parts");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Name of Parts', details: ''});
+          break;
         default:
-            setInputDetailsLabel("Details");
-            setInputDetails("");
-            break;
+          setTransactionData({...transactionData, detailsLabel: 'Details', details: ''});
+          break;
     }
+    setTransactionData({...transactionData, title: value});
   }
 
-  const handleNew = async () => {
-    if (inputTitle == "Select") {
-        errorMessage(`Please select ${transactionType} type`)
-    }
-    if (!inputDate) {
-        errorMessage("Please select a valid date")
-    }
+  const handleNewClick = () => {
+    setTransactionData({...transactionData, type: 'Expense', title: 'Select', details: '', amount: 0, date: format(new Date(), 'yyyy-MM-dd'), paymentType: 'notPaid'});
+    setNewModal(true)
+  }
 
-    if(inputTitle != "Select" && inputDate) {
-      const updatedData = {
-        title: inputTitle,
-        details: inputDetails,
-        amount: transactionType == "Expense" ? inputAmount : inputAmount * (-1),
-        date: format(parse(inputDate, "yyyy-MM-dd", new Date()), "dd.MM.yy")
+  const addPartialDataSet = () => {
+    if (partialDataSets.length < 10) {
+      setPartialDataSets((prev) => [
+        ...prev,
+        { id: prev.length + 1, key: "", details: "", amount: 0 },
+      ]);
+    }
+  };
+
+  const removePartialDataSet = (id: number) => {
+    setPartialDataSets((prev) => prev.filter((set) => set.id !== id));
+  };
+
+  const handlePartialDataChange = (
+    id: number,
+    field: "details" | "key" | "amount",
+    value: string
+  ) => {
+    setPartialDataSets((prev) =>
+      prev.map((set) =>
+        set.id === id ? { ...set, [field]: value } : set
+      )
+    );
+  };
+
+  const saveNewTransaction = () => {
+    if (!transactionData.title || transactionData.title == "Select") {
+        errorMessage(`Please select ${transactionData.type} type`)
+    } else if (!transactionData.date) {
+        errorMessage("Please select a valid date")
+    } else if (transactionData.paymentType == "full" && (!fullPaymentData || !fullPaymentData.key || fullPaymentData.details === "Select" || fullPaymentData.details === "")) {
+      errorMessage("Please select a valid payment date")
+    } else {
+      let paymentData = {}
+      if (transactionData.paymentType == "full") {
+        paymentData = {
+          [fullPaymentData.key] : {
+            details: fullPaymentData.details,
+            amount: transactionData.amount,
+          }
+        }
+      } else if (transactionData.paymentType == "partial") {
+        paymentData = partialDataSets.reduce((partialDataObject, partialData) => {
+          if (partialData.key && partialData.key !== "Select" && partialData.details !== "Select") {
+            partialDataObject[partialData.key] = {
+              amount: partialData.amount,
+              details: partialData.details,
+            };
+          }
+          return partialDataObject;
+        }, {} as { [key: string]: { amount: number; details: string } });
       }
+      const updatedData = {
+        title: transactionData.title,
+        details: transactionData.details,
+        amount: transactionData.type == "Expense" ? transactionData.amount : transactionData.amount * (-1),
+        date: format(parse(transactionData.date, "yyyy-MM-dd", new Date()), "dd.MM.yy"),
+        data: paymentData
+      }
+
       const newKey = push(child(ref(database), `transaction/project/${projectName}`)).key
-      const newTransactionRef = `transaction/project/${projectName}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
+      const newTransactionRef = `transaction/project/${projectName}/${format(parse(transactionData.date, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
       update(ref(database, newTransactionRef), updatedData)
         .then(() => {
-          updateDate();
+          updateDate().catch((error) => {
+            console.warn(error);
+            errorMessage("Failed to update the last update date")
+          });
+          if (transactionData.paymentType == "full") {
+            updatePaymentData(fullPaymentData.key, transactionData.amount)
+          } else if (transactionData.paymentType == "partial") {
+            updatePartialPaymentData()
+              .catch((error) => {
+                console.log(error);
+                errorMessage("Failed to update payment data")
+              });
+          }
           successMessage("Saved the changes.")
         }).catch((error) => {
             console.error(error.message);
@@ -189,11 +272,11 @@ export default function ProjectTransaction() {
           headerTitle={projectName}>
         <div>
           <div className="flex items-center mt-2 gap-x-2">
-            <Button color={"blue"} onClick={()=> setNewModal(true)}>
+            <Button color={"blue"} onClick={handleNewClick}>
               <MdAddCircle className="mr-2 h-5 w-5"/>Add New Transaction
             </Button>
 
-            <VerticalDivider/>
+            <Divider orientation={`vertical`}/>
 
             <div className="flex items-center gap-x-2">
               <span>Filter by</span>
@@ -201,7 +284,7 @@ export default function ProjectTransaction() {
             </div>
 
             <div className={total != totalBalanceValue ? "" : "hidden"}>
-              <VerticalDivider/>
+              <Divider orientation={`vertical`}/>
             </div>
 
             <Button color="blue" className={total != totalBalanceValue ? "" : "hidden"} onClick={updateTotal}>
@@ -209,40 +292,98 @@ export default function ProjectTransaction() {
             </Button>
           </div>
 
-          <Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
+          <Modal show={newModal} size="3xl" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
             <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
               <div className="text-xl font-medium text-white">New Transaction</div>
             </Modal.Header>
-            <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-              <div className="space-y-4 pt-4">
+            <Modal.Body className="p-6 bg-slate-950 rounded-b-md border-b border-x border-blue-500">
                 <CustomRadioGroup id={'transactionType'} options={transactionOptions}
                                   onChange={(value) => handleTypeChange(value)}
-                                  defaultValue={transactionType}
-                />
-                <CustomDropDown id="title" label={`${transactionType} Type`} options={titleOptions}
-                                onChange={(value, label) => {
-                                  handleTitleChange(value, label)
-                                }}
-                />
-                <CustomInput type="text" label={inputDetailsLabel} id="details"
-                             value={inputDetails}
-                             onChange={(e) => setInputDetails(e.target.value)}
-                             color={"default"} helperText={""}
-                />
-                <CustomInput label="Amount" value={String(inputAmount)} type="number" id="amount"
-                             pre={`৳ ${transactionType == "Payment" ? "-" : ""}`}
-                             onChange={(e) => setInputAmount(Number(e.target.value))}
-                             required
-                />
-                <CustomInput label="Date" value={inputDate} type="date" id="date"
-                             onChange={(e) => setInputDate(e.target.value)}
+                                  defaultValue={transactionData.type}
                 />
 
-                <div className="flex gap-4 justify-center">
-                  <Button color="blue" onClick={handleNew}>Save</Button>
-                  <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
+                <Divider className={`my-6`}/>
+
+                <div className="flex items-center gap-x-2 -mt-2">
+                  <CustomDropDown id="title" label={`${transactionData.type} Type`} options={titleOptions}
+                                  className={`flex-[1_1_35%]`}
+                                  onChange={(value, label) => handleTitleChange(value, label)}
+                                  required={true}
+                  />
+                  <CustomInput id="details" type="text" label={transactionData.detailsLabel}
+                               className={`flex-[1_1_65%]`}
+                               value={transactionData.details}
+                               onChange={(e) => setTransactionData({...transactionData, details: e.target.value})}
+                  />
                 </div>
-              </div>
+                <div className="flex items-center gap-x-2">
+                  <CustomInput id="amount" type="number" label="Amount" value={transactionData.amount}
+                               className={`flex-[1_1_50%]`}
+                               pre={`৳ ${transactionData.type == "Payment" ? "-" : ""}`}
+                               onChange={(e) => setTransactionData({...transactionData, amount: Number(e.target.value)})}
+                               required={true}
+                  />
+                  <CustomDateTimeInput id="date" type="date" label="Date"
+                                       className={`flex-[1_1_50%]`}
+                                       value={transactionData.date}
+                                       onChange={(value) => setTransactionData({...transactionData, date: value})}
+                                       required={true}
+                  />
+                </div>
+                  {paidDataOptions && transactionData.type == "Expense" ?
+                    <div>
+                      <Divider className={`my-6`}/>
+                      <CustomRadioGroup id={'paymentType'} options={paymentTypeOptions} className={`m-6`}
+                                        onChange={(value) => setTransactionData({
+                                          ...transactionData,
+                                          paymentType: value
+                                        })}
+                                        defaultValue={transactionData.paymentType}
+                      />
+                      {
+                        transactionData.paymentType == "full" ?
+                          <CustomDropDown id="paymentDate" label={`Payment Date`} options={paidDataOptions}
+                                          onChange={(value, label) => {
+                                            setFullPaymentData({key: value, details: label})
+                                          }}
+                          />
+                          : transactionData.paymentType == "partial" ?
+                            <div>
+                              {
+                                partialDataSets.length < 10 && (
+                                  <Button color="blue" onClick={addPartialDataSet} className={`mx-auto min-w-[30%]`}>Add</Button>
+                                )
+                              }
+                              {
+                                partialDataSets.map((set, index) => (
+                                  <div key={set.id} className={`flex items-end gap-x-2`}>
+                                    <CustomDropDown id={`paymentDate${index + 1}`} label={`Payment Date ${index + 1}`}
+                                                    className={`flex-[1_1_75%]`} options={paidDataOptions}
+                                                    onChange={(value, label) => {
+                                                      handlePartialDataChange(set.id, "details", label);
+                                                      handlePartialDataChange(set.id, "key", value);
+                                                    }}
+                                    />
+                                      <CustomInput id={`paymentAmount${index + 1}`} label={`Amount ${index + 1}`}
+                                                   type="number" pre={`৳`} className={`flex-[1_1_25%]`}
+                                                   onChange={(e) => handlePartialDataChange(set.id, "amount", e.target.value)}
+                                      />
+                                      <Button color="failure" onClick={() => removePartialDataSet(set.id)}><MdDelete
+                                        className={`w-5 h-5`}></MdDelete></Button>
+                                  </div>
+                                ))
+                              }
+                            </div>
+                            : null
+                      }
+                      <Divider className={`my-6`}/>
+                    </div> : null
+                  }
+
+                  <div className="flex gap-4 justify-center mt-4">
+                    <Button color="blue" onClick={saveNewTransaction}>Save</Button>
+                    <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
+                  </div>
             </Modal.Body>
           </Modal>
 
@@ -262,25 +403,25 @@ export default function ProjectTransaction() {
                   <MdError className='mx-1 w-6 h-6 content-center'/>
                 </CardIcon>
               ) : filter == "expense" ?
-                <UniqueChildren>
-                  {
-                    data.filter(transaction => transaction.val().amount <= 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-                      const snapshot = item.val();
-                      return (
-                        <div className="flex flex-col" key={item.key}>
-                          <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
-                                           title={snapshot.title} details={snapshot.details}
-                                           amount={snapshot.amount} date={snapshot.date}
-                                           access={user.role}/>
-                        </div>
-                      )
-                    })
-                  }
-                </UniqueChildren>
+                  <UniqueChildren>
+                    {
+                      data.filter(transaction => transaction.val().amount >= 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                        const snapshot = item.val();
+                        return (
+                          <div className="flex flex-col" key={item.key}>
+                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
+                                             title={snapshot.title} details={snapshot.details}
+                                             amount={snapshot.amount} date={snapshot.date}
+                                             access={user.role}/>
+                          </div>
+                        )
+                      })
+                    }
+                  </UniqueChildren>
                 : filter == "payment" ?
                   <UniqueChildren>
                     {
-                      data.filter(transaction => transaction.val().amount > 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+                      data.filter(transaction => transaction.val().amount < 0).sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
                         const snapshot = item.val();
                         return (
                           <div className="flex flex-col" key={item.key}>
@@ -310,8 +451,7 @@ export default function ProjectTransaction() {
                     }
                   </UniqueChildren>
             }
-            <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue}
-                          onClick={updateTotal}/>
+            <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
           </div>
         </div>
       </Layout>
