@@ -19,10 +19,10 @@ const CustomRadioGroup: React.FC<RadioGroupProps> = ({ id, options, onChange, de
   return (
     <div className={`space-x-4 text-center ${className}`}>
       {
-        options.map((option) => (
-          <label key={option.value} htmlFor={id}>
+        options.map((option, index) => (
+          <label key={option.value} htmlFor={`${id}${index}`}>
             <input
-              id={id}
+              id={`${id}${index}`}
                 className={"mr-2"}
                 type="radio"
                 value={option.value}
