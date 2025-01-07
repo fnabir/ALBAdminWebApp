@@ -23,3 +23,9 @@ export const OfferWorkOptions = [
 	{value: 'Installation'},
 	{value: 'Repair'}
 ];
+
+export const PaymentTypeOptions = [
+	{ value: 'notPaid', label: 'Not Paid' },
+	{ value: 'full', label: 'Full' },
+	{ value: 'partial', label: 'Partial' },
+];
