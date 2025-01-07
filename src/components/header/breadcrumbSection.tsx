@@ -7,6 +7,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {FC} from "react";
+import {breadcrumbItem} from "@/lib/types";
 
 const BreadcrumbSection: FC<{ breadcrumb: breadcrumbItem[] }> = ({breadcrumb}) => {
 	return (
