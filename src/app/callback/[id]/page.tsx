@@ -1,146 +1,196 @@
 "use client"
 
-import Layout from "@/components/Layout";
-import Loading from "@/components/Loading";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
-import CardIcon from "@/components/card/CardIcon";
-import { MdAddCircle, MdDownloading, MdError } from "react-icons/md";
-import CardCallbackProject from "@/components/card/CardCallbackProject";
-import AccessDenied from "@/components/AccessDenied";
-import {useList} from "react-firebase-hooks/database";
-import {GenerateDatabaseKey, GetDatabaseReference} from "@/firebase/database";
-import {Button, Modal} from "flowbite-react";
-import { useState } from "react";
-import { errorMessage, successMessage } from "@/utils/functions";
-import { update } from "firebase/database";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import Layout from "@/components/layout";
+import { usePathname } from "next/navigation";
+import {
+	Dialog, DialogClose,
+	DialogContent,
+	DialogDescription, DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger
+} from "@/components/ui/dialog";
+import {Button} from "@/components/ui/button";
+import {MdAddCircle, MdDelete, MdEditNote, MdError, MdMoreHoriz} from "react-icons/md";
+import CustomSeparator from "@/components/generic/CustomSeparator";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import CustomInput from "@/components/generic/CustomInput";
-import {CallbackStatusOptions} from "@/utils/arrays";
+import {callbackStatusOptions} from "@/lib/arrays";
 import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
+import {ScrollArea} from "@/components/ui/scrollArea";
+import {Skeleton} from "@/components/ui/skeleton";
+import CardIcon from "@/components/card/cardIcon";
+import {DataSnapshot} from "@firebase/database";
+import CardCallbackTotal from "@/components/card/cardCallbackTotal";
+import React, {useState} from "react";
+import {generateDatabaseKey, getDatabaseReference} from "@/lib/utils";
+import {useList, useObject} from "react-firebase-hooks/database";
+import {useAuth} from "@/hooks/useAuth";
+import {useForm} from "react-hook-form";
+import {CallbackFormData, callbackSchema} from "@/lib/schemas";
+import {zodResolver} from "@hookform/resolvers/zod";
+import CardCallbackProject from "@/components/card/cardCallbackProject";
+import {DataTable} from "@/components/ui/dataTable";
+import {ColumnDef} from "@tanstack/react-table";
+import {callback, projectTransaction} from "@/lib/types";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel, DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from "@/components/ui/dropdownMenu";
+import {addNewCallback, deleteCallback, deleteTransaction, updateCallback} from "@/lib/functions";
 import {format, parse} from "date-fns";
+import {remove} from "firebase/database";
+import CardTransactionProject from "@/components/card/cardTransactionProject";
 
-export default function CallbackProject() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const path = usePathname();
-  const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference(`callback/${projectName}`));
+export default function CallbackProjectPage() {
+	const { user, loading, userRole } = useAuth();
+	const path = usePathname();
+	const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
 
-  const [newModal, setNewModal] = useState(false);
-  const [callbackData, setCallbackData] = useState({
-    name: '',
-    details: '',
-    date: '',
-    status: '',
-    databaseDate: ''
-  });
+	const [dialog, setDialog] = useState<boolean>(false);
+	const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+	const [ data, dataLoading, dataError ] = useList(getDatabaseReference(`callback/${projectName}`));
+	const breadcrumb: {text: string, link?: string}[] = [
+		{ text: "Home", link: "/" },
+		{ text: "/" },
+		{ text: "Callback", link: "/callback" },
+		{ text: "/" },
+		{ text: projectName },
+	]
 
-  const handleAddNewCallbackClick = () => {
-    setCallbackData({name:'', details:'', date: format(new Date(), "dd.MM.yy"), status:'', databaseDate: format(new Date(), "yyyy-MM-dd")})
-    setNewModal(true)
-  }
+	const {
+		register,
+		reset,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<CallbackFormData>({
+		resolver: zodResolver(callbackSchema),
+		defaultValues: {project: projectName},
+	});
 
-  const saveCallback = () => {
-    if (!callbackData || !callbackData.details) errorMessage('Callback details required')
-    else {
-      const key = callbackData.databaseDate + GenerateDatabaseKey((`callback/${projectName}`))
-      update(GetDatabaseReference(`callback/${projectName}/${key}`), {
-        details: callbackData.details,
-        name: callbackData.name,
-        status: callbackData.status,
-        date: callbackData.date
-      }).then(() => {
-        successMessage("Saved the callback successfully")
-      }).catch((error) => {
-        errorMessage(error.message)
-      }).finally(() => {
-        setNewModal(false)
-      })
-    }
-  }
+	const onSubmit = (data: CallbackFormData) => {
+		addNewCallback(projectName, data.date, {
+			details: data.details,
+			name: data.name,
+			status: data.status,
+			date: format(new Date(data.date), "dd.MM.yy"),
+		}).finally(() => {
+			setDialog(false);
+			window.location.reload();
+		});
+	};
 
-  if (loading) return <Loading/>
+	const handleReset = () => {
+		reset();
+	};
 
-  if (!loading && !user) return router.push("/login");
-
-  if (user.role == "admin" || user.role == "manager") {
-    return (
-      <Layout
-        pageTitle={projectName + " | Asian Lift Bangladesh"}
-        headerTitle={"Callback | " + projectName}>
-        <div>
-          <div className="flex items-center mt-2 gap-x-2">
-            <Button color={"blue"} onClick={handleAddNewCallbackClick}>
-              <MdAddCircle className="mr-2 h-5 w-5"/>Add New Callback
-            </Button>
-          </div>
-
-          <Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
-            <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-              <div className="text-xl font-medium text-white">New Offer</div>
-            </Modal.Header>
-            <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-              <div>
-                <CustomInput id="project" type={"text"} label={"Project Name"}
-                             value={projectName} required={true} disabled={true}
-                />
-                <CustomInput id={"details"} type="text" label="Callback Details"
-                             onChange={(e) => setCallbackData({...callbackData, details: e.target.value})}
-                             required={true}
-                />
-                <CustomInput id={"name"} type="text" label="Name"
-                             onChange={(e) => setCallbackData({...callbackData, name: e.target.value})}
-                />
-                <CustomDropDown id="status" label={"Status"} options={CallbackStatusOptions}
-                                onChange={(value) => setCallbackData({...callbackData, status: value})}
-                />
-                <CustomDateTimeInput id={"startDate"} label={"Start"} type={"date"}
-                                     value={format(new Date(), "yyyy-MM-dd")}
-                                     onChange={(value) => setCallbackData({ ...callbackData, date: format(parse(value, "yyyy-MM-dd", new Date()), "dd.MM.yy"), databaseDate: value})}
-                                     required={true}
-                />
-                <div className="flex mt-4 gap-4 justify-center">
-                  <Button color="blue" onClick={saveCallback}>Save</Button>
-                  <Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
-                </div>
-              </div>
-            </Modal.Body>
-          </Modal>
-
-          <div className="flex flex-col py-2 gap-y-2">
-            {
-              dataLoading ? (
-                <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                  <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : dataError ? (
-                <CardIcon title={"Error"} subtitle={dataError.message}>
-                  <MdError className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : !data || data?.length == 0 ? (
-                <CardIcon title={"No record found!"} >
-                  <MdError className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : (
-                <UniqueChildren>
-                  {
-                    data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-                      const snapshot = item.val();
-                      return (
-                        <div className="flex flex-col" key={item.key}>
-                          <CardCallbackProject date={snapshot.date} details={snapshot.details} name={snapshot.name} status={snapshot.status} id={`${projectName}/${item.key!}`}/>
-                        </div>
-                      )
-                    })
-                  }
-                </UniqueChildren>
-              )
-            }
-          </div>
-        </div>
-      </Layout>
-    );
-  } else return <AccessDenied/>;
-};
+	return (
+		<Layout breadcrumb={breadcrumb}>
+			<div className={"flex flex-col h-full"}>
+				<div className="flex items-center pt-1 pb-2 gap-x-2">
+					<Dialog open={dialog} onOpenChange={setDialog}>
+						<DialogTrigger asChild>
+							<Button variant={"accent"} onClick={handleReset}>
+								<MdAddCircle/> Add New Callback
+							</Button>
+						</DialogTrigger>
+						<DialogContent className={"border border-accent"}>
+							<DialogHeader>
+								<DialogTitle>Add New Callback</DialogTitle>
+								<DialogDescription>
+									Click submit to add the new callback record
+								</DialogDescription>
+							</DialogHeader>
+							<CustomSeparator orientation={"horizontal"}/>
+							<form onSubmit={handleSubmit(onSubmit)}
+										className="flex-col mt-4 space-y-4">
+								<CustomInput id="details"
+														 type="text"
+														 label={"Details"}
+														 {...register('details')}
+														 helperText={errors.details ? errors.details.message : ""}
+														 color={errors.details ? "error" : "default"}
+														 required
+								/>
+								<CustomInput id="name"
+														 type="text"
+														 label={"Name"}
+														 {...register('name')}
+														 helperText={errors.name ? errors.name.message : ""}
+														 color={errors.name ? "error" : "default"}
+														 required
+								/>
+								<CustomDropDown id="status"
+																label="Status"
+																options={callbackStatusOptions}
+																{...register('status')}
+																helperText={errors.status ? errors.status.message : ""}
+																color={errors.status ? "error" : "default"}
+																required
+								/>
+								<CustomDateTimeInput id="date"
+																		 type="date"
+																		 label="Date"
+																		 helperText={errors.date ? errors.date.message : ""}
+																		 color={errors.date ? "error" : "default"}
+																		 {...register("date")}
+																		 required
+								/>
+								<DialogFooter className={"sm:justify-center pt-8"}>
+									<DialogClose asChild>
+										<Button type="button" size="lg" variant="secondary">Close</Button>
+									</DialogClose>
+									<Button type="button" size="lg" variant="secondary" onClick={handleReset}>Reset</Button>
+									<Button type="submit" size="lg" variant="accent">Save</Button>
+								</DialogFooter>
+							</form>
+						</DialogContent>
+					</Dialog>
+				</div>
+				<ScrollArea className={"flex-grow mb-4 -mr-4 pr-4"}>
+					{
+						dataLoading ?
+							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
+								<div className={"flex-auto"}>
+									<Skeleton className="h-6 mb-1 w-2/5 rounded-xl"/>
+								</div>
+								<Skeleton className="h-6 w-32 mr-4 rounded-xl"/>
+							</div>
+							: dataError ?
+								<CardIcon
+									title={"Error"}
+									description={dataError.message}>
+									<MdError size={28}/>
+								</CardIcon>
+								: !data || data.length == 0 ?
+									<CardIcon
+										title={"No Record Found"}>
+										<MdError size={28}/>
+									</CardIcon>
+									: <div className="space-y-2">
+										{
+											data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+												const snapshot = item.val();
+												return (
+													<div key={item.key}>
+														<CardCallbackProject project={projectName}
+																								 id={item.key!}
+																								 details={snapshot.details}
+																								 name={snapshot.name}
+																								 status={snapshot.status}
+																								 date={snapshot.date}
+														/>
+													</div>
+												)
+											})
+										}
+									</div>
+					}
+				</ScrollArea>
+			</div>
+		</Layout>
+	)
+}
