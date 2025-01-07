@@ -7,8 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import CardIcon from "@/components/card/CardIcon";
 import {MdAddCircle, MdDelete, MdDownloading, MdError} from "react-icons/md";
-import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
-import CardTransaction from "@/components/card/CardTransaction";
+import {GenerateDatabaseKey, GetDatabaseReference, GetTotalValue} from "@/firebase/database";
+import CardTransactionProject from "@/components/card/CardTransactionProject";
 import AccessDenied from "@/components/AccessDenied";
 import { Button, Modal } from "flowbite-react";
 import {useState} from "react";
@@ -16,8 +16,7 @@ import CustomInput from "@/components/generic/CustomInput";
 import {errorMessage, formatCurrency, successMessage} from "@/utils/functions";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import { format, parse } from "date-fns";
-import { child, push, ref, update } from "firebase/database";
-import { database } from "@/firebase/config";
+import { DatabaseReference, update} from "firebase/database";
 import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import {formatInTimeZone} from "date-fns-tz";
 import {useList, useObject} from "react-firebase-hooks/database";
@@ -25,6 +24,7 @@ import UniqueChildren from "@/components/UniqueChildrenWrapper";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
 import Divider from "@/components/Divider";
 import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
+import {PaymentTypeOptions} from "@/utils/arrays";
 
 export default function ProjectTransaction() {
   const { user, loading } = useAuth();
@@ -43,6 +43,9 @@ export default function ProjectTransaction() {
     paymentType: 'notPaid'
   })
   const [fullPaymentData, setFullPaymentData] = useState({key: '', details: ''})
+  const [partialDataSets, setPartialDataSets] = useState([
+    { id: 1, key: '', details: "", amount: 0 },
+  ]);
 
   const filterOptions = [
     { value: 'all', label: 'All' },
@@ -69,11 +72,6 @@ export default function ProjectTransaction() {
       {value: 'CellFin (Account)', label: 'CellFin (Account)'},
       {value: 'bKash', label: 'bKash'},
   ];
-  const paymentTypeOptions = [
-    { value: 'notPaid', label: 'Not Paid' },
-    { value: 'full', label: 'Full' },
-    { value: 'partial', label: 'Partial' },
-  ];
 
   const titleOptions = transactionData.type == "Expense" ? expenseOptions : paymentOptions;
   const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
@@ -82,10 +80,7 @@ export default function ProjectTransaction() {
   const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/project/${projectName}`));
   const totalBalanceValue: number = totalBalanceData?.val().value;
   const totalBalanceDate: string = totalBalanceData?.val().date;
-  const paidDataOptions = data?.filter(t=>t.val().amount < 0).map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}${item.val().details ? `-${item.val().details}` : ''}: ${formatCurrency(item.val().amount)}`}));
-  const [partialDataSets, setPartialDataSets] = useState([
-    { id: 1, key: '', details: "", amount: 0 },
-  ]);
+  const paidDataOptions = data?.filter(t=>t.val().amount < 0).map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}: ${formatCurrency(Math.abs(item.val().amount))}`}));
 
   const updateDate = async() => {
     const today = new Date();
@@ -118,20 +113,27 @@ export default function ProjectTransaction() {
     })
   }
 
-  const updatePaymentData = (key: string, amount: number) => {
-    const databaseRef = GetDatabaseReference(`transaction/project/${projectName}/${key}/data`);
-    const updateData = {
-      details: `${transactionData.title} - ${transactionData.details}`,
+  const updatePaymentData = (transactionId: string, key: string, details: string, amount: number) => {
+    const expenseRef = GetDatabaseReference(`transaction/project/${projectName}/${transactionId}/data/${key}`);
+    const paymentRef = GetDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`);
+    const expenseData = {
+      details: `${format(parse(transactionData.date, "yyyy-MM-dd", new Date()), "dd.MM.yy")} ${transactionData.title} - ${transactionData.details}`,
       amount: amount,
     }
-    update(databaseRef, updateData)
-      .catch((error) => console.warn(error.message))
+    const paymentData = {
+      details: details,
+      amount: amount,
+    }
+    update(expenseRef, paymentData)
+      .catch((error) => console.error(`Payment Data in Expense Transaction: ${error.message}`))
+    update(paymentRef, expenseData)
+      .catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
   }
 
-  const updatePartialPaymentData = async() => {
+  const updatePartialPaymentData = async(newKey: string) => {
     partialDataSets.forEach((partialDataSet) => {
       if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
-        updatePaymentData(partialDataSet.key, partialDataSet.amount);
+        updatePaymentData(newKey, partialDataSet.key, partialDataSet.details, partialDataSet.amount);
       }
     })
   }
@@ -234,18 +236,18 @@ export default function ProjectTransaction() {
         data: paymentData
       }
 
-      const newKey = push(child(ref(database), `transaction/project/${projectName}`)).key
-      const newTransactionRef = `transaction/project/${projectName}/${format(parse(transactionData.date, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
-      update(ref(database, newTransactionRef), updatedData)
+      const newTransactionRef: DatabaseReference = GetDatabaseReference(`transaction/project/${projectName}/${format(parse(transactionData.date, "yyyy-MM-dd", new Date()), "yyMMdd")}${GenerateDatabaseKey(`transaction/project/${projectName}`)}`);
+      const newKey: string = newTransactionRef.key!;
+      update(newTransactionRef, updatedData)
         .then(() => {
           updateDate().catch((error) => {
             console.warn(error);
             errorMessage("Failed to update the last update date")
           });
           if (transactionData.paymentType == "full") {
-            updatePaymentData(fullPaymentData.key, transactionData.amount)
+            updatePaymentData(newKey, fullPaymentData.key, fullPaymentData.details, transactionData.amount)
           } else if (transactionData.paymentType == "partial") {
-            updatePartialPaymentData()
+            updatePartialPaymentData(newKey)
               .catch((error) => {
                 console.log(error);
                 errorMessage("Failed to update payment data")
@@ -333,7 +335,7 @@ export default function ProjectTransaction() {
                   {paidDataOptions && transactionData.type == "Expense" ?
                     <div>
                       <Divider className={`my-6`}/>
-                      <CustomRadioGroup id={'paymentType'} options={paymentTypeOptions} className={`m-6`}
+                      <CustomRadioGroup id={'paymentType'} options={PaymentTypeOptions} className={`m-6`}
                                         onChange={(value) => setTransactionData({
                                           ...transactionData,
                                           paymentType: value
@@ -409,10 +411,11 @@ export default function ProjectTransaction() {
                         const snapshot = item.val();
                         return (
                           <div className="flex flex-col" key={item.key}>
-                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
-                                             title={snapshot.title} details={snapshot.details}
-                                             amount={snapshot.amount} date={snapshot.date}
-                                             access={user.role}/>
+                            <CardTransactionProject projectName={projectName} transactionId={item.key!}
+                                                    title={snapshot.title} details={snapshot.details}
+                                                    amount={snapshot.amount} date={snapshot.date}
+                                                    userAccess={user.role}
+                                                    paidDataOptions={paidDataOptions}/>
                           </div>
                         )
                       })
@@ -425,10 +428,11 @@ export default function ProjectTransaction() {
                         const snapshot = item.val();
                         return (
                           <div className="flex flex-col" key={item.key}>
-                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
-                                             title={snapshot.title} details={snapshot.details}
-                                             amount={snapshot.amount} date={snapshot.date}
-                                             access={user.role}/>
+                            <CardTransactionProject projectName={projectName} transactionId={item.key!}
+                                                    title={snapshot.title} details={snapshot.details}
+                                                    amount={snapshot.amount} date={snapshot.date}
+                                                    userAccess={user.role}
+                                                    paidDataOptions={paidDataOptions}/>
                           </div>
                         )
                       })
@@ -441,10 +445,11 @@ export default function ProjectTransaction() {
                         const snapshot = item.val();
                         return (
                           <div className="flex flex-col" key={item.key}>
-                            <CardTransaction type={"project"} uid={projectName} transactionId={item.key!}
-                                             title={snapshot.title} details={snapshot.details}
-                                             amount={snapshot.amount} date={snapshot.date}
-                                             access={user.role}/>
+                            <CardTransactionProject projectName={projectName} transactionId={item.key!}
+                                                    title={snapshot.title} details={snapshot.details}
+                                                    amount={snapshot.amount} date={snapshot.date}
+                                                    userAccess={user.role}
+                                                    paidDataOptions={paidDataOptions}/>
                           </div>
                         )
                       })
