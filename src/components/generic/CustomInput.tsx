@@ -1,90 +1,65 @@
-import React, { FC, useState } from "react"
+import React, { FC } from "react"
 
-interface Props {
-    id?: string,
-    label: string
-    type: string
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
+    id?: string;
+    label: string;
     placeholder?: string;
-    value?: string | number;
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
-    className?: string
-    minLength?: number,
-    maxLength?: number,
-    minNumber?: number,
-    maxNumber?: number,
-    minDate?: string,
-    maxDate?: string,
-    helperText?: string,
-    color?: string
-    disabled?: boolean,
-    required?: boolean,
-    pre?:string,
+    className?: string;
+    helperText?: string;
+    color?: string;
+    disabled?: boolean;
+    required?: boolean;
+    floating?: boolean;
+    pre?:string;
+    sign?: string;
+    readOnly?: boolean;
 }
 
 const CustomInput: FC<Props> = ({
-    id,
-    label,
-    type="text", placeholder="",
-    value,
-    onChange,
-    className,
-    minLength=0,
-    maxLength=64, helperText, color,
-    minNumber, maxNumber, minDate, maxDate,
-    disabled,
-    required=false,
-    pre="",
-    ...rest
+    id, label, placeholder="", className, helperText, color, disabled, required=false, floating = true, readOnly, pre="", sign="", ...rest
   }) => {
-    const [, setInputValue] = useState(value);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
-        if (onChange) {
-            onChange(e);
-        }
-      };
-
     return (
         <div className={className}>
-            <div className={"relative mt-4"}>
-                {
-                  pre && <div className={"absolute text-gray-400 pl-2.5 pb-2.5 pt-2 peer-focus:text-blue-400"}>
-                      {pre}
-                  </div>
-                }
-                <input
-                  type={type}
-                  id={id}
-                  className={`w-full py-2 border rounded-lg focus:border-blue-400 focus:outline-none focus:ring-0 peer 
-                              ${pre ? 'pl-9 pr-2.5' : 'px-2.5'} ${disabled ? "bg-gray-700" : "text-white bg-transparent"}
-                              ${disabled ? "text-gray-400 border-gray-600" : color == "error" ? 'text-red-400 border-red-600' : 'text-white border-gray-600'}`}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={handleInputChange}
-                    minLength={minLength}
-                    maxLength={maxLength}
-                    min={type == "number" ? minNumber : ""}
-                    max={type == "number" ? maxNumber : ""}
-                    disabled={disabled}
-                    required={required}
-                    autoComplete={"off"}
-                    {...rest}
-                />
-                <label
-                    htmlFor={id}
-                    className={(color=="error" ? "text-red-400" : "text-gray-200") + " absolute text-md duration-300 scale-[0.85] transform -translate-y-5 top-2 z-10 origin-[0] bg-gray-950 px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1"}>
-                    {label}
-                    {
-                        required && <span className="absolute text-red-600 text-xl pl-[0.1rem] -translate-y-1">*</span>
-                    }
-                </label>
-            </div>
+          <div className={`relative ${floating ? "mt-4" : "mt-6"}`}>
             {
-              helperText && <div className={`m-1 text-xs ${color == "error" ? "text-red-400" : "text-sky-300"}`}>
-                  {helperText}
+              pre &&
+              <div className={`absolute text-primary pl-3 pt-2.5 ${disabled ? "text-primary/50" : "text-primary"}`}>
+                {pre}
               </div>
             }
+            {
+              sign && <div
+                className={`absolute text-lg pl-7 pt-2 -translate-y-1 ${disabled ? "text-primary/50" : "text-primary"}`}>
+                {sign}
+              </div>
+            }
+            <input
+              id={id}
+              className={`w-full py-2 border rounded-lg focus:border-blue-500 focus:outline-none focus:ring-0 peer 
+                            ${pre ? 'pl-9 pr-2.5' : 'px-2.5'} ${disabled ? "bg-muted/50" : "text-primary bg-transparent"}
+                            ${disabled ? "text-primary/50 border-gray-600" : color == "error" ? 'text-destructive-foreground border-red-500' : 'text-primary border-gray-600'}`}
+              placeholder={placeholder}
+              disabled={disabled}
+              required={required}
+              readOnly={readOnly}
+              autoComplete={"off"}
+              {...rest}
+            />
+            <label
+              htmlFor={id}
+              className={`text-card-foreground absolute -translate-y-5 z-10 start-1 
+                            ${floating ? "text-md duration-300 scale-[0.85] transform top-2 z-10 origin-[0] bg-card px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                : "text-sm"}`}>
+              {label}
+              {required && <span className="absolute text-red-500 text-xl pl-[0.1rem] -translate-y-1">*</span>}
+              {readOnly && <span className="pl-1">(Read-only)</span>}
+            </label>
+          </div>
+          {
+            helperText && <div className={`m-1 text-sm ${color == "error" ? "text-red-500" : "text-sky-500"}`}>
+              {helperText}
+            </div>
+          }
         </div>
     )
 }

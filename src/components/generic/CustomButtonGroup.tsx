@@ -20,7 +20,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({ value, options, onChange }) =
 				<button
 					key={option.value}
 					onClick={() => handleClick(option.value)}
-					className={`font-semibold py-1 px-4 rounded-full border border-blue-400 hover:bg-blue-800 ${selected === option.value ? "bg-blue-600 text-white" : "bg-transparent text-blue-400 hover:text-white hover:border-transparent"}`}
+					className={`py-1 px-2 rounded-lg border border-blue-400 hover:bg-blue-800 ${selected === option.value ? "bg-blue-600 text-white" : "bg-transparent text-blue-400 hover:text-white hover:border-transparent"}`}
 				>
 					{option.label ? option.label : option.value}
 				</button>
