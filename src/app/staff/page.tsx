@@ -1,88 +1,91 @@
 "use client"
 
-import Layout from "@/components/Layout";
-import Loading from "@/components/Loading";
-import TotalBalance from "@/components/TotalBalance";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import CardIcon from "@/components/card/CardIcon";
-import { MdDownloading, MdError } from "react-icons/md";
-import CardBalance from "@/components/card/CardBalance";
-import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
-import AccessDenied from "@/components/AccessDenied";
+import Layout from "@/components/layout";
+import CardTotalBalance from "@/components/card/cardTotalBalance";
 import {useList, useObject} from "react-firebase-hooks/database";
-import {update} from "firebase/database";
-import {errorMessage, successMessage} from "@/utils/functions";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
+import {ScrollArea} from "@/components/ui/scrollArea";
+import CardIcon from "@/components/card/cardIcon";
+import {Skeleton} from "@/components/ui/skeleton";
+import {MdError} from "react-icons/md";
+import CardBalance from "@/components/card/cardBalance";
+import {DataSnapshot} from "@firebase/database";
+import {Button} from "@/components/ui/button";
+import {updateTotalBalance} from "@/lib/functions";
+import React from "react";
 
-export default function Staff() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+export default function StaffPage() {
+	const breadcrumb: {text: string, link?: string}[] = [
+		{ text: "Home", link: "/" },
+		{ text: "/" },
+		{ text: "Staff" },
+	]
 
-  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('balance/staff'));
-  const total = GetTotalValue(data);
+	const [staffData, staffLoading, staffError] = useList(getDatabaseReference("balance/staff"));
+	const [totalBalanceData, totalBalanceLoading] = useObject(getDatabaseReference("balance/total/staff"));
+	const total: number = getTotalValue(staffData);
+	const totalBalanceValue = totalBalanceData?.val().value;
 
-  const [ staffBalanceData ] = useObject(GetDatabaseReference(`balance/total/staff`))
-  const staffBalanceValue = staffBalanceData?.val().value;
-  const staffBalanceDate = staffBalanceData?.val().date;
-  const [ conveyanceBalanceData ] = useObject(GetDatabaseReference(`balance/total/conveyance`))
-  const conveyanceBalanceValue = conveyanceBalanceData?.val().value;
-  const conveyanceBalanceDate = conveyanceBalanceData?.val().date;
+	const handleUpdateTotalBalance = () => {
+		updateTotalBalance("staff", total).then(() => {
+			showToast("Success", "Total balance updated successfully", "success");
+		}).catch((error) => {
+			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+		})
+	}
 
-  const updateTotal = async() => {
-    update(GetDatabaseReference(`balance/total/staff}`), {
-      value: total,
-    }).then(() => {
-      successMessage("Total balance updated successfully!");
-    }).catch((error) => {
-      console.error(error.message);
-      errorMessage(error.message);
-    })
-  }
-
-  if (loading) return <Loading/>
-
-  if (!loading && !user) return router.push("/login");
-
-  if (user.role == "admin") {
-    return (
-      <Layout 
-        pageTitle="Staff | Asian Lift Bangladesh"
-        headerTitle="Staff">
-          <div className="flex flex-col py-2 gap-y-2">
-            {
-              dataLoading ? (
-                <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                  <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : dataError ? (
-                <CardIcon title={"Error"} subtitle={dataError?.message}>
-                  <MdError className='mx-1 w-6 h-6 content-center'/>
-                </CardIcon>
-              ) : !data || data.length == 0 ? (
-                  <CardIcon title={"No record found!"} >
-                    <MdError className='mx-1 w-6 h-6 content-center'/>
-                  </CardIcon>
-              ) : (
-                <UniqueChildren>
-                  {
-                    data.sort((a,b) => a.val().position - b.val().position).map((item) => {
-                      const snapshot = item.val();
-                      return (
-                        <div className="flex flex-col" key={item.key}>
-                          <CardBalance type={"staff"} id={item.key!} name={snapshot.name} value={snapshot.value} date={snapshot.date}
-                                      status={snapshot.status}/>
-                        </div>
-                      )
-                    })
-                  }
-                </UniqueChildren>
-              )
-            }
-            <TotalBalance text="Total Conveyance" value={conveyanceBalanceValue} date={conveyanceBalanceDate}/>
-            <TotalBalance value={total + conveyanceBalanceValue} date={staffBalanceDate} update={total != staffBalanceValue} onClick={updateTotal}/>
+	return (
+		<Layout breadcrumb={breadcrumb}>
+			<div className={"flex flex-col h-full"}>
+				{!staffLoading && !totalBalanceLoading && total != totalBalanceValue &&
+          <div>
+            <Button variant="accent" onClick={handleUpdateTotalBalance}>
+              Update Total Balance
+            </Button>
           </div>
-      </Layout>
-    );
-  } else return <AccessDenied/>;
+				}
+				<ScrollArea className={"flex-grow mb-4 -mr-4 pr-4"}>
+					{
+						staffLoading ?
+							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
+								<Skeleton className="flex-wrap h-10 w-10 mr-4 rounded-full"/>
+								<div className={"flex-auto"}>
+									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
+									<Skeleton className="h-4 w-2/5 rounded-xl"/>
+								</div>
+							</div>
+						: staffError ?
+							<CardIcon
+								title={"Error"}
+								description={staffError.message}>
+								<MdError size={28}/>
+							</CardIcon>
+						: !staffData || staffData.length == 0 ?
+							<CardIcon
+								title={"No Record Found"}>
+								<MdError size={28}/>
+							</CardIcon>
+						: staffData.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().position - b.val().position)).map((item: DataSnapshot) => {
+							const snapshot = item.val();
+							return (
+								<div className="flex-col my-2" key={item.key}>
+									<CardBalance type={"staff"} id={item.key ? item.key : "undefined"} name={snapshot.name}
+															 value={snapshot.value} date={snapshot.date}
+															 status={snapshot.status}/>
+								</div>
+							)
+						})
+					}
+				</ScrollArea>
+				<div>
+					{totalBalanceData &&
+            <CardTotalBalance value={total}
+                              date={totalBalanceData?.val().date}
+                              onClick={handleUpdateTotalBalance}
+                              update={total != totalBalanceValue}/>
+					}
+				</div>
+			</div>
+		</Layout>
+	)
 }

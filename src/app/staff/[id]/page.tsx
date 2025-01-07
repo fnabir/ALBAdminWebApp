@@ -1,228 +1,269 @@
 "use client"
 
-import Layout from "@/components/Layout";
-import Loading from "@/components/Loading";
-import TotalBalance from "@/components/TotalBalance";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
-import CardIcon from "@/components/card/CardIcon";
-import {MdAddCircle, MdDownloading, MdError} from "react-icons/md";
-import {GenerateDatabaseKey, GetDatabaseReference, GetTotalValue} from "@/firebase/database";
-import CardTransaction from "@/components/card/CardTransaction";
-import AccessDenied from "@/components/AccessDenied";
-import {Button, Modal} from "flowbite-react";
+import Layout from "@/components/layout";
+import CardTotalBalance from "@/components/card/cardTotalBalance";
+import {useList, useObject} from "react-firebase-hooks/database";
+import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
+import {ScrollArea} from "@/components/ui/scrollArea";
+import CardIcon from "@/components/card/cardIcon";
+import {Skeleton} from "@/components/ui/skeleton";
+import {MdAddCircle, MdError} from "react-icons/md";
+import {usePathname, useRouter} from "next/navigation";
+import React, {useState} from "react";
+import {useAuth} from "@/hooks/useAuth";
+import {Button} from "@/components/ui/button";
+import {Separator} from "@/components/ui/separator";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger
+} from "@/components/ui/dialog";
+import CustomSeparator from "@/components/generic/CustomSeparator";
+import Loading from "@/app/staff/[id]/loading";
+import CardTransaction from "@/components/card/cardTransaction";
+import {addNewTransaction, updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
+import {useForm} from "react-hook-form";
+import {TransactionFormData, transactionSchema} from "@/lib/schemas";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {staffTransactionTypeOptions} from "@/lib/arrays";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import CustomInput from "@/components/generic/CustomInput";
-import {useState} from "react";
-import {format, parse} from "date-fns";
-import {errorMessage, successMessage} from "@/utils/functions";
-import {ref, update} from "firebase/database";
-import {database} from "@/firebase/config";
-import {formatInTimeZone} from "date-fns-tz";
-import {useList, useObject} from "react-firebase-hooks/database";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
+import {format} from "date-fns";
 
-export default function StaffTransaction() {
-	const {user, loading} = useAuth();
+export default function StaffTransactionPage() {
+	const {user, loading, userRole} = useAuth();
 	const router = useRouter();
 	const path = usePathname();
 	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-	const [staffData] = useObject(GetDatabaseReference(`balance/conveyance/${staffID}`));
+	const [staffData] = useObject(getDatabaseReference(`balance/conveyance/${staffID}`));
 	const staffName = staffData?.val().name;
 
-	const [newModal, setNewModal] = useState(false);
-	const [transactionType, setTransactionType] = useState("+");
-	const [inputTitle, setInputTitle] = useState("");
-	const [inputDetails, setInputDetails] = useState("");
-	const [inputAmount, setInputAmount] = useState(0);
-	const [inputDate, setInputDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+	const [open, setOpen] = useState(false);
+	const [, setType] = useState<string>("+");
+	const breadcrumb: {text: string, link?: string}[] = [
+		{ text: "Home", link: "/" },
+		{ text: "/" },
+		{ text: "Staff", link: "/staff" },
+		{ text: "/" },
+		{ text: staffName },
+	]
 
-	const options = [
-		{ value: 'Advance', label: 'Advance' },
-		{ value: 'For Conveyance', label: 'For Conveyance'},
-		{ value: 'House Rent', label: 'House Rent' },
-		{ value: 'Payment', label: 'Payment'},
-		{ value: 'Salary', label: 'Salary'},
-		{ value: 'Bonus', label: 'Bonus'},
-		{ value: 'Cashback', label: 'Cashback'},
-		{ value: 'Others', label: 'Others'},
-	];
-
-	const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('transaction/staff/' + staffID));
-	const total = GetTotalValue(data, "amount");
-	const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/staff/${staffID}`));
-	const totalBalanceValue = totalBalanceData?.val().value;
+	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('transaction/staff/' + staffID));
+	const total = getTotalValue(data, "amount");
+	const [ totalBalanceData, totalBalanceLoading ] = useObject(getDatabaseReference(`balance/staff/${staffID}`));
+	const conveyanceValue: number = staffData ? staffData.val().value : 0;
+	const totalBalanceValue: number = totalBalanceData ? totalBalanceData.val().value : 0;
 	const totalBalanceDate = totalBalanceData?.val().date;
 
-	const handleTitleChange = (value: string, label:string) => {
-		setInputTitle(value);
-		switch (label) {
+	const {
+		register,
+		setValue,
+		getValues,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm<TransactionFormData>({
+		resolver: zodResolver(transactionSchema),
+	});
+
+	const handleTitleChange = (value: string) => {
+		switch (value) {
 			case "Advance":
 			case "For Conveyance":
 			case "House Rent":
 			case "Payment":
 			case "Others":
-				setInputDetails("");
-				setTransactionType("-");
+				setValue("type", "-");
+				setType("-");
+				setValue("details", "");
 				break;
 			case "Salary":
 			case "Bonus":
 			case "Cashback":
-				setInputDetails("");
-				setTransactionType("+");
+				setValue("type", "+");
+				setType("+");
+				setValue("details", "");
 				break;
 			default:
-				setTransactionType("-");
-				setInputDetails("");
+				setValue("type", "-");
+				setType("-");
+				setValue("details", "");
 				break;
 		}
 	}
 
-	const updateDate = async() => {
-		const today = new Date();
-		const todayTZ = formatInTimeZone(today, 'Asia/Dhaka', 'dd MMM yyyy');
-		const formattedDate = format(todayTZ, "dd MMM yyyy")
-
-		update(ref(database, `balance/total/staff`), {
-			date: formattedDate,
-		}).catch((error) => {
-			console.error(error.message);
-			errorMessage(error.message);
-		})
-
-		update(ref(database, `balance/staff/${staffID}`), {
-			date: formattedDate,
-		}).catch((error) => {
-			console.error(error.message);
-			errorMessage(error.message);
-		})
-	}
-
-	const updateTotal = async() => {
-		update(ref(database, `balance/staff/${staffID}`), {
-			value: total,
+	const onSubmit = (data: TransactionFormData) => {
+		//const newTransactionRef: DatabaseReference = getDatabaseReference(`transaction/project/${projectName}/${format(new Date(data.date), "yyMMdd")}${generateDatabaseKey(`transaction/project/${projectName}`)}`);
+		//const newKey: string = newTransactionRef.key!;
+		addNewTransaction("staff", staffID	, data.date, {
+			title: data.title,
+			details: data.details,
+			amount: data.type == "+" ? data.amount : data.amount * (-1),
+			date: format(new Date(data.date), "dd.MM.yy"),
 		}).then(() => {
-			successMessage("Total balance updated successfully!");
+			updateLastUpdateDate("staff", staffID).catch((error) => {
+				console.error(error.message());
+				showToast(error.name, "Failed to update the last update date", "destructive");
+			});
+		}).finally(() => {
+			setOpen(false);
+			window.location.reload();
+		});
+	};
+
+	const handleReset = () => {
+		reset();
+	};
+
+	const handleUpdateBalance = () => {
+		updateTransactionBalance("staff", staffID, total).then(() => {
+			showToast("Success", "Total balance updated successfully", "success");
 		}).catch((error) => {
-			console.error(error.message);
-			errorMessage(error.message);
+			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
 		})
 	}
-
-	const handleNew = async () => {
-		if (inputTitle == "Select") {
-			errorMessage(`Please select ${transactionType} type`)
-		}
-		if (!inputDate) {
-			errorMessage("Please select a valid date")
-		}
-
-		if(inputTitle != "Select" && inputDate) {
-			const updatedData = {
-				title: inputTitle,
-				details: inputDetails,
-				amount: transactionType == "Expense" ? inputAmount : inputAmount * (-1),
-				date: format(parse(inputDate, "yyyy-MM-dd", new Date()), "dd.MM.yy")
-			}
-			const newKey = GenerateDatabaseKey(`transaction/staff/${staffID}`);
-			const newTransactionRef = `transaction/staff/${staffID}/${format(parse(inputDate, "yyyy-MM-dd", new Date()), "yyMMdd")}${newKey}`;
-			update(GetDatabaseReference(newTransactionRef), updatedData)
-				.then(() => {
-					setNewModal(false);
-					updateDate();
-					successMessage("Saved the changes.")
-				})
-				.catch((error) => {
-					console.error(error.message);
-					errorMessage(error.message);
-				})
-		}
-	};
 
 	if (loading) return <Loading/>
 
-	if (!loading && !user) return router.push("login");
+	if (!user) {
+		router.push("/login");
+		return null;
+	}
 
-	if (user.role == "admin") {
-		return (
-			<Layout
-				pageTitle={staffName + " | Asian Lift Bangladesh"}
-				headerTitle={staffName}>
-				<div>
-					<div className="flex items-center mt-2 gap-x-2">
-						<Button color={"blue"} onClick={() => setNewModal(true)}>
-							<MdAddCircle className="mr-2 h-5 w-5"/>Add New Transaction
-						</Button>
-					</div>
-
-					<Modal show={newModal} size="md" popup onClose={() => setNewModal(false)} className="bg-black bg-opacity-50">
-						<Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-							<div className="text-xl font-medium text-white">New Transaction</div>
-						</Modal.Header>
-						<Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-							<div className="space-y-4 pt-4">
-								<CustomDropDown id="title" label={"Type"} options={options}
-																onChange={(value, label) => {
-																	handleTitleChange(value, label)
-																}}
+	return (
+		<Layout breadcrumb={breadcrumb}>
+			<div className={"flex flex-col h-full"}>
+				<div className="flex items-center py-2 gap-x-2">
+					<Dialog open={open} onOpenChange={setOpen}>
+						<DialogTrigger asChild>
+							<Button variant={"accent"} onClick={handleReset}>
+								<MdAddCircle/> Add New Transaction
+							</Button>
+						</DialogTrigger>
+						<DialogContent className={"border border-accent"}>
+							<DialogHeader>
+								<DialogTitle>Add New Transaction</DialogTitle>
+								<DialogDescription>
+									Click submit to add the new transaction.
+								</DialogDescription>
+							</DialogHeader>
+							<CustomSeparator orientation={"horizontal"}/>
+							<form onSubmit={handleSubmit(onSubmit)}
+										className="flex-col space-y-4">
+								<CustomDropDown id="title"
+																label="Title"
+																options={staffTransactionTypeOptions}
+																{...register('title')}
+																helperText={errors.title ? errors.title.message : ""}
+																color={errors.title ? "error" : "default"}
+																onChange={(e) => handleTitleChange(e.target.value)}
+																required
 								/>
-								<CustomInput type="text" label="Details" id="details"
-														 value={inputDetails}
-														 onChange={(e) => setInputDetails(e.target.value)}
-														 color={"default"} helperText={""}
+								<CustomInput id="details"
+														 type="text"
+														 label="Details"
+														 {...register('details')}
+														 helperText={errors.details ? errors.details.message : ""}
+														 color={errors.details ? "error" : "default"}
 								/>
-								<CustomInput label="Amount" value={String(inputAmount)} type="number" id="amount"
-														 pre={`৳ ${transactionType == "-" ? "-" : ""}`}
-														 onChange={(e) => setInputAmount(Number(e.target.value))}
+								<CustomInput id="amount"
+														 type="number"
+														 label="Amount"
+														 min={0}
+														 step={1}
+														 {...register("amount", {valueAsNumber: true})}
+														 pre="৳"
+														 sign={getValues("type") == "-" ? "-" : ""}
+														 helperText={errors.amount ? errors.amount.message : ""}
+														 color={errors.amount ? "error" : "default"}
 														 required
 								/>
-								<CustomInput label="Date" value={inputDate} type="date" id="date"
-														 onChange={(e) => setInputDate(e.target.value)}
+								<CustomDateTimeInput id="date"
+																		 type="date"
+																		 label="Date"
+																		 helperText={errors.date ? errors.date.message : ""}
+																		 color={errors.date ? "error" : "default"}
+																		 {...register("date")}
+																		 required
 								/>
+								<DialogFooter className={"sm:justify-center pt-8"}>
+									<DialogClose asChild>
+										<Button type="button" size="lg" variant="secondary">
+											Close
+										</Button>
+									</DialogClose>
+									<Button type="submit" size="lg" variant="accent">Save</Button>
+								</DialogFooter>
+							</form>
+						</DialogContent>
+					</Dialog>
 
-								<div className="flex gap-4 justify-center">
-									<Button color="blue" onClick={handleNew}>Save</Button>
-									<Button color="gray" onClick={() => setNewModal(false)}>Cancel</Button>
+					{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
+            <div className={"flex gap-x-2 h-full"}>
+              <Separator orientation={`vertical`}/>
+              <Button variant="accent" onClick={handleUpdateBalance}>
+                Update Total Balance
+              </Button>
+            </div>
+					}
+				</div>
+				<ScrollArea className={"flex-grow mb-2 -mr-4 pr-4"}>
+					{
+						dataLoading ?
+							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
+								<Skeleton className="flex-wrap h-10 w-10 mr-4 rounded-full"/>
+								<div className={"flex-auto"}>
+									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
+									<Skeleton className="h-4 w-2/5 rounded-xl"/>
 								</div>
 							</div>
-						</Modal.Body>
-					</Modal>
-
-					<div className="flex flex-col py-2 gap-y-2">
-						{
-							dataLoading ? (
-								<CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-									<MdDownloading className='mx-1 w-6 h-6 content-center'/>
+							: dataError ?
+								<CardIcon
+									title={"Error"}
+									description={dataError.message}>
+									<MdError size={28}/>
 								</CardIcon>
-							) : dataError ? (
-								<CardIcon title={"Error"} subtitle={dataError.message}>
-									<MdError className='mx-1 w-6 h-6 content-center'/>
-								</CardIcon>
-							) : !data || data?.length == 0 ? (
-								<CardIcon title={"No Record Found!"} subtitle={""}>
-									<MdError className='mx-1 w-6 h-6 content-center'/>
-								</CardIcon>
-							) : (
-								<UniqueChildren>
-									{
-										data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
-											const snapshot = item.val();
-											return (
-												<div className="flex flex-col" key={item.key}>
-													<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
-																					 title={snapshot.title} details={snapshot.details}
-																					 amount={snapshot.amount} date={snapshot.date} access={user.role}/>
-												</div>
-											)
-										})
-									}
-								</UniqueChildren>
-							)
-						}
-						<TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
-					</div>
+								: !data || data.length == 0 ?
+									<CardIcon
+										title={"No Record Found"}>
+										<MdError size={28}/>
+									</CardIcon>
+									: <div className="space-y-2">
+										{
+											data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+												const snapshot = item.val();
+												return (
+													<div key={item.key}>
+														<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
+																						 title={snapshot.title} details={snapshot.details}
+																						 amount={snapshot.amount} date={snapshot.date} access={userRole}/>
+													</div>
+												)
+											})
+										}
+									</div>
+					}
+				</ScrollArea>
+				<div>
+					{staffData &&
+            <CardTotalBalance className={"mb-2"} text={"Conveyance Balance"} value={conveyanceValue}
+                              date={staffData?.val().date}/>}
 				</div>
-			</Layout>
-		);
-	} else return <AccessDenied/>;
-};
+				<div>
+					{totalBalanceData &&
+            <CardTotalBalance value={total + conveyanceValue}
+                              date={totalBalanceDate}
+                              onClick={handleUpdateBalance}
+                              update={total != totalBalanceValue}/>
+					}
+				</div>
+			</div>
+		</Layout>
+	)
+}
