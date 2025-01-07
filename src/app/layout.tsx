@@ -1,23 +1,38 @@
-'use client';
-
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/themeProvider";
+import { Geist, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster"
 import "@/styles/globals.css"
-import { AuthProvider } from "@/context/AuthContext";
-import { ToastContainer} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import React from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+});
 
+export const metadata: Metadata = {
+  title: "ALB Admin Webapp",
+  description: "Developed by Farhan Noor Abir",
+};
+
+export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${jetBrainsMono.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-          <ToastContainer />
-        </AuthProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
