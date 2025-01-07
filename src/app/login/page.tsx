@@ -1,139 +1,137 @@
-'use client'
+"use client"
 
+import {useRouter} from "next/navigation";
+import {useForm} from "react-hook-form";
+import {LoginFormValues, loginSchema} from "@/lib/schemas";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {auth} from "@/firebase/config";
+import {showToast} from "@/lib/utils";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
-import { useState } from "react";
-import { login } from '@/firebase/auth';
-import { useAuth } from '@/context/AuthContext';
-import Loading from "@/components/Loading";
+import TextLogo from "@/images/logo-text.svg";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import CustomInput from "@/components/generic/CustomInput";
+import {Button} from "@/components/ui/button";
+import ResetPassword from "@/app/login/resetPassword";
+import {useSignInWithEmailAndPassword} from "react-firebase-hooks/auth";
+import {useEffect, useState} from "react";
+import {signOut} from "firebase/auth";
 
-export default function Login() {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-
-  const { user, loading } = useAuth();
+export default function LoginPage() {
+  const [
+    signInWithEmailAndPassword,
+    user,
+    loading,
+    error,
+  ] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
+  const [submit, setSubmit] = useState<boolean>(false);
 
-  const handleLogin = async (e: any) => {
-		e.preventDefault();
-		try {
-			await login(email, password);
-      console.log('Logged in successfully')
-      setMessage('Logged in successfully')
-      router.push('/');
-      setEmail('');
-      setPassword('');
-    } catch (error: any) {
-			console.log(error.message);
-      if (String(error.message) === 'Firebase: Error (auth/invalid-email).') {
-          setMessage('Invalid email address!');
-      } else if (String(error.message) === 'Firebase: Error (auth/user-not-found).') {
-          setMessage('Email not registered with us!');
-      } else if (String(error.message) === 'Firebase: Error (auth/wrong-password).') {
-          setMessage('Wrong password!');
-      } else if (String(error.message) === 'Firebase: Error (auth/network-request-failed).') {
-          setMessage('Network connection issue!')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormValues) => {
+    await signInWithEmailAndPassword(data.email, data.password)
+      .then(() => {
+        setSubmit(true);
+      })
+  };
+
+  useEffect(() => {
+    if (submit && !loading) {
+      if (error) {
+        if (error.message === 'Firebase: Error (auth/invalid-email).') {
+          showToast("Error", 'Invalid email address!', "destructive");
+        } else if (error.message === 'Firebase: Error (auth/user-not-found).') {
+          showToast("Error", 'Email not registered with us!', "destructive");
+        } else if (error.message === 'Firebase: Error (auth/wrong-password).') {
+          showToast("Error", 'Wrong password!', "destructive");
+        } else if (error.message === 'Firebase: Error (auth/network-request-failed).') {
+          showToast("Error", 'Network connection issue!', "destructive");
+        } else {
+          showToast("Error", 'Invalid email/password!', "destructive");
+        }
       } else {
-          setMessage('Invalid email/password!');
+        showToast("Success", "Logged in successfully", "success");
       }
-		}
-	};
+      setSubmit(false);
+    }
+  }, [submit, loading, error]);
 
-  if (loading) return <Loading/>
+  if (user) {
+    const access = ["HrnlOpNxfpTJ4JHjEE7E7lZXJ3n2", "STFXbv1ZzrbxDSWPCMpATVbOekh2", "WhAnZZh7CfNGhe1ejIUlAy1QAh33", "yB7jBuPIo7PxuhpliZ7VNnsL21l2", "LzcKIs2huyaK83FEOqbkJCumezu2"]
+    if (access.includes(user.user.uid)) {
+      router.push("/");
+    } else {
+      signOut(auth)
+        .then(() => {
+          showToast("Access Denied", "Not authorized to use this service", "destructive");
+        })
+        .catch((e: Error) => {
+          console.error(e.message);
+        })
+    }
+  }
 
-  if (!loading && user) return router.push("/")
-  else {
-    return (
-      <main className="min-h-screen bg-gray-800 py-6 flex flex-col justify-center sm:py-12">
-        <title>Login</title>
-        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-          
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-2xl">
-          </div>
-
-          <div className="relative px-4 py-10 bg-gray-800/75 ring-1 ring-blue-800/5 shadow-black shadow-md sm:rounded-3xl sm:p-20 backdrop-blur-2xl">
-            <div className="max-w-md mx-auto">
-              <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <Image
-                  className="mx-auto h-16 w-auto"
-                  src="ALB.svg"
-                  alt="Asian Lift Bangladesh"
-                  width={89}
-                  height={50}
-                />
-                <h1 className="mt-5 text-center text-3xl font-bold text-white-500">
-                  ASIAN LIFT BANGLADESH
-                </h1>
-                <h2 className="mt-10 text-center text-2xl font-bold text-white-500">
-                  Sign in to your account
-                </h2>
-              </div>
-
-              <form className="space-y-6 mt-10" action="#" method="POST">
-                <div>
-                  <label htmlFor="email" className="block text-sm text-white-900">
-                    Email address
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="password" className="block text-sm text-white-900">
-                      Password
-                    </label>
-                    <a href="#" className="text-sm text-indigo-200 hover:text-indigo-100">
-                      Forgot password?
-                    </a>
-                  </div>
-                  <div className="mt-2">
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                  <span></span>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    onClick={handleLogin}
-                    className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text font-semibold leading-6 text-white shadow-sm hover:bg-blue-500">
-                    Login
-                  </button>
-                </div>
-              </form>
-
-              <div className="flex flex-1 flex-col justify-center px-6 py-4 lg:px-8">
-                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                  <p id='resultMessage' className="h-6 text-center text-white">
-                    {message}
-                  </p>
-                </div>
-              </div>
+  return (
+    <div className="flex min-h-svh items-center justify-center">
+      <div className="relative md:py-3 max-w-full md:max-w-xl mx-auto">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform md:-rotate-6 rounded-2xl"/>
+        <Card className="w-full md:w-96 mx-auto bg-black/80 ring-1 ring-blue-800/5 shadow-black shadow-lg md:rounded-2xl backdrop-blur-2xl">
+          <Image className={`w-2/3 pt-10 mx-auto`} src={TextLogo} alt={"Asian Lift Bangladesh"} priority={false}/>
+          <CardHeader>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>
+              Enter your email below to login to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
+              <CustomInput id={"email"}
+                           type={"email"}
+                           label={"Email"}
+                           floating={false}
+                           {...register('email')}
+                           placeholder="user@asianliftbd.com"
+                           helperText={errors.email ? errors.email.message : ""}
+                           color={errors.email ? "error" : "default"}
+                           required
+              />
+              <CustomInput id={"password"}
+                           type={"password"}
+                           label={"Password"}
+                           floating={false}
+                           {...register('password')}
+                           placeholder="******"
+                           helperText={errors.password ? errors.password.message : ""}
+                           color={errors.password ? "error" : "default"}
+                           required
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </Button>
+            </form>
+            <div className="text-center">
+                  <ResetPassword/>
             </div>
-          </div>
-        </div>
-      </main>
-  );
-}}
+            <div className="mt-4 text-center text-sm">
+              <div>By logging in, you agree to our</div>
+              <a className="underline" target="_blank" href="https://asianliftbd.com/terms-of-use"
+                 rel="noopener noreferrer">
+                Terms of Use
+              </a> and {" "}
+              <a className="underline" target="_blank" href="https://asianliftbd.com/privacy-policy"
+                 rel="noopener noreferrer">
+                Privacy Policy
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
