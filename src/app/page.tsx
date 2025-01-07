@@ -1,71 +1,96 @@
 "use client"
 
-import CardBalance from "@/components/card/CardTotalBalance";
-import {MdErrorOutline, MdOutlineLocalOffer} from "react-icons/md";
-import CardIcon from "@/components/card/CardIcon";
-import { useAuth } from "@/context/AuthContext";
-import Layout from "@/components/Layout";
-import { useRouter } from "next/navigation";
-import Loading from "@/components/Loading";
-import {GetDatabaseReference} from "@/firebase/database";
-import { useList } from 'react-firebase-hooks/database';
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
-import {HiOutlineWrenchScrewdriver} from "react-icons/hi2";
+import Layout from "@/components/layout";
+import {useList, useListKeys} from "react-firebase-hooks/database";
+import {useAuth} from "@/hooks/useAuth";
+import {formatCurrency, getDatabaseReference} from "@/lib/utils";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Skeleton} from "@/components/ui/skeleton";
+import {DataSnapshot} from "@firebase/database";
+import CardIcon from "@/components/card/cardIcon";
+import {FaBuilding, FaTag, FaWrench} from "react-icons/fa6";
+import Link from "next/link";
 
-export default function Home() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
+export default function Page() {
+  const { userRole, loading } = useAuth();
 
-  const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(GetDatabaseReference('balance/total'));
-  const [snapshotOffer] = useList(GetDatabaseReference('-offer'));
+  const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(getDatabaseReference('balance/total'));
+  const [snapshotOffer] = useListKeys(getDatabaseReference('offer'));
 
-  if (loading) return <Loading/>
-
-  if (!user) return router.push("login")
+  const breadcrumb: {text: string, link?: string}[] = [
+    { text: "Home"},
+  ]
 
   return (
-    <Layout
-      pageTitle="Asian Lift Bangladesh"
-      headerTitle="Dashboard">
-      <div>
-        <div className={(user.role == "admin" || user.role == "manager") ? 'flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3' : "hidden"}>
-            {
-              loadingTotalBalance ? (
-                <CardBalance title={"Loading"} balance={0} date={"Loading"}/>
-              ) : errorTotalBalance || dataTotalBalance?.length == 0 ? (
-                <CardBalance title={"Error Occurred"} balance={0} date={errorTotalBalance?.message}/>
-              ) : (
-                <UniqueChildren>
+    <Layout breadcrumb={breadcrumb}>
+      <div className="grid auto-rows-min gap-4">
+        {
+          loadingTotalBalance ?
+            <div className="p-4 rounded-xl bg-muted/50">
+              <Skeleton className="h-6 mb-2 w-1/5 rounded-xl"/>
+              <Skeleton className="h-10 mb-1 w-1/2 rounded-xl"/>
+              <Skeleton className="h-4 w-2/5 rounded-xl"/>
+            </div>
+            : errorTotalBalance ?
+              <Card className="rounded-xl bg-muted/50">
+                <CardHeader className={"pb-1"}>
+                  <CardTitle className={"text-xl"}>{errorTotalBalance.name}</CardTitle>
+                </CardHeader>
+                <CardContent>{errorTotalBalance.message}</CardContent>
+              </Card>
+              : !dataTotalBalance ?
+                <Card className="rounded-xl bg-muted/50">
+                  <CardHeader className={"pb-1"}>
+                    <CardTitle className={"text-xl"}>No data found</CardTitle>
+                  </CardHeader>
+                </Card>
+                : <div className={`grid auto-rows-min gap-4 md:grid-cols-3`}>
                   {
-                    dataTotalBalance!.sort((a:any, b:any) => b.val().value - a.val().value).map((item) => (
-                        <div className={(item.key != "project" && user.role != "admin") ? "hidden" : "w-full"} key={item.key}>
-                          <CardBalance title={item.key!} balance={item.val().value} date={item.val().date} route={item.val().key}/>
-                        </div>
-                      )
-                    )
-                  }
-                </UniqueChildren>
-              )
-            }
-        </div>
+                    dataTotalBalance.sort((a: DataSnapshot, b: DataSnapshot) => b.val().value - a.val().value).map((item) => (
+                      <Link
+                        className={(item.key != "project" && userRole != "admin") ? "hidden" : ""}
+                        href={`/${item.key}`}
+                        key={item.key}
+                        >
+                      <Card className={"rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted/100"}>
+                        <CardHeader className={"pb-2"}>
+                          <CardTitle className={"text font-medium capitalize"}>{item.key}</CardTitle>
+                        </CardHeader>
+                        <CardContent className={"pb-0 text-3xl text-primary font-bold font-mono"}>
+                          {formatCurrency(item.val().value)}
+                        </CardContent>
+                        <CardFooter className={"text-md text-muted-foreground"}>
+                          Last updated on {item.val().date}
+                        </CardFooter>
+                      </Card>
 
-        <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-          <CardIcon title={"Callback"}
-          route="callback">
-            <HiOutlineWrenchScrewdriver  className='mx-1 w-6 h-6 content-center'/>
-          </CardIcon>
-        </div>
-        <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-          <CardIcon title={"Offer"} number={snapshotOffer?.length} route={"offer"}>
-            <MdOutlineLocalOffer className='mx-1 w-6 h-6 content-center'/>
-          </CardIcon>
-        </div>
-        <div className='flex flex-col md:flex-row justify-around space-x-0 md:space-x-2 space-y-2 md:space-y-0 mt-3'>
-          <CardIcon title={"Error Code"} subtitle={"NICE 3000"} route={'error-nice-3000'}>
-            <MdErrorOutline className='mx-1 w-6 h-6 content-center'/>
-          </CardIcon>
-        </div>
+                      </Link>
+                    ))
+                  }
+                </div>
+        }
+      </div>
+      <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-3">
+        <CardIcon
+          title={"Project Info"}
+          route={"/project-info"}
+        >
+          <FaBuilding size={24}/>
+        </CardIcon>
+        <CardIcon
+          title={"Offer"}
+          number={snapshotOffer?.length}
+          route={"/offer"}
+        >
+          <FaTag size={24}/>
+        </CardIcon>
+        <CardIcon
+          title={"Callback"}
+          route={"/callback"}
+        >
+          <FaWrench size={24}/>
+        </CardIcon>
       </div>
     </Layout>
-  );
+);
 }
