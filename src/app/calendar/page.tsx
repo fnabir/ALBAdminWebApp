@@ -4,20 +4,16 @@ import Layout from "@/components/layout"
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin, {DateClickArg, EventResizeDoneArg} from '@fullcalendar/interaction'
+import interactionPlugin, {EventResizeDoneArg} from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import {Skeleton} from "@/components/ui/skeleton";
 import {useList} from "react-firebase-hooks/database";
-import {generateDatabaseKey, getDatabaseReference, showToast} from "@/lib/utils";
+import {getDatabaseReference, showToast} from "@/lib/utils";
 import CardIcon from "@/components/card/cardIcon";
 import {MdError, MdInfo} from "react-icons/md";
 import CardCalendarEvent from "@/components/card/cardCalendarEvent";
 import {useEffect, useState} from "react";
 import {calendarEvent} from "@/lib/types";
-import {useForm} from "react-hook-form";
-import {callbackSchema, EventFormData, eventSchema, TransactionFormData, transactionSchema} from "@/lib/schemas";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {format, parse} from "date-fns";
 import {update} from "firebase/database";
 import {EventDropArg} from "@fullcalendar/core";
 
@@ -25,25 +21,12 @@ export default function CalendarPage() {
 
 	const [ eventsData, eventsLoading, eventsError] = useList(getDatabaseReference("calendar"));
 	const [ currentEvents, setCurrentEvents ] = useState<calendarEvent[]>([]);
-	const [ newEventModal, setNewEventModal ] = useState(false);
-	const [ deleteEventModal, setDeleteEventModal ] = useState(false);
 
 	const breadcrumb: {text: string, link?: string}[] = [
 		{ text: "Home", link: "/" },
 		{ text: "/" },
 		{ text: "Calendar" },
 	]
-
-	const {
-		register,
-		getValues,
-		setValue,
-		reset,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<EventFormData>({
-		resolver: zodResolver(eventSchema),
-	});
 
 	const handleEventDrop = (info: EventDropArg) => {
 		update(getDatabaseReference(`calendar/${info.event.id}`), {

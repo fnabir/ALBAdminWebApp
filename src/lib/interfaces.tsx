@@ -1,18 +1,3 @@
-export interface HeaderProps {
-    title: string
-    username: string
-    email: string
-}
-
-export interface BalanceInterface {
-    type:string
-    id: string
-    name: string
-    value: number
-    date?: string
-    status?: string
-}
-
 export interface TransactionInterface {
     type:string
     uid: string
@@ -43,21 +28,4 @@ export interface OfferInterface {
     note?: string
     refer?:string
     date?: string
-}
-
-interface UserInfoInterface {
-    name: string
-    phone: string
-    role: number
-    roll?: string
-    version?: string
-}
-
-interface CalendarEventInterface {
-    title: string
-    details?: string
-    assigned?: string
-    start: string
-    end?: string
-    allDay: boolean
 }

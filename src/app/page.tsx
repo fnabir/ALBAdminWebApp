@@ -12,7 +12,7 @@ import {FaBuilding, FaTag, FaWrench} from "react-icons/fa6";
 import Link from "next/link";
 
 export default function Page() {
-  const { userRole, loading } = useAuth();
+  const { userRole } = useAuth();
 
   const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(getDatabaseReference('balance/total'));
   const [snapshotOffer] = useListKeys(getDatabaseReference('offer'));

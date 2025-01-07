@@ -1,27 +1,27 @@
 import React, {FC, useState} from 'react';
-import {format, parse} from "date-fns";
+import {format} from "date-fns";
 import {Badge} from "@/components/ui/badge";
 import {MdDelete, MdEditNote} from "react-icons/md";
 import {calendarEvent} from "@/lib/types";
 import {Card} from "@/components/ui/card";
 import {
-  Dialog, DialogClose,
+  Dialog,
+  DialogClose,
   DialogContent,
-  DialogDescription, DialogFooter,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {deleteEvent, deleteTransaction} from "@/lib/functions";
-import {type} from "node:os";
+import {deleteEvent} from "@/lib/functions";
 import CustomSeparator from "@/components/generic/CustomSeparator";
 import {useForm} from "react-hook-form";
-import {EventFormData, eventSchema, TransactionFormData, transactionSchema} from "@/lib/schemas";
+import {EventFormData, eventSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import CustomInput from "@/components/generic/CustomInput";
 import CustomCheckbox from "@/components/generic/CustomCheckBox";
-import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 
 const CardCalendarEvent: FC<calendarEvent> = ({
   id, title, details, assigned, start, end, allDay }) => {
@@ -38,9 +38,7 @@ const CardCalendarEvent: FC<calendarEvent> = ({
 
   const {
     register,
-    getValues,
     reset,
-    handleSubmit,
     formState: { errors },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),

@@ -3,7 +3,6 @@
 import Layout from "@/components/layout"
 import {getDatabaseReference} from "@/lib/utils";
 import {useList, useListKeys} from "react-firebase-hooks/database";
-import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
 import React, {useState} from "react";
 import {ScrollArea} from "@/components/ui/scrollArea";
@@ -11,12 +10,13 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {MdAddCircle, MdError} from "react-icons/md";
 import CardIcon from "@/components/card/cardIcon";
 import {DataSnapshot} from "@firebase/database";
-import CardBalance from "@/components/card/cardBalance";
 import CardCallbackTotal from "@/components/card/cardCallbackTotal";
 import {
-	Dialog, DialogClose,
+	Dialog,
+	DialogClose,
 	DialogContent,
-	DialogDescription, DialogFooter,
+	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger
@@ -25,7 +25,7 @@ import CustomSeparator from "@/components/generic/CustomSeparator";
 import {useForm} from "react-hook-form";
 import {CallbackFormData, callbackSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {format, parse} from "date-fns";
+import {format} from "date-fns";
 import {addNewCallback} from "@/lib/functions";
 import {callbackStatusOptions} from "@/lib/arrays";
 import CustomDropDown from "@/components/generic/CustomDropDown";
@@ -33,7 +33,6 @@ import CustomInput from "@/components/generic/CustomInput";
 import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 
 export default function CallbackPage() {
-	const { user, loading, userRole } = useAuth();
 	const [dialog, setDialog] = useState<boolean>(false);
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('callback'));
 	const projectNames = useListKeys(getDatabaseReference(`balance/project`))[0];

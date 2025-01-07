@@ -26,7 +26,7 @@ export default function AccountPage() {
 		{ text: "Account Details" },
 	]
 
-	const [updateProfile, updating, error] = useUpdateProfile(auth);
+	const [updateProfile] = useUpdateProfile(auth);
 	const [userInfoData, userInfoLoading] = useObject(getDatabaseReference(`info/user/${user?.uid}`));
 
 	const {
