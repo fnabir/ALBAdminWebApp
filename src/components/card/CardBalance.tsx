@@ -1,35 +1,32 @@
-import { formatCurrency } from "@/utils/functions";
-import { useRouter } from "next/navigation";
-import { Badge } from "flowbite-react";
+import { formatCurrency } from "@/lib/utils";
+import Link from "next/link";
+import {Badge} from "@/components/ui/badge";
+import {Card, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 
 export default function CardBalance(props:BalanceInterface) {
-    const router = useRouter();
-    const dateText = props.date;
-    const bg = props.status && props.status == 'cancel' ? 'bg-red-900' : props.value == 0 ? 'bg-green-900' : props.value < 0 ? 'bg-yellow-900' : 'bg-slate-700';
-
-    const handleClick = async (e: any) => {
-        e.preventDefault();
-        try {
-            router.push(`/${props.type}/${props.id}`);
-        } catch (error: any) {
-            console.log(error);
-        }
-	  };
-
     return (
-        <button className={"rounded-lg shadow hidden md:block sm:text-center md:text-start " + bg + " hover:bg-opacity-80"} onClick = {handleClick}>
-            <div className="w-full mx-auto px-6 pt-1 md:flex md:items-center md:justify-between text-white">
-                <div>
-									  <div className={"flex items-center space-x-2"}>
-                        <div className="font-semibold">{props.name} </div>
-                        <Badge color={props.status == 'cancel' ? "failure" : props.value < 0 ? "warning" : ""}>{props.status == 'cancel' ? "Cancelled" : props.value < 0 ? "Overpaid" : ""}</Badge>
-                    </div>
-                    <p id="updatedate" className={"text-xs pb-1 " + dateText == "" ? "hidden" : ""}>{dateText}</p>
-                </div>
-                <div className={"flex flex-wrap items-center text-2xl font-medium sm:mt-0"}>
-                    {formatCurrency(props.value)}
-                </div>
+      <Link
+        href={`/${props.type}/${props.id}`}>
+          <Card
+            className={`flex w-full justify-between items-center px-6 py-2 hover:bg-opacity-75
+                        ${props.status === "cancel" ? "bg-red-900 text-white" : 
+                          props.value < 0 ? "bg-yellow-900 text-white" : 
+                          props.value === 0 ? "bg-green-900 text-white" : "bg-muted hover:bg-muted/80 text-primary" }`}
+            >
+            <div className={"items-center"}>
+              <CardHeader className={"flex-row items-center space-x-2 space-y-0 p-0"}>
+                <CardTitle className="font-semibold">{props.name}</CardTitle>
+                {
+                  (props.status === "cancel" || props.value < 0) &&
+                  <Badge>{props.status == 'cancel' ? "Cancelled" : props.value < 0 ? "Overpaid" : ""}</Badge>
+                }
+              </CardHeader>
+              { props.date && <CardFooter className="text-sm p-0">{props.date}</CardFooter>}
             </div>
-        </button>
+            <div className={"flex items-center text-2xl font-medium"}>
+                {formatCurrency(props.value)}
+            </div>
+          </Card>
+        </Link>
     )
 }

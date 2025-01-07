@@ -1,28 +1,16 @@
 import { useRouter } from "next/navigation";
+import {CallbackTotalInterface} from "@/lib/interfaces";
+import {Card} from "@/components/ui/card";
 
 export default function CardCallbackTotal(props:CallbackTotalInterface) {
     const router = useRouter();
-
-    const handleClick = async (e: any) => {
-        e.preventDefault();
-		try {
-            router.push(`/callback/${props.name}`);
-		} catch (error: any) {
-            console.log(error);
-		}
-	};
-
     return (
-        <button className={"rounded-lg shadow hidden md:block sm:text-center md:text-start bg-slate-700 hover:bg-opacity-80"} onClick = {handleClick}>
-            <div className="w-full mx-auto px-6 pt-1 md:flex md:items-center md:justify-between text-white">
-                <div>
-                    <div className="font-semibold">{props.name}</div>
-                </div>
-                <div className={"flex flex-wrap items-center text-2xl font-medium sm:mt-0"}>
-                    {props.value}
-                </div>
+        <Card className="flex w-full p-1 cursor-pointer bg-muted hover:bg-muted/80 items-center"
+							onClick = {() => router.push(`/callback/${props.name}`)}>
+            <div className="w-full px-6 flex items-center justify-between text-card-foreground">
+							<div className="flex-auto font-semibold">{props.name}</div>
+							<div className={"text-2xl font-medium"}>{props.value}</div>
             </div>
-            
-        </button>
+        </Card>
     )
 }

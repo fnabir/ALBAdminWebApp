@@ -1,161 +1,178 @@
-import {errorMessage, formatCurrency, successMessage} from "@/utils/functions";
 import { MdDelete, MdEditNote } from "react-icons/md";
-import { Modal } from "flowbite-react";
-import { useState} from "react";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
+import React, { useState} from "react";
+import {formatCurrency} from "@/lib/utils";
+import {Card} from "@/components/ui/card";
+import {
+    Dialog, DialogClose,
+    DialogContent,
+    DialogDescription, DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
+import {Button} from "@/components/ui/button";
+import CustomSeparator from "@/components/generic/CustomSeparator";
 import CustomInput from "@/components/generic/CustomInput";
-import { Button } from "flowbite-react";
-import {remove, update} from "firebase/database";
-import {format, parse} from "date-fns";
-import {formatInTimeZone} from "date-fns-tz";
-import {GetDatabaseReference} from "@/firebase/database";
 import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
+import {deleteTransaction, updateTransaction} from "@/lib/functions";
+import {useForm} from "react-hook-form";
+import {TransactionFormData, transactionSchema} from "@/lib/schemas";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {format, parse} from "date-fns";
+import {TransactionInterface} from "@/lib/interfaces";
 
+const CardTransaction: React.FC<TransactionInterface> = ({type, uid, transactionId, title, details, amount, date
+}) => {
+    const [editDialog, setEditDialog] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState(false);
 
-export default function CardTransaction(props:TransactionInterface) {
-    const [editModal, setEditModal] = useState(false);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const {
+        register,
+        getValues,
+        reset,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<TransactionFormData>({
+        resolver: zodResolver(transactionSchema),
+        defaultValues: { type: amount < 0 ? "-" : "+", title: title, details: details, amount: Math.abs(amount), date: format(parse(date, "dd.MM.yy", new Date()), 'yyyy-MM-dd') },
+    });
 
-    const databaseRef = `transaction/${props.type}/${props.uid}/${props.transactionId}`;
-    const [transactionData, setTransactionData] = useState({
-        type: props.amount < 0 ? '-' : '+',
-        title: props.title,
-        details: props.details,
-        amount: Math.abs(props.amount),
-        date: format(parse(props.date, "yy.MM.dd", new Date()), 'yyyy-MM-dd'),
-    })
-
-    const updateDate = async() => {
-        const today = new Date();
-        const todayTZ = formatInTimeZone(today, 'Asia/Dhaka', 'dd MMM yyyy');
-        const formattedDate = format(todayTZ, "dd MMM yyyy")
-
-        update(GetDatabaseReference(`balance/total/${props.type}`), {
-            date: formattedDate,
-        }).catch((error) => {
-            console.error(error.message);
-            errorMessage(error.message);
-        })
-
-        update(GetDatabaseReference(`balance/${props.type}/${props.uid}`), {
-            date: formattedDate,
-        }).catch((error) => {
-            console.error(error.message);
-            errorMessage(error.message);
+    const onSubmit = (data: TransactionFormData) => {
+        updateTransaction(type, uid, transactionId, {
+            title: data.title,
+            details: data.details,
+            amount: data.type == "+" ? data.amount : data.amount * (-1),
+            date: format(new Date(data.date), "dd.MM.yy"),
+        }).finally(() => {
+            setEditDialog(false);
+            window.location.reload();
         })
     }
 
-    const handleEdit = async () => {
-        const updatedData = {
-            title: transactionData.title,
-            details: transactionData.details,
-            amount: transactionData.type == "+" ? Math.abs(transactionData.amount) : Math.abs(transactionData.amount) * (-1),
-        }
-        if (props.title == "") {
-            errorMessage("Please input title")
-        } else if (props.title == updatedData.title && props.details == updatedData.details && updatedData.amount == props.amount) {
-            setEditModal(false);
-            successMessage("No changes has been made.")
-        } else {
-            update(GetDatabaseReference(databaseRef), updatedData)
-            .then(() => {
-                updateDate();
-                setEditModal(false);
-                successMessage("Saved the changes.")
-            }).catch((error) => {
-                console.error(error.message);
-                errorMessage(error.message);
-            }).finally(() => {
-                setEditModal(false);
-            })
-        }
+    const handleReset = () => {
+        reset();
     };
 
     const handleDelete = () => {
-        remove(GetDatabaseReference(databaseRef)).then(() => {
-            setDeleteModal(false);
-            successMessage("Deleted successfully.")
-        }).catch ((error) => {
-            setDeleteModal(false);
-            errorMessage(error.message);
-        })
-    };
+        deleteTransaction(type, uid, transactionId).finally(() => {
+            setDeleteDialog(false);
+            window.location.reload();
+        });
+    }
 
     return (
-        <div className={`${props.amount > 0 ? 'bg-green-900' : 'bg-red-900'} rounded-lg shadow flex w-full p-1 text-start hover:bg-opacity-80 items-center`}>
-            <div className="flex-col w-full items-center pl-2 md:pl-6 mr-1 md:pr-2">
-                <div className="w-full mx-auto flex items-center justify-between text-white text-sm md:text-base gap-2 md:gap-6">
-                    <div className="flex-wrap w-12 md:w-20">
-                        {props.date}
-                    </div>
-                    <div className="flex-auto">
-                        <div className="font-semibold">{`${props.title} ${props.details ? `- ${props.details}` : ''}`}</div>
-                    </div>
-                    <div className="flex-wrap items-center text-base md:text-2xl font-medium sm:mt-0">
-                        {formatCurrency(props.amount)}
-                    </div>
-                </div>
-            </div>
-            <button className={"mx-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block " + (props.access == "admin" ? "" : "hidden")}
-                onClick={() => setEditModal(true)}>
-                <MdEditNote className='w-6 h-6'/>
-            </button>
-            <button className={"mr-2 p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 hidden md:block"}
-                onClick={() => setDeleteModal(true)}>
-                <MdDelete className='w-6 h-6'/>
-            </button>
+      <Card
+        className={`flex w-full p-1 text-start ${amount > 0 ? 'bg-green-900' : 'bg-red-900'} hover:bg-opacity-80 items-center`}>
+          <div className="flex-col w-full items-center pl-2 md:pl-6 mr-1">
+              <div
+                className="w-full mx-auto flex items-center justify-between text-white text-sm md:text-base gap-2 md:gap-6">
+                  <div className="font-mono">
+                      {date}
+                  </div>
+                  <div className="flex-1">
+                      <div className="font-semibold">
+                          {title}
+                          {details && <span className={"font-medium"}> - {details}</span>}
+                      </div>
+                  </div>
+                  <div className="items-center md:text-2xl font-mono font-medium sm:mt-0">
+                      {formatCurrency(amount)}
+                  </div>
+              </div>
+          </div>
 
-            <Modal show={editModal} size="md" popup onClose={() => setEditModal(false)} className="bg-black bg-opacity-50">
-                <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-                    <div className="text-xl font-medium text-white">Edit Transaction</div>
-                </Modal.Header>
-                <Modal.Body className="p-6 bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-                    <CustomInput id={'title'} type="text" label="Title"
-                                 value={transactionData.title}
-                                 onChange={(e) => setTransactionData({...transactionData, title: e.target.value})}
-                                 color={transactionData.title ? "default" : "error"}
-                                 helperText={!props.title ? "Please input title" : ""}
-                                 required
-                    />
-                    <CustomInput id="details" type="text" label="Details"
-                                 value={transactionData.details}
-                                 onChange={(e) => setTransactionData({...transactionData, details: e.target.value})}
-                    />
-                    <CustomInput id="amount" type="number" label="Amount"
-                                 value={transactionData.amount}
-                                 pre={`৳ ${transactionData.type == "-" ? "-" : ""}`}
-                                 onChange={(e) => setTransactionData({...transactionData, amount: Number(e.target.value)})}
-                                 required/>
-                    <CustomDateTimeInput id="date" type="date" label="Date"
-                                         value={transactionData.date}
-                                         onChange={(value) => setTransactionData({...transactionData, date: value})}
-                                         helperText={"Date cannot be edited"} disabled
-                    />
-                    <div className="flex gap-4 justify-center mt-4">
-                        <Button color="blue" onClick={handleEdit}>Save</Button>
-                        <Button color="gray" onClick={() => setEditModal(false)}>Cancel</Button>
-                    </div>
-              </Modal.Body>
-            </Modal>
+          <div className={"flex mx-2 space-x-2"}>
+              <Dialog open={editDialog} onOpenChange={setEditDialog}>
+                  <DialogTrigger asChild>
+                      <button onClick={handleReset}
+                              className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
+                          <MdEditNote color={"white"} size={24}/>
+                      </button>
+                  </DialogTrigger>
+                  <DialogContent className={"border border-blue-500"}>
+                      <DialogHeader>
+                          <DialogTitle>Edit Transaction</DialogTitle>
+                          <DialogDescription>
+                              Click save to save the changes.
+                          </DialogDescription>
+                      </DialogHeader>
+                      <CustomSeparator orientation={"horizontal"} className={"mb-2"}/>
+                      <form onSubmit={handleSubmit(onSubmit)}
+                            className="flex-col space-y-4">
+                          <CustomInput id="title"
+                                       type="text"
+                                       label={"Title"}
+                                       {...register('title')}
+                                       helperText={errors.title ? errors.title.message : ""}
+                                       color={errors.title ? "error" : "default"}
+                          />
+                          <CustomInput id="details"
+                                       type="text"
+                                       label={"Details"}
+                                       {...register('details')}
+                                       helperText={errors.details ? errors.details.message : ""}
+                                       color={errors.details ? "error" : "default"}
+                          />
+                          <CustomInput id="amount"
+                                       type="number"
+                                       label="Amount"
+                                       min={0}
+                                       step={1}
+                                       {...register("amount", {valueAsNumber: true})}
+                                       pre="৳"
+                                       sign={getValues("type") == "-" ? "-" : ""}
+                                       helperText={errors.amount ? errors.amount.message : ""}
+                                       color={errors.amount ? "error" : "default"}
+                                       required
+                          />
+                          <CustomDateTimeInput id="date"
+                                               type="date"
+                                               label="Date"
+                                               helperText={errors.date ? errors.date.message : ""}
+                                               color={errors.date ? "error" : "default"}
+                                               {...register("date")}
+                                               required
+                                               disabled
+                          />
+                          <DialogFooter className={"sm:justify-center pt-8"}>
+                              <DialogClose asChild>
+                                  <Button type="button" size="lg" variant="secondary">
+                                      Close
+                                  </Button>
+                              </DialogClose>
+                              <Button type="button" size="lg" variant="secondary" onClick={handleReset}>Reset</Button>
+                              <Button type="submit" size="lg" variant="accent">Save</Button>
+                          </DialogFooter>
+                      </form>
+                  </DialogContent>
+              </Dialog>
 
-            <Modal show={deleteModal} size="md" onClose={() => setDeleteModal(false)} popup className="bg-black bg-opacity-50">
-                <Modal.Header className="bg-red-800 rounded-t-md text-white border-t border-x border-blue-500">
-                    <div className="text-xl font-medium text-white">Delete Transaction</div>
-                </Modal.Header>
-                <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-                    <div className="text-center space-y-5 m-4">
-                        <HiOutlineExclamationCircle className="mx-auto h-14 w-14 text-gray-200" />
-                        <div className="text-lg text-gray-300">
-                            Are you sure you want to delete this transaction?
-                        </div>
-                        <div className="flex justify-center gap-4">
-                            <Button color={"failure"} onClick={handleDelete}>Delete</Button>
-                            <Button color={"gray"} onClick={() => setDeleteModal(false)}>Cancel</Button>
-                        </div>
-                    </div>
-                </Modal.Body>
-            </Modal>
-            
-        </div>
+              <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+                <DialogTrigger asChild>
+                    <button className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
+                        <MdDelete color={"white"} size={24}/>
+                    </button>
+                </DialogTrigger>
+                <DialogContent className={"border border-destructive"}>
+                    <DialogHeader>
+                        <DialogTitle>Delete Transaction</DialogTitle>
+                        <DialogDescription>
+                            This action cannot be undone. This will permanently delete the transaction.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className={"mx-auto"}>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary">
+                                Close
+                            </Button>
+                        </DialogClose>
+                        <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+          </div>
+      </Card>
     )
 }
+
+export default CardTransaction;

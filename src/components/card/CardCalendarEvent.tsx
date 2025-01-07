@@ -1,129 +1,167 @@
-import {FC, useState} from 'react';
-import {format} from "date-fns";
-import {Badge, Button, Modal} from "flowbite-react";
-import CustomInput from "@/components/generic/CustomInput";
-import {remove, update} from "firebase/database";
-import {GetDatabaseReference} from "@/firebase/database";
-import {errorMessage, successMessage} from "@/utils/functions";
+import React, {FC, useState} from 'react';
+import {format, parse} from "date-fns";
+import {Badge} from "@/components/ui/badge";
 import {MdDelete, MdEditNote} from "react-icons/md";
-import {HiOutlineExclamationCircle} from "react-icons/hi";
+import {calendarEvent} from "@/lib/types";
+import {Card} from "@/components/ui/card";
+import {
+  Dialog, DialogClose,
+  DialogContent,
+  DialogDescription, DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import {Button} from "@/components/ui/button";
+import {deleteEvent, deleteTransaction} from "@/lib/functions";
+import {type} from "node:os";
+import CustomSeparator from "@/components/generic/CustomSeparator";
+import {useForm} from "react-hook-form";
+import {EventFormData, eventSchema, TransactionFormData, transactionSchema} from "@/lib/schemas";
+import {zodResolver} from "@hookform/resolvers/zod";
+import CustomInput from "@/components/generic/CustomInput";
 import CustomCheckbox from "@/components/generic/CustomCheckBox";
+import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 
-const CardCalendarEvent: FC<CalendarEventInterface & { id:string }> = ({
-  id, title, details='', assigned='', start, end, allDay }) => {
-  const [editEventModal, setEditEventModal] = useState(false);
-  const [deleteEventModal, setDeleteEventModal] = useState(false);
-  const [eventData, setEventData] = useState({title: title, details: details, assigned: assigned})
+const CardCalendarEvent: FC<calendarEvent> = ({
+  id, title, details, assigned, start, end, allDay }) => {
+  const [editDialog, setEditDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [allDayEvent, setAllDayEvent] = useState<boolean>(allDay);
 
-  const handleEditEvent = () => {
-    if (eventData.title == "") {
-      errorMessage("Title required!")
-    } else {
-      update(GetDatabaseReference(`calendar/${id}`), {
-        title: eventData.title,
-        details: eventData.details,
-        assigned: eventData.assigned,
-      }).then(() => {
-        successMessage("Event updated successfully.")
-      }).catch((error) => {
-        console.error(error);
-        errorMessage("Error occurred!");
-      }).finally(() => {
-        setEditEventModal(false);
-      })
-    }
+  const handleDelete = () => {
+    deleteEvent(id).finally(() => {
+      setDeleteDialog(false);
+      window.location.reload();
+    });
   }
 
-  const handleEventDelete = () => {
-    remove(GetDatabaseReference(`calendar/${id}`)).then(() => {
-      successMessage("Deleted the event successfully.")
-    }).catch ((error) => {
-      errorMessage(error.message);
-    }).finally(() => {
-      setEditEventModal(false);
-    })
-  };
+  const {
+    register,
+    getValues,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EventFormData>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      title: title,
+      details: details,
+      assigned: assigned,
+      start: start,
+      end: end,
+      allDay: allDay
+    },
+  });
+
+  const handleReset = () => {
+    setAllDayEvent(allDay);
+    reset();
+  }
 
   return(
-    <div className="flex w-full h-auto p-2 rounded-md bg-slate-700 text-left items-center space-x-2">
-      <div className="flex-col -space-y-1 items-center border rounded-md p-1">
+    <Card className={`flex w-full p-1 text-start bg-muted hover:bg-muted/80 items-center space-x-2 text-card-foreground`}>
+      <div className="flex-col -space-y-1 items-center border border-card-foreground rounded-lg p-1">
         <div className={"text-xl"}>{format(new Date(start), "dd")}</div>
         <div className={"text-xs"}>{format(new Date(start), "MMM")}</div>
       </div>
 
-      <div className={`flex-auto`}>
+      <div className={`flex-1`}>
         <div className="capitalize font-semibold">{title}</div>
-        {details ? <p className='text'>{details}</p> : null}
-        {assigned ? <p className='text-sm'>{assigned}</p> : null}
+        {details && <p className='text'>{details}</p>}
+        {assigned && <p className='text-sm'>{assigned}</p>}
         <Badge className={`w-fit`}>{!allDay && end ? `${format(new Date(start), "HH:mm aa")}-${format(new Date(end), "HH:mm aa")}` : "All Day"}</Badge>
       </div>
 
       <div className={`flex space-x-1`}>
-        <button
-          className={"flex p-1 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
-          onClick={() => setEditEventModal(true)}>
-          <MdEditNote className='w-5 h-5'/>
-        </button>
-        <button className={"flex p-1 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}
-                onClick={() => setDeleteEventModal(true)}>
-          <MdDelete className='w-5 h-5'/>
-        </button>
+        <Dialog open={editDialog} onOpenChange={setEditDialog}>
+          <DialogTrigger asChild>
+            <button onClick={handleReset}
+                    className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
+              <MdEditNote color={"white"} size={24}/>
+            </button>
+          </DialogTrigger>
+          <DialogContent className={"border border-blue-500"}>
+            <DialogHeader>
+              <DialogTitle>Edit Event</DialogTitle>
+              <DialogDescription>
+                Click update to save the changes.
+              </DialogDescription>
+            </DialogHeader>
+            <CustomSeparator orientation={"horizontal"} className={"mb-2"}/>
+            <form>
+              <CustomInput id="title"
+                           type="text"
+                           label={"Title"}
+                           {...register('title')}
+                           helperText={errors.title ? errors.title.message : ""}
+                           color={errors.title ? "error" : "default"}
+              />
+              <CustomInput id="details"
+                           type="text"
+                           label={"Details"}
+                           {...register('details')}
+                           helperText={errors.details ? errors.details.message : ""}
+                           color={errors.details ? "error" : "default"}
+              />
+              <CustomCheckbox id="allDay"
+                              label="All day"
+                              {...register("allDay")}
+                              onChange={(e) => setAllDayEvent(e.target.checked)}
+              />
+              <CustomInput id="start"
+                           type="datetime-local"
+                           label={"Start"}
+                           {...register('start')}
+                           helperText={errors.start ? errors.start.message : ""}
+                           color={errors.start ? "error" : "default"}
+              />
+              {
+                !allDayEvent && <CustomInput id="end"
+                                            type="datetime-local"
+                                            label={"End"}
+                                            {...register('end')}
+                                            helperText={errors.end ? errors.end.message : ""}
+                                            color={errors.end ? "error" : "default"}
+                />
+              }
+              <DialogFooter className={"sm:justify-center pt-8"}>
+                <DialogClose asChild>
+                  <Button type="button" size="lg" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="button" size="lg" variant="secondary" onClick={handleReset}>Reset</Button>
+                <Button type="submit" size="lg" variant="accent">Save</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+          <DialogTrigger asChild>
+            <button className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
+              <MdDelete color={"white"} size={24}/>
+            </button>
+          </DialogTrigger>
+          <DialogContent className={"border border-destructive"}>
+            <DialogHeader>
+              <DialogTitle>Delete Transaction</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently delete the transaction.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className={"mx-auto"}>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <Modal show={editEventModal} size="md" popup onClose={() => setEditEventModal(false)}
-             className="bg-black bg-opacity-50">
-        <Modal.Header className="bg-slate-800 rounded-t-md text-white border-t border-x border-blue-500">
-          <div className="text-xl font-medium text-white">Edit Event</div>
-        </Modal.Header>
-        <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-          <div className="space-y-4 pt-4">
-            <CustomInput id="title" type="text" label={`Title`}
-                         value={eventData.title}
-                         onChange={(e) => setEventData({...eventData, title: e.target.value})}/>
-            <CustomInput id="details" type="text" label={"Details"}
-                         value={eventData.details}
-                         onChange={(e) => setEventData({...eventData, details: e.target.value})}/>
-            <CustomInput id="assigned" type="text" label={"Assign"}
-                         value={eventData.assigned}
-                         onChange={(e) => setEventData({...eventData, assigned: e.target.value})}/>
-            <CustomCheckbox id="allDay" label={"All Day"} checked={allDay} disabled={true}/>
-            <CustomInput id="assigned" type="text" label={"Start"}
-                         value={ allDay ? format(new Date(start), "dd/MM/yyyy") : format(new Date(start), "dd/MM/yyyy HH:mm aa")}
-                         disabled={true}/>
-            { !allDay && end ?  (
-              <CustomInput id="assigned" type="text" label={"End"} className={allDay ? "hidden" : ""}
-                                                                     value={ allDay ? format(new Date(end), "dd/MM/yyyy") : format(new Date(end), "dd/MM/yyyy HH:mm aa")}
-                                                                     disabled={true}/>
-              ) : null
-            }
-
-            <div className="flex gap-4 justify-center">
-              <Button color="blue" onClick={handleEditEvent}>Save</Button>
-              <Button color="gray" onClick={() => setEditEventModal(false)}>Cancel</Button>
-              <Button color={"failure"} onClick={handleEventDelete}>Delete</Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      <Modal show={deleteEventModal} size="md" onClose={() => setDeleteEventModal(false)} popup className="bg-black bg-opacity-50">
-        <Modal.Header className="bg-red-800 rounded-t-md text-white border-t border-x border-blue-500">
-          <div className="text-xl font-medium text-white">Delete Transaction</div>
-        </Modal.Header>
-        <Modal.Body className="bg-slate-950 rounded-b-md border-b border-x border-blue-500">
-          <div className="text-center space-y-5 m-4">
-            <HiOutlineExclamationCircle className="mx-auto h-14 w-14 text-gray-200" />
-            <div className="text-lg text-gray-300">
-              Are you sure you want to delete this event?
-            </div>
-            <div className="flex justify-center gap-4">
-              <Button color={"failure"} onClick={handleEventDelete}>Delete</Button>
-              <Button color={"gray"} onClick={() => setDeleteEventModal(false)}>Cancel</Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-    </div>
+    </Card>
   );
 };
 

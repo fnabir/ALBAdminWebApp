@@ -1,31 +1,52 @@
-import { formatCurrency } from '@/utils/functions';
-import { useRouter } from 'next/navigation';
+import { formatCurrency } from "@/lib/utils";
+import { MdUpdate } from "react-icons/md";
+import React, {useState} from "react";
+import {Card} from "@/components/ui/card";
 
-type CardProps = {
-    title: string;
-    balance: number;
-    date?: string;
-    route?: string;
-};
+interface Props {
+    value: number
+    date: string
+    text?: string
+    update?: boolean
+    onClick?: () => void
+		className?: string
+}
 
-export default function CardBalance(props: CardProps) {
-    const dateText = props.date == null || props.date == '' ? 'Last update date not found' : 'Last updated on ' + (props.date);
-    const router = useRouter();
-
-    const handleClick = async (e: any) => {
-        e.preventDefault();
-		try {
-            props.route ? router.push(`/${props.route}`) : null;
-		} catch (error: any) {
-			console.log(error.message);
+const TotalBalance: React.FC<Props> = ({
+                                         value,
+                                         date,
+                                         text,
+                                         update = false,
+                                         onClick,
+	className,
+}) => {
+	const titleText = text ? text : "Total Balance";
+	const dateText = date == null || date == '' ? 'Last update date not found' : 'Last updated on ' + (date);
+	const [updateState, setUpdateState] = useState(update);
+	const handleOnClick = () => {
+		if (onClick !== undefined) {
+			onClick()
+			setUpdateState(false);
 		}
 	};
 
-    return(
-        <button className="w-full py-2 md:py-3 px-4 md:px-8 rounded-md bg-slate-800 hover:bg-slate-700" onClick={handleClick}>
-            <h3 className="capitalize text-xl font-semibold">{props.title}</h3>
-            <p className="text-3xl py-2">{formatCurrency(props.balance)}</p>
-            <p className='text-sm'>{dateText}</p>
-        </button>
-    );
+    return (
+      <Card className={`rounded-xl shadow bg-muted flex pl-6 pr-2 pt-2 ${className}`}>
+          <div className={(updateState && update ? "" : "pr-2") + " w-full mx-auto md:flex md:items-center md:justify-between text-primary"}>
+              <div>
+                  <div className="text-xl text-center md:text-start">{titleText}</div>
+                  <p id="updatedate" className="text-sm pb-2 sm:text-center md:text-start">{dateText}</p>
+              </div>
+              <div className="items-center text-right mt-3 text-3xl font-medium sm:mt-0">
+                  {formatCurrency(value)}
+              </div>
+          </div>
+          <button className={updateState && update ? "w-10 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70 m-2 p-2" : "hidden"}
+                  onClick={handleOnClick}>
+              <MdUpdate className='w-6 h-6'/>
+          </button>
+      </Card>
+    )
 }
+
+export default TotalBalance;
