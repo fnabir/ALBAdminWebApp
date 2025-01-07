@@ -1,17 +1,19 @@
 "use client"
 
 import Layout from "@/components/layout";
-import { usePathname } from "next/navigation";
+import {usePathname} from "next/navigation";
 import {
-	Dialog, DialogClose,
+	Dialog,
+	DialogClose,
 	DialogContent,
-	DialogDescription, DialogFooter,
+	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {MdAddCircle, MdDelete, MdEditNote, MdError, MdMoreHoriz} from "react-icons/md";
+import {MdAddCircle, MdError} from "react-icons/md";
 import CustomSeparator from "@/components/generic/CustomSeparator";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import CustomInput from "@/components/generic/CustomInput";
@@ -20,38 +22,21 @@ import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import {Skeleton} from "@/components/ui/skeleton";
 import CardIcon from "@/components/card/cardIcon";
-import {DataSnapshot} from "@firebase/database";
-import CardCallbackTotal from "@/components/card/cardCallbackTotal";
 import React, {useState} from "react";
-import {generateDatabaseKey, getDatabaseReference} from "@/lib/utils";
-import {useList, useObject} from "react-firebase-hooks/database";
-import {useAuth} from "@/hooks/useAuth";
+import {getDatabaseReference} from "@/lib/utils";
+import {useList} from "react-firebase-hooks/database";
 import {useForm} from "react-hook-form";
 import {CallbackFormData, callbackSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import CardCallbackProject from "@/components/card/cardCallbackProject";
-import {DataTable} from "@/components/ui/dataTable";
-import {ColumnDef} from "@tanstack/react-table";
-import {callback, projectTransaction} from "@/lib/types";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel, DropdownMenuSeparator,
-	DropdownMenuTrigger
-} from "@/components/ui/dropdownMenu";
-import {addNewCallback, deleteCallback, deleteTransaction, updateCallback} from "@/lib/functions";
-import {format, parse} from "date-fns";
-import {remove} from "firebase/database";
-import CardTransactionProject from "@/components/card/cardTransactionProject";
+import {addNewCallback} from "@/lib/functions";
+import {format} from "date-fns";
 
 export default function CallbackProjectPage() {
-	const { user, loading, userRole } = useAuth();
 	const path = usePathname();
 	const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
 
 	const [dialog, setDialog] = useState<boolean>(false);
-	const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference(`callback/${projectName}`));
 	const breadcrumb: {text: string, link?: string}[] = [
 		{ text: "Home", link: "/" },

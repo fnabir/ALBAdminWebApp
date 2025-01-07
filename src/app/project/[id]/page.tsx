@@ -8,7 +8,7 @@ import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
 import {MdAddCircle, MdError} from "react-icons/md";
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname} from "next/navigation";
 import React, {useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import CardTransactionProject from "@/components/card/cardTransactionProject";
