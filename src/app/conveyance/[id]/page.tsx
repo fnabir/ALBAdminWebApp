@@ -1,88 +1,165 @@
 "use client"
 
-import Layout from "@/components/Layout";
-import Loading from "@/components/Loading";
-import TotalBalance from "@/components/TotalBalance";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
-import CardIcon from "@/components/card/CardIcon";
-import { MdDownloading, MdError } from "react-icons/md";
-import {GetDatabaseReference, GetTotalValue} from "@/firebase/database";
-import CardTransaction from "@/components/card/CardTransaction";
-import AccessDenied from "@/components/AccessDenied";
+import Layout from "@/components/layout";
+import CardTotalBalance from "@/components/card/cardTotalBalance";
 import {useList, useObject} from "react-firebase-hooks/database";
-import {update} from "firebase/database";
-import {errorMessage, successMessage} from "@/utils/functions";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
+import {ScrollArea} from "@/components/ui/scrollArea";
+import CardIcon from "@/components/card/cardIcon";
+import {Skeleton} from "@/components/ui/skeleton";
+import {MdDelete, MdError} from "react-icons/md";
+import {usePathname, useRouter} from "next/navigation";
+import React, {useState} from "react";
+import { useAuth } from "@/hooks/useAuth";
+import {Button} from "@/components/ui/button";
+import {Separator} from "@/components/ui/separator";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger
+} from "@/components/ui/dialog";
+import Loading from "@/app/conveyance/[id]/loading";
+import CardTransaction from "@/components/card/cardTransaction";
+import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
+import {remove} from "firebase/database";
 
-export default function ConveyanceTransaction() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const path = usePathname();
-  const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
-  const [staffData] = useObject(GetDatabaseReference(`balance/conveyance/${staffID}`));
-  const staffName = staffData?.val().name;
+export default function ConveyanceTransactionPage() {
+	const {user, loading, userRole} = useAuth();
+	const router = useRouter();
+	const path = usePathname();
+	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
 
-  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference('transaction/conveyance/' + staffID));
-  const total = GetTotalValue(data, "amount");
-  const [ totalBalanceData ] = useObject(GetDatabaseReference(`balance/conveyance/${staffID}`));
-  const totalBalanceValue: number = totalBalanceData?.val().value;
-  const totalBalanceDate: string = totalBalanceData?.val().date;
+	const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('transaction/conveyance/' + staffID));
+	const total = getTotalValue(data, "amount");
+	const [ totalBalanceData, totalBalanceLoading ] = useObject(getDatabaseReference(`balance/conveyance/${staffID}`));
+	const staffName = totalBalanceData?.val().name;
+	const totalBalanceValue: number = totalBalanceData ? totalBalanceData.val().value : 0;
+	const totalBalanceDate = totalBalanceData?.val().date;
 
-  const updateTotal = async() => {
-    update(GetDatabaseReference(`balance/conveyance/${staffID}`), {
-      value: total,
-    }).then(() => {
-      successMessage("Total balance updated successfully!");
-    }).catch((error) => {
-      console.error(error.message);
-      errorMessage(error.message);
-    })
-  }
+	const breadcrumb: {text: string, link?: string}[] = [
+		{ text: "Home", link: "/" },
+		{ text: "/" },
+		{ text: "Conveyance", link: "/conveyance" },
+		{ text: "/" },
+		{ text: staffName },
+	]
 
-  if (loading) return <Loading/>
+	const handleUpdateBalance = () => {
+		updateTransactionBalance("staff", staffID, total).then(() => {
+			showToast("Success", "Total balance updated successfully", "success");
+		}).catch((error) => {
+			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+		})
+	}
 
-  if (!loading && !user) return router.push("/login");
+	const handleDelete = () => {
+		remove(getDatabaseReference('transaction/conveyance/' + staffID)).then(() => {
+			updateLastUpdateDate("conveyance", staffID).catch((error) => {
+				console.log(error);
+			});
+			showToast("Success", "All conveyance deleted successfully", "success");
+		}).catch((error) => {
+			showToast("Error", `Error deleting all conveyance: ${error.message}`, "destructive");
+		}).finally(() => {
+			setDeleteDialog(false);
+			router.refresh();
+		});
+	}
 
-  if (user.role == "admin") {
-    return(
-      <Layout
-        pageTitle={staffName + " | Asian Lift Bangladesh"}
-        headerTitle={staffName}>
-        <div className="flex flex-col py-2 gap-y-2">
-          {
-            dataLoading ? (
-              <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) : dataError ? (
-              <CardIcon title={"Error"} subtitle={dataError.message}>
-                <MdError className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) : !data || data.length == 0 ? (
-              <CardIcon title={"No Record Found!"} subtitle={""}>
-                <MdError className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) : (
-              <UniqueChildren>
-                {
-                  data.sort((a, b) => b.val().key.localeCompare(a.val().key)).map((item) => {
-                    const snapshot = item.val();
-                    return (
-                      <div className="flex flex-col" key={item.key}>
-                        <CardTransaction type={"conveyance"} uid={staffID} transactionId={item.key!}
-                                         title={snapshot.title} details={snapshot.details}
-                                         amount={snapshot.amount} date={snapshot.date} access={user.role}/>
-                      </div>
-                    )
-                  })
-                }
-              </UniqueChildren>
-            )
-          }
-          <TotalBalance value={total} date={totalBalanceDate} update={total != totalBalanceValue} onClick={updateTotal}/>
-        </div>
-      </Layout>
-    );
-  } else return <AccessDenied/>;
-};
+	if (loading) return <Loading/>
+
+	if (!user) {
+		router.push("/login");
+		return null;
+	}
+
+	return (
+		<Layout breadcrumb={breadcrumb}>
+			<div className={"flex flex-col h-full"}>
+				<div className="flex items-center py-2 gap-x-2">
+					{!dataLoading && data && data.length > 0 &&
+						<Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+							<DialogTrigger asChild>
+								<Button variant={"accent"}>
+									<MdDelete/> Clear All Conveyances
+								</Button>
+							</DialogTrigger>
+							<DialogContent className={"border border-destructive"}>
+								<DialogHeader>
+									<DialogTitle>Clear All Conveyances</DialogTitle>
+									<DialogDescription>
+										This action cannot be undone. This will permanently delete all conveyances.
+									</DialogDescription>
+								</DialogHeader>
+								<DialogFooter className={"mx-auto"}>
+									<DialogClose asChild>
+										<Button type="button" variant="secondary">
+											Close
+										</Button>
+									</DialogClose>
+									<Button variant="destructive" onClick={handleDelete}>Delete</Button>
+								</DialogFooter>
+							</DialogContent>
+						</Dialog>
+					}
+
+					{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
+            <div className={"flex gap-x-2 h-full"}>
+              <Separator orientation={`vertical`}/>
+              <Button variant="accent" onClick={handleUpdateBalance}>
+                Update Total Balance
+              </Button>
+            </div>
+					}
+				</div>
+				<ScrollArea className={"flex-grow mb-2 -mr-4 pr-4"}>
+					{
+						dataLoading ?
+							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
+								<Skeleton className="flex-wrap h-10 w-10 mr-4 rounded-full"/>
+								<div className={"flex-auto"}>
+									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
+									<Skeleton className="h-4 w-2/5 rounded-xl"/>
+								</div>
+							</div>
+						: dataError ?
+							<CardIcon
+								title={"Error"}
+								description={dataError.message}>
+								<MdError size={28}/>
+							</CardIcon>
+						: !data || data.length == 0 ?
+							<CardIcon
+								title={"No Record Found"}>
+								<MdError size={28}/>
+							</CardIcon>
+						: data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
+							const snapshot = item.val();
+							return (
+								<div className="flex-col my-2" key={item.key}>
+									<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
+																	 title={snapshot.title} details={snapshot.details}
+																	 amount={snapshot.amount} date={snapshot.date} access={userRole}/>
+								</div>
+							)
+						})
+					}
+				</ScrollArea>
+				<div>
+					{totalBalanceData &&
+            <CardTotalBalance value={total}
+                              date={totalBalanceDate}
+                              onClick={handleUpdateBalance}
+                              update={total != totalBalanceValue}/>
+					}
+				</div>
+			</div>
+		</Layout>
+	)
+}

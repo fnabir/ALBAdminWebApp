@@ -1,81 +1,93 @@
 "use client"
 
-import CardIcon from "@/components/card/CardIcon";
-import Layout from "@/components/Layout";
-import CardBalance from "@/components/card/CardBalance";
-import Loading from "@/components/Loading";
-import TotalBalance from "@/components/TotalBalance";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { MdDownloading, MdError } from "react-icons/md";
-import { GetDatabaseReference, GetTotalValue } from "@/firebase/database";
-import AccessDenied from "@/components/AccessDenied";
+import Layout from "@/components/layout";
+import CardTotalBalance from "@/components/card/cardTotalBalance";
 import {useList, useObject} from "react-firebase-hooks/database";
-import {update} from "firebase/database";
-import {errorMessage, successMessage} from "@/utils/functions";
-import UniqueChildren from "@/components/UniqueChildrenWrapper";
+import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
+import {ScrollArea} from "@/components/ui/scrollArea";
+import CardIcon from "@/components/card/cardIcon";
+import {Skeleton} from "@/components/ui/skeleton";
+import {MdError} from "react-icons/md";
+import CardBalance from "@/components/card/cardBalance";
+import {DataSnapshot} from "@firebase/database";
+import {breadcrumbItem} from "@/lib/types";
+import {updateTotalBalance} from "@/lib/functions";
+import React from "react";
+import {Button} from "@/components/ui/button";
 
-export default function Conveyance() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-  const [ data, dataLoading, dataError ] = useList(GetDatabaseReference("balance/conveyance"));
-  const total = GetTotalValue(data);
-  const [conveyanceBalance] = useObject(GetDatabaseReference("balance/total/conveyance"));
-  const conveyanceBalanceValue: number = conveyanceBalance?.val().value;
-  const conveyanceBalanceDate: string = conveyanceBalance?.val().date;
+export default function ConveyancePage() {
+	const breadcrumb: breadcrumbItem[] = [
+		{ text: "Home", link: "/" },
+		{ text: "/" },
+		{ text: "Conveyance" },
+	]
 
-  const updateTotal = async() => {
-    update(GetDatabaseReference(`balance/total/conveyance`), {
-      value: total,
-    }).then(() => {
-      successMessage("Total balance updated successfully!");
-    }).catch((error) => {
-      console.error(error.message);
-      errorMessage(error.message);
-    })
-  }
+	const [data, dataLoading, dataError] = useList(getDatabaseReference("balance/conveyance"))
+	const [totalBalanceData, totalBalanceLoading] = useObject(getDatabaseReference("balance/total/conveyance"));
+	const total: number = getTotalValue(data);
+	const totalBalanceValue = totalBalanceData?.val().value;
 
-  if (loading) return <Loading/>
+	const handleUpdateTotalBalance = () => {
+		updateTotalBalance("conveyance", total).then(() => {
+			showToast("Success", "Total balance updated successfully", "success");
+		}).catch((error) => {
+			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+		})
+	}
 
-  if (!loading && !user) return router.push("/login");
-  else if (user.role == "admin") {
-    return (
-      <Layout 
-        pageTitle="Conveyance | Asian Lift Bangladesh"
-        headerTitle="Conveyance">
-        <div className="flex flex-col py-2 gap-y-2">
-          {
-            dataLoading ? (
-              <CardIcon title={"Loading"} subtitle={"If data doesn't load in 30 seconds, please refresh the page."}>
-                <MdDownloading className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) : dataError ? (
-              <CardIcon title={"Error"} subtitle={dataError.message}>
-                <MdError className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) : !data || data.length == 0 ? (
-              <CardIcon title={"No record found!"} >
-                <MdError className='mx-1 w-6 h-6 content-center'/>
-              </CardIcon>
-            ) :(
-              <UniqueChildren>
-                {
-                  data.sort((a,b) => a.val().position - b.val().position).map((item) => {
-                    const itemSnapShot = item.val();
-                    return (
-                      <div className={"flex flex-col"} key={item.key}>
-                        <CardBalance type={"conveyance"} name={itemSnapShot.name} value={itemSnapShot.value} date={itemSnapShot.date}
-                                    status={itemSnapShot.status} id={item.key ? item.key : "undefined"}/>
-                      </div>
-                    )
-                  })
-                }
-              </UniqueChildren>
-            )
-          }
-          <TotalBalance text='Total Conveyance' value={total} date={conveyanceBalanceDate} update={total !== conveyanceBalanceValue} onClick={updateTotal}/>
-        </div>
-      </Layout>
-    );
-  } else return <AccessDenied/>;
+	return (
+		<Layout breadcrumb={breadcrumb}>
+			<div className={"flex flex-col h-full"}>
+				{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
+          <div>
+            <Button variant="accent" onClick={handleUpdateTotalBalance}>
+              Update Total Balance
+            </Button>
+          </div>
+				}
+				<ScrollArea className={"flex-grow mb-4 -mr-4 pr-4"}>
+					{
+						dataLoading ?
+							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
+								<div className={"flex-auto"}>
+									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
+									<Skeleton className="h-4 w-2/5 rounded-xl"/>
+								</div>
+								<Skeleton className="flex-wrap h-8 w-32 mr-4 rounded-xl"/>
+							</div>
+							: dataError ?
+								<CardIcon
+									title={"Error"}
+									description={dataError.message}>
+									<MdError size={28}/>
+								</CardIcon>
+								: !data || data.length == 0 ?
+									<CardIcon
+										title={"No Record Found"}>
+										<MdError size={28}/>
+									</CardIcon>
+									:
+									data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().position - b.val().position)).map((item: DataSnapshot) => {
+										const snapshot = item.val();
+										return (
+											<div className="flex-col my-2" key={item.key}>
+												<CardBalance type={"conveyance"} id={item.key ? item.key : "undefined"} name={snapshot.name}
+																		 value={snapshot.value} date={snapshot.date}
+																		 status={snapshot.status}/>
+											</div>
+										)
+									})
+					}
+				</ScrollArea>
+				<div>
+					{totalBalanceData &&
+            <CardTotalBalance value={total}
+                              date={totalBalanceData?.val().date}
+                              onClick={handleUpdateTotalBalance}
+                              update={total != totalBalanceValue}/>
+					}
+				</div>
+			</div>
+		</Layout>
+	)
 }
