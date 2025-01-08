@@ -1,5 +1,5 @@
 import Loading from "@/components/loading";
 
-export default function ProjectPageLoading() {
+export default function ProjectInfoPageLoading() {
 	return <Loading/>
 };
