@@ -6,7 +6,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, install the depndencies:
+First, install the dependencies:
 
 ```bash
 npm install
@@ -16,8 +16,6 @@ Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -39,4 +37,6 @@ npm update xml2js
 
 ## Deploy on Server
 
-TBC
+This project is deployed on Vercel.
+
+Production branch is the branch which deployed and can be seen through [https://alb-admin-webapp.vercel.app/](https://alb-admin-webapp.vercel.app/)
