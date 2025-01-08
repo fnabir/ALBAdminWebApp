@@ -3,28 +3,34 @@
 import * as React from "react"
 import {
   Sidebar,
-  SidebarMenu,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail, SidebarMenuItem, SidebarMenuButton,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar"
 import {
-  FaSquareFacebook,
-  FaLinkedin,
-  FaGlobe,
-  FaCalendarDay,
-  FaTag,
+  FaBook,
+  FaBuilding,
+  FaBuildingUser,
   FaBusSimple,
+  FaCalendarDay,
+  FaGlobe,
+  FaLinkedin,
+  FaMicrosoft,
+  FaSquareFacebook,
+  FaTag,
   FaUser,
-  FaBuilding, FaMicrosoft, FaWrench
+  FaWrench
 } from "react-icons/fa6";
 import Image from "next/image";
 import Logo from "@/images/logo-text.svg"
 import {useAuth} from "@/hooks/useAuth";
-import { NavMain } from "@/components/sidebar/nav-main"
+import {NavMain} from "@/components/sidebar/nav-main"
 import {NavLinks} from "@/components/sidebar/nav-links";
-import { NavUser } from "@/components/sidebar/nav-user"
+import {NavUser} from "@/components/sidebar/nav-user"
 
 const navData = {
   dashboard: [
@@ -64,8 +70,18 @@ const navData = {
       url: "/offer",
       icon: FaTag,
     },
+    {
+      title: "Info",
+      url: "/project-info",
+      icon: FaBuildingUser,
+    },
   ],
   utility: [
+    {
+      title: "Error Code",
+      url: "/error-code",
+      icon: FaBook,
+    },
     {
       title: "Calendar",
       url: "/calendar",
