@@ -8,7 +8,7 @@ import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components
 import {Skeleton} from "@/components/ui/skeleton";
 import {DataSnapshot} from "@firebase/database";
 import CardIcon from "@/components/card/cardIcon";
-import {FaBuilding, FaTag, FaWrench} from "react-icons/fa6";
+import {FaBook, FaBuildingUser, FaTag, FaWrench} from "react-icons/fa6";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import Loading from "@/components/loading";
@@ -82,12 +82,12 @@ export default function Page() {
             </div>
           }
         </div>
-        <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-3">
+        <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-1">
           <CardIcon
             title={"Project Info"}
             route={"/project-info"}
           >
-            <FaBuilding size={24}/>
+            <FaBuildingUser size={24}/>
           </CardIcon>
           <CardIcon
             title={"Offer"}
@@ -101,6 +101,12 @@ export default function Page() {
             route={"/callback"}
           >
             <FaWrench size={24}/>
+          </CardIcon>
+          <CardIcon
+            title={"Error Code"}
+            route={"/error-code"}
+          >
+            <FaBook size={24}/>
           </CardIcon>
         </div>
       </Layout>
