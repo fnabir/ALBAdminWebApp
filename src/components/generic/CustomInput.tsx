@@ -23,7 +23,7 @@ const CustomInput: FC<Props> = ({
           <div className={`relative ${floating ? "mt-4" : "mt-6"}`}>
             {
               pre &&
-              <div className={`absolute text-primary pl-3 pt-2.5 ${disabled ? "text-primary/50" : "text-primary"}`}>
+              <div className={`absolute text-primary pl-3 pt-[0.55rem] ${disabled ? "text-primary/50" : "text-primary"}`}>
                 {pre}
               </div>
             }
