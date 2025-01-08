@@ -6,8 +6,6 @@ import {ScrollArea} from "@/components/ui/scrollArea";
 import CustomInput from "@/components/generic/CustomInput";
 import {Button} from "@/components/ui/button";
 import CardErrorCode from "@/components/card/cardErrorCode";
-import {MdError} from "react-icons/md";
-import CardIcon from "@/components/card/cardIcon";
 
 export default function CallbackPage() {
 	const breadcrumb: {text: string, link?: string}[] = [
