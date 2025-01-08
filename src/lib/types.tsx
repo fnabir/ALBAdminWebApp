@@ -37,3 +37,12 @@ export type callback = {
     status: "Select" | "New" | "Assigned" | "In Progress" | "Fixed" | "Cannot be fixed" | undefined,
     date: string,
 }
+
+export type projectInfo = {
+    project: string,
+    location: string,
+    phone: string,
+    contactName: string,
+    status: string,
+    servicing: number | undefined,
+}
