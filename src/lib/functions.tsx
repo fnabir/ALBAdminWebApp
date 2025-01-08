@@ -4,7 +4,6 @@ import {format} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
 import {signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {auth} from "@/firebase/config";
-import {useRouter} from "next/navigation";
 
 export async function login(email: string, password: string) {
 	return signInWithEmailAndPassword(auth, email, password);
