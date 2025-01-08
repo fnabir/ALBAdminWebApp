@@ -12,19 +12,13 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import CustomInput from "@/components/generic/CustomInput";
 import {Button} from "@/components/ui/button";
 import ResetPassword from "@/app/login/resetPassword";
-import {useSignInWithEmailAndPassword} from "react-firebase-hooks/auth";
-import {useEffect, useState} from "react";
-import {signOut} from "firebase/auth";
+import {useState} from "react";
+import {login, logout} from "@/lib/functions";
 
 export default function LoginPage() {
-  const [
-    signInWithEmailAndPassword,
-    user,
-    loading,
-    error,
-  ] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
   const [submit, setSubmit] = useState<boolean>(false);
+  const access = ["HrnlOpNxfpTJ4JHjEE7E7lZXJ3n2", "STFXbv1ZzrbxDSWPCMpATVbOekh2", "WhAnZZh7CfNGhe1ejIUlAy1QAh33", "yB7jBuPIo7PxuhpliZ7VNnsL21l2", "LzcKIs2huyaK83FEOqbkJCumezu2"]
 
   const {
     register,
@@ -35,47 +29,38 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    await signInWithEmailAndPassword(data.email, data.password)
-      .then(() => {
-        setSubmit(true);
-      })
-  };
-
-  useEffect(() => {
-    if (submit && !loading) {
-      if (error) {
-        if (error.message === 'Firebase: Error (auth/invalid-email).') {
-          showToast("Error", 'Invalid email address!', "destructive");
-        } else if (error.message === 'Firebase: Error (auth/user-not-found).') {
-          showToast("Error", 'Email not registered with us!', "destructive");
-        } else if (error.message === 'Firebase: Error (auth/wrong-password).') {
-          showToast("Error", 'Wrong password!', "destructive");
-        } else if (error.message === 'Firebase: Error (auth/network-request-failed).') {
-          showToast("Error", 'Network connection issue!', "destructive");
-        } else {
-          showToast("Error", 'Invalid email/password!', "destructive");
-        }
+    setSubmit(true);
+    try {
+      await login(data.email, data.password);
+      console.log('Logged in successfully');
+      const user = auth.currentUser;
+      if (access.includes(user!.uid)) {
+        router.push("/");
       } else {
-        showToast("Success", "Logged in successfully", "success");
-      }
-      setSubmit(false);
-    }
-  }, [submit, loading, error]);
-
-  if (user) {
-    const access = ["HrnlOpNxfpTJ4JHjEE7E7lZXJ3n2", "STFXbv1ZzrbxDSWPCMpATVbOekh2", "WhAnZZh7CfNGhe1ejIUlAy1QAh33", "yB7jBuPIo7PxuhpliZ7VNnsL21l2", "LzcKIs2huyaK83FEOqbkJCumezu2"]
-    if (access.includes(user.user.uid)) {
-      router.push("/");
-    } else {
-      signOut(auth)
-        .then(() => {
+        logout().then(() => {
           showToast("Access Denied", "Not authorized to use this service", "destructive");
         })
-        .catch((e: Error) => {
-          console.error(e.message);
-        })
+          .catch((e: Error) => {
+            console.error(e.message);
+          })
+      }
+    } catch (e) {
+      const error = e as Error;
+      console.log(error.message);
+      if (String(error.message) === 'Firebase: Error (auth/invalid-email).') {
+        showToast("Error", 'Invalid email address!', "destructive");
+      } else if (String(error.message) === 'Firebase: Error (auth/user-not-found).') {
+        showToast("Error", 'Email not registered with us!', "destructive");
+      } else if (String(error.message) === 'Firebase: Error (auth/wrong-password).') {
+        showToast("Error", 'Wrong password!', "destructive");
+      } else if (String(error.message) === 'Firebase: Error (auth/network-request-failed).') {
+        showToast("Error", 'Network connection issue!', "destructive");
+      } else {
+        showToast("Error", 'Invalid email/password!', "destructive");
+      }
     }
-  }
+    setSubmit(false);
+  };
 
   return (
     <div className="flex min-h-svh items-center justify-center">
@@ -111,8 +96,8 @@ export default function LoginPage() {
                            color={errors.password ? "error" : "default"}
                            required
               />
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+              <Button type="submit" className="w-full" disabled={submit}>
+                {submit ? "Logging in..." : "Login"}
               </Button>
             </form>
             <div className="text-center">

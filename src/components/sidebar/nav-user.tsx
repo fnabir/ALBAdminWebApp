@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
+import {Avatar, AvatarFallback,} from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,17 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdownMenu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import {signOut} from "firebase/auth"
-import {auth} from "@/firebase/config";
-import {useRouter} from "next/navigation";
+import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar"
 import {MdAccountCircle, MdLogout, MdMoreHoriz} from "react-icons/md";
 import Link from "next/link";
+import {logout} from "@/lib/functions";
+import {useRouter} from "next/navigation";
+
 export function NavUser({
   user,
 }: {
@@ -32,10 +24,15 @@ export function NavUser({
     email: string
   }
 }) {
-  const router = useRouter();
   const { isMobile } = useSidebar()
   const words = user.name.trim().split(/\s+/);
   const initials = (words.length === 0) ? '' : (words.length === 1) ? words[0][0] : words[0][0] + words[words.length - 1][0];
+  const router = useRouter();
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -83,15 +80,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {
-              signOut(auth)
-                .then(() => {
-                  router.push("/login");
-                })
-                .catch((e: Error) => {
-                  console.error(e.message);
-                })
-            }}>
+            <DropdownMenuItem onClick={handleLogout}>
               <MdLogout />
               Log out
             </DropdownMenuItem>

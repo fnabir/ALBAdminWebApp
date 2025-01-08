@@ -2,6 +2,22 @@ import {remove, set, update} from "firebase/database";
 import {generateDatabaseKey, getDatabaseReference, showToast} from "@/lib/utils";
 import {format} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
+import {signInWithEmailAndPassword, signOut} from "firebase/auth";
+import {auth} from "@/firebase/config";
+import {useRouter} from "next/navigation";
+
+export async function login(email: string, password: string) {
+	return signInWithEmailAndPassword(auth, email, password);
+}
+
+export async function logout() {
+	try {
+		await signOut(auth)
+		console.log("Logged out successfully.")
+	} catch (error) {
+		console.error("Error logging out: ", error)
+	}
+}
 
 export async function updateTotalBalance(type: string, value: number) {
 	await update(getDatabaseReference(`balance/total/${type}`), {
