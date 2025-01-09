@@ -119,7 +119,7 @@ const CardTransactionProject: React.FC<Props> = ({
           .catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
     }
 
-    const updatePartialPaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, partialDataSets: any[]) => {
+    const updatePartialPaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, partialDataSets: PartialPaymentDataType[]) => {
         partialDataSets.forEach((partialDataSet) => {
             if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
                 updatePaymentData(projectName, transactionId, formData, partialDataSet.key, partialDataSet.details, partialDataSet.amount);
