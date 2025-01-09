@@ -46,3 +46,15 @@ export type projectInfo = {
     status: string,
     servicing: number | undefined,
 }
+
+export type PartialPaymentDataType = {
+    id: number,
+    key: string,
+    details: string,
+    amount: number,
+}
+
+export type FullPaymentDataType = {
+    key: string,
+    details: string,
+}
