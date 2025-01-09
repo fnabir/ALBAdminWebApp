@@ -37,7 +37,7 @@ const TotalBalance: React.FC<Props> = ({
                   <div className="text-xl text-center md:text-start">{titleText}</div>
                   <p id="updatedate" className="text-sm pb-2 sm:text-center md:text-start">{dateText}</p>
               </div>
-              <div className="items-center text-right mt-3 text-3xl font-medium sm:mt-0">
+              <div className="items-center text-right mt-3 text-3xl font-medium font-mono sm:mt-0">
                   {formatCurrency(value)}
               </div>
           </div>

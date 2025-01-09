@@ -24,7 +24,7 @@ export default function CardBalance(props:BalanceInterface) {
               </CardHeader>
               { props.date && <CardFooter className="text-sm p-0">{props.date}</CardFooter>}
             </div>
-            <div className={"flex items-center text-2xl font-medium"}>
+            <div className={"flex items-center text-2xl font-medium font-mono"}>
                 {formatCurrency(props.value)}
             </div>
           </Card>
