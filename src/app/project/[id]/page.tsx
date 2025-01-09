@@ -3,11 +3,11 @@
 import Layout from "@/components/layout";
 import CardTotalBalance from "@/components/card/cardTotalBalance";
 import {useList, useObject} from "react-firebase-hooks/database";
-import {formatCurrency, getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
+import {formatCurrency, generateDatabaseKey, getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
-import {MdAddCircle, MdError} from "react-icons/md";
+import {MdAddCircle, MdDelete, MdError} from "react-icons/md";
 import {usePathname} from "next/navigation";
 import React, {useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
@@ -22,7 +22,7 @@ import {
 	projectTransactionFilterOptions,
 	projectTransactionOptions
 } from "@/lib/arrays";
-import {projectTransaction} from "@/lib/types";
+import {FullPaymentDataType, PartialPaymentDataType, projectTransaction} from "@/lib/types";
 import {
 	Dialog,
 	DialogClose,
@@ -37,12 +37,12 @@ import CustomSeparator from "@/components/generic/CustomSeparator";
 import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import CustomInput from "@/components/generic/CustomInput";
-import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 import {useForm} from "react-hook-form";
 import {TransactionFormData, transactionSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {format} from "date-fns";
-import {addNewTransaction, updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
+import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
+import {set, update} from "firebase/database";
 
 export default function ProjectTransactionPage() {
 	const { userRole } = useAuth();
@@ -66,6 +66,11 @@ export default function ProjectTransactionPage() {
 	const totalBalanceDate = totalBalanceData?.val().date;
 	const servicingCharge: number = useObject(getDatabaseReference(`info/project/${projectName}/servicing`))[0]?.val();
 	const paidDataOptions = data?.filter(t=>t.val().amount < 0).map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}: ${formatCurrency(Math.abs(item.val().amount))}`}));
+
+	const [fullPaymentData, setFullPaymentData] = useState<FullPaymentDataType>({key: '', details: ''})
+	const [partialDataSets, setPartialDataSets] = useState<PartialPaymentDataType[]>([
+		{ id: 1, key: '', details: "", amount: 0 },
+	]);
 
 	const transactionData: projectTransaction[] = data ? data.map((snapshot) => ({
 			...(snapshot.val() as projectTransaction),
@@ -93,6 +98,68 @@ export default function ProjectTransactionPage() {
 	const [titleLabel, setTitleLabel] = useState<string>("Expense Type");
 	const [detailsLabel, setDetailsLabel] = useState<string>("Details");
 	const [paymentType, setPaymentType] = useState<string>("notPaid");
+
+	const addPartialDataSet = () => {
+		if (partialDataSets.length < 10) {
+			setPartialDataSets((prev: PartialPaymentDataType[]) => [
+				...prev,
+				{ id: prev.length + 1, key: "", details: "", amount: 0 },
+			]);
+		}
+	};
+
+	const removePartialDataSet = (id: number) => {
+		setPartialDataSets((prev) => prev.filter((set) => set.id !== id));
+	};
+
+	function handlePartialDataChange (
+		id: number,
+		field: "details" | "key",
+		value: string,
+	) {
+		setPartialDataSets((prev) =>
+			prev.map((set) =>
+				set.id === id ? { ...set, [field]: value } : set
+			)
+		);
+	}
+
+	function handlePartialDataAmountChange (
+		id: number,
+		value: number,
+	) {
+		setPartialDataSets((prev) =>
+			prev.map((set) =>
+				set.id === id ? { ...set, amount: value } : set
+			)
+		);
+	}
+
+	const updatePaymentData = (data: TransactionFormData, transactionId: string, key: string, details: string, amount: number) => {
+		const expenseRef = getDatabaseReference(`transaction/project/${projectName}/${transactionId}/data/${key}`);
+		const paymentRef = getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`);
+		const expenseData = {
+			details: `${format(new Date(data.date), "dd.MM.yy")} ${data.title} - ${data.details}`,
+			amount: amount,
+		}
+		const paymentData = {
+			details: details,
+			amount: amount,
+		}
+		update(expenseRef, paymentData)
+			.catch((error) => console.error(`Payment Data in Expense Transaction: ${error.message}`))
+		update(paymentRef, expenseData)
+			.catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
+	}
+
+	const updatePartialPaymentData = async(data: TransactionFormData, newKey: string) => {
+		partialDataSets.forEach((partialDataSet) => {
+			if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
+				updatePaymentData(data, newKey, partialDataSet.key, partialDataSet.details, partialDataSet.amount);
+			}
+		})
+	}
+
 
 	const handleTypeChange = (value:string) => {
 		setValue('type', value);
@@ -141,24 +208,59 @@ export default function ProjectTransactionPage() {
 		}
 	}
 
-	const onSubmit = (data: TransactionFormData) => {
-		//const newTransactionRef: DatabaseReference = getDatabaseReference(`transaction/project/${projectName}/${format(new Date(data.date), "yyMMdd")}${generateDatabaseKey(`transaction/project/${projectName}`)}`);
-		//const newKey: string = newTransactionRef.key!;
-		addNewTransaction("project", projectName, data.date, {
-			title: data.title,
-			details: data.details,
-			amount: data.type == "+" ? data.amount : data.amount * (-1),
-			date: format(new Date(data.date), "dd.MM.yy"),
-		}).then(() => {
-			updateLastUpdateDate("project", projectName).catch((error) => {
-				console.error(error.message());
-				showToast(error.name, "Failed to update the last update date", "destructive");
+	const onSubmit = async (data: TransactionFormData) => {
+		if (paymentType == "full" && (!fullPaymentData || !fullPaymentData.key || fullPaymentData.details === "Select" || fullPaymentData.details === "")) {
+			showToast("Error", "Please select a valid payment date", "destructive");
+		} else {
+			let paymentData = {}
+			if (data.type === "+") {
+				if (paymentType == "full") {
+					paymentData = {
+						[fullPaymentData.key] : {
+							details: fullPaymentData.details,
+							amount: data.amount,
+						}
+					}
+				} else if (paymentType == "partial") {
+					paymentData = partialDataSets.reduce((partialDataObject, partialData) => {
+						if (partialData.key && partialData.key !== "Select" && partialData.details !== "Select") {
+							partialDataObject[partialData.key] = {
+								amount: partialData.amount,
+								details: partialData.details,
+							};
+						}
+						return partialDataObject;
+					}, {} as { [key: string]: { amount: number; details: string } });
+				}
+			}
+
+			const newKey: string = `${format(new Date(data.date), "yyMMdd")}${generateDatabaseKey(`transaction/project/${projectName}`)}`;
+			await set(getDatabaseReference(`transaction/project/${projectName}/${newKey}`), {
+				title: data.title,
+				details: data.details,
+				amount: data.type == "+" ? data.amount : data.amount * (-1),
+				date: format(new Date(data.date), "dd.MM.yy"),
+				data: paymentData,
+			}).then(() => {
+				if (paymentType === "full") {
+					updatePaymentData(data, newKey, fullPaymentData.key, fullPaymentData.details, data.amount)
+				} else if (paymentType === "partial") {
+					updatePartialPaymentData(data, newKey)
+						.catch((error) => {
+							console.log(error);
+							showToast("Error", "Failed to update payment data", "destructive");
+						});
+				}
+				updateLastUpdateDate("project", projectName).catch((error) => {
+					console.error(error.message());
+					showToast(error.name, "Failed to update the last update date", "destructive");
+				});
+			}).finally(() => {
+				setOpen(false);
+				window.location.reload();
 			});
-		}).finally(() => {
-			setOpen(false);
-			window.location.reload();
-		});
-	};
+		}
+	}
 
 	const handleUpdateBalance = () => {
 		updateTransactionBalance("project", projectName, total).then(() => {
@@ -220,21 +322,59 @@ export default function ProjectTransactionPage() {
 														 color={errors.amount ? "error" : "default"}
 														 required
 								/>
-								<CustomDateTimeInput id="date"
-																		 type="date"
-																		 label="Date"
-																		 helperText={errors.date ? errors.date.message : ""}
-																		 color={errors.date ? "error" : "default"}
-																		 {...register("date")}
-																		 required
+								<CustomInput id="date"
+														 type="date"
+														 label="Date"
+														 helperText={errors.date ? errors.date.message : ""}
+														 color={errors.date ? "error" : "default"}
+														 {...register("date")}
+														 required
 								/>
-								{getValues("type") === "+" &&
-                  <div className="hidden space-y-4">
-                    <CustomSeparator orientation={"horizontal"} className={"mt-8"}/>
+								{paidDataOptions && getValues("type") === "+" &&
+                  <div>
+                    <CustomSeparator orientation={"horizontal"} className={"my-4"}/>
                     <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
                                       onChange={(value) => setPaymentType(value)}
                                       defaultValue={paymentType}
+																			className="mb-4"
                     />
+										{
+											paymentType == "full" ?
+												<CustomDropDown id="fullPaymentDate"
+																				label="Payment Date"
+																				options={paidDataOptions}
+																				onChange={(e) => setFullPaymentData({key: e.target.value, details: e.target.options[e.target.selectedIndex].text})}
+												/>
+											: paymentType == "partial" ?
+												<div className="text-center">
+													{
+														partialDataSets.length < 10 && (
+															<Button variant="accent" size="lg" onClick={addPartialDataSet}>Add</Button>
+														)
+													}
+													{
+														partialDataSets.map((set, index) => (
+															<div key={set.id} className={`flex gap-x-2`}>
+																<CustomDropDown id={`paymentDate${index + 1}`} label={`Payment Date ${index + 1}`}
+																								className={`flex-[1_1_73%]`} options={paidDataOptions}
+																								onChange={(e) => {
+																									handlePartialDataChange(set.id, "details", e.target.options[e.target.selectedIndex].text);
+																									handlePartialDataChange(set.id, "key", e.target.value);
+																								}}
+																/>
+																<CustomInput id={`paymentAmount${index + 1}`} label={`Amount ${index + 1}`}
+																						 type="number" pre={`৳`} className={`flex-[1_1_27%]`}
+																						 onChange={(e) => handlePartialDataAmountChange(set.id, Number(e.target.value))}
+																/>
+																<Button variant="destructive" className="mt-[18px]" size="icon" onClick={() => removePartialDataSet(set.id)}>
+																	<MdDelete/>
+																</Button>
+															</div>
+														))
+													}
+												</div>
+											: null
+										}
                   </div>
 								}
 								<DialogFooter className={"sm:justify-center pt-8"}>

@@ -1,26 +1,31 @@
-import {formatCurrency} from "@/lib/utils";
+import {formatCurrency, getDatabaseReference, getTotalValue} from "@/lib/utils";
 import {MdDelete, MdEditNote} from "react-icons/md";
-import React, { useState} from "react";
+import React, {useState} from "react";
 import {useList, useListKeys} from "react-firebase-hooks/database";
-import {getDatabaseReference, getTotalValue} from "@/lib/utils";
 import {Card} from "@/components/ui/card";
-import { Dialog,
+import {
+    Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
-    DialogFooter, DialogClose} from "@/components/ui/dialog";
+    DialogTrigger
+} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {deleteTransaction, updateTransaction} from "@/lib/functions";
 import {TransactionFormData, transactionSchema} from "@/lib/schemas";
 import CustomInput from "@/components/generic/CustomInput";
-import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {format, parse} from "date-fns";
 import CustomSeparator from "@/components/generic/CustomSeparator";
-import {options} from "@/lib/types";
+import {FullPaymentDataType, options, PartialPaymentDataType} from "@/lib/types";
+import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
+import {projectPaymentTypeOptions} from "@/lib/arrays";
+import CustomDropDown from "@/components/generic/CustomDropDown";
+import {remove, update} from "firebase/database";
 
 interface Props {
     projectName: string,
@@ -34,15 +39,15 @@ interface Props {
 }
 
 const CardTransactionProject: React.FC<Props> = ({
-    projectName, transactionId, title, details, amount, date, userAccess
+    projectName, transactionId, title, details, amount, date, userAccess, paidDataOptions
 }) => {
     const [editDialog, setEditDialog] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const databaseRef = `transaction/project/${projectName}/${transactionId}`;
-    const [data] =  useList(getDatabaseReference(`${databaseRef}/data`));
+    const [data] = useList(getDatabaseReference(`${databaseRef}/data`));
     const [dataKeys] = useListKeys(getDatabaseReference(`${databaseRef}/data`));
-    const total = getTotalValue(data, "amount");
-    const bg = amount <= 0 || amount == total? 'bg-green-900' : amount > 0 && amount < total ? 'bg-yellow-900' : 'bg-red-900';
+    const total: number = getTotalValue(data, "amount");
+    const bg = amount <= 0 || amount == total ? 'bg-green-900' : amount > 0 && amount < total ? 'bg-yellow-900' : 'bg-red-900';
 
     const {
         register,
@@ -55,12 +60,115 @@ const CardTransactionProject: React.FC<Props> = ({
         defaultValues: { type: amount < 0 ? "-" : "+", title: title, details: details, amount: Math.abs(amount), date: format(parse(date, "dd.MM.yy", new Date()), 'yyyy-MM-dd') },
     });
 
-    const onSubmit = (data: TransactionFormData) => {
+    const [paymentType, setPaymentType] = useState<string>(!data || data.length == 0 ? 'notPaid' : ((data.length == 1 && amount <= total) ? 'full' : 'partial'));
+    const [fullPaymentData, setFullPaymentData] = useState<FullPaymentDataType>({key: '', details: ''})
+    const [partialDataSets, setPartialDataSets] = useState<PartialPaymentDataType[]>([
+        { id: 1, key: '', details: "", amount: 0 },
+    ]);
+
+    function addPartialDataSet() {
+        if (partialDataSets.length < 10) {
+            setPartialDataSets((prev) => [
+                ...prev,
+                { id: prev.length + 1, key: "", details: "", amount: 0 },
+            ]);
+        }
+    }
+
+    function removePartialDataSet (id: number) {
+        setPartialDataSets((prev) => prev.filter((set) => set.id !== id));
+    }
+
+    function handlePartialDataChange (
+      id: number,
+      field: "details" | "key",
+      value: string,
+    ) {
+        setPartialDataSets((prev) =>
+          prev.map((set) =>
+            set.id === id ? { ...set, [field]: value } : set
+          )
+        );
+    }
+
+    function handlePartialDataAmountChange (
+      id: number,
+      value: number,
+    ) {
+        setPartialDataSets((prev) =>
+          prev.map((set) =>
+            set.id === id ? { ...set, amount: value } : set
+          )
+        );
+    }
+
+    const updatePaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, key: string, details: string, amount: number) => {
+        const expenseRef = getDatabaseReference(`${databaseRef}/data/${key}`);
+        const paymentRef = getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`);
+        const expenseData = {
+            details: `${format(new Date(formData.date), "dd.MM.yy")} ${formData.title} - ${formData.details}`,
+            amount: amount,
+        }
+        const paymentData = {
+            details: details,
+            amount: amount,
+        }
+        update(expenseRef, paymentData)
+          .catch((error) => console.error(`Payment Data in Expense Transaction: ${error.message}`))
+        update(paymentRef, expenseData)
+          .catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
+    }
+
+    const updatePartialPaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, partialDataSets: any[]) => {
+        partialDataSets.forEach((partialDataSet) => {
+            if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
+                updatePaymentData(projectName, transactionId, formData, partialDataSet.key, partialDataSet.details, partialDataSet.amount);
+            }
+        })
+    }
+
+    const paymentDataCleanup = async(projectName: string,
+                                     transactionId: string,
+                                     formData: TransactionFormData,
+                                     fullPaymentData: FullPaymentDataType,
+                                     partialDataSets: PartialPaymentDataType[],
+                                     dataKeys?: string[]) => {
+        if (formData.type === "+") {
+            if (dataKeys) {
+                if (paymentType === "full") {
+                    dataKeys.filter((key) => key !== fullPaymentData.key)
+                      .forEach((key) => {
+                          remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                            .catch((error) => console.error(error.message))
+                      })
+                } else if (paymentType === "partial") {
+                    dataKeys.filter((key) => !partialDataSets.some((dataSet) => dataSet.key === key))
+                      .forEach((key) => {
+                          remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                            .catch((error) => console.error(error.message))
+                      })
+                } else {
+                    dataKeys.forEach((key) => {
+                        remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                          .catch((error) => console.error(error.message))
+                    })
+                }
+            }
+        }
+    }
+
+    const onSubmit = async (data: TransactionFormData) => {
         updateTransaction("project", projectName, transactionId, {
             title: data.title,
             details: data.details,
             amount: data.type == "+" ? data.amount : data.amount * (-1),
-            date: format(new Date(data.date), "dd.MM.yy"),
+        }).then(async () => {
+            await paymentDataCleanup(projectName, transactionId, data, fullPaymentData, partialDataSets, dataKeys);
+            if (data.type === "+") {
+                if (paymentType === "full") await updatePaymentData(projectName, transactionId, data, fullPaymentData.key, fullPaymentData.details, data.amount);
+                else if (paymentType === "partial") await updatePartialPaymentData(projectName, transactionId, data, partialDataSets);
+                else await remove(getDatabaseReference(`${databaseRef}/data`))
+            }
         }).finally(() => {
             setEditDialog(false);
             window.location.reload();
@@ -69,6 +177,24 @@ const CardTransactionProject: React.FC<Props> = ({
 
     const handleReset = () => {
         reset();
+        if (amount >= 0) {
+            if (!data  || data.length == 0) {
+                setPaymentType("notPaid");
+            } else if (data.length == 1 && total >= amount) {
+                setPaymentType("full");
+                data.map((item) => {
+                    setFullPaymentData({key: item.key!, details: item.val().details})
+                })
+            } else {
+                setPaymentType("partial");
+                data.map((item, index) => {
+                    if (partialDataSets.length  < index + 1 ) addPartialDataSet();
+                    handlePartialDataChange(index + 1, "key", item.key!);
+                    handlePartialDataChange(index + 1, "details", item.val().details);
+                    handlePartialDataAmountChange(index + 1, item.val().amount);
+                })
+            }
+        }
     };
 
     const handleDelete = () => {
@@ -157,15 +283,65 @@ const CardTransactionProject: React.FC<Props> = ({
                                          color={errors.amount ? "error" : "default"}
                                          required
                             />
-                            <CustomDateTimeInput id="date"
-                                                 type="date"
-                                                 label="Date"
-                                                 helperText={errors.date ? errors.date.message : ""}
-                                                 color={errors.date ? "error" : "default"}
-                                                 {...register("date")}
-                                                 required
-                                                 disabled
+                            <CustomInput id="date"
+                                         type="date"
+                                         label="Date"
+                                         helperText={errors.date ? errors.date.message : ""}
+                                         color={errors.date ? "error" : "default"}
+                                         {...register("date")}
+                                         required
+                                         disabled
                             />
+                            {paidDataOptions && getValues("type") === "+" &&
+                              <div>
+                                  <CustomSeparator orientation={"horizontal"} className={"my-4"}/>
+                                  <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
+                                                    onChange={(value) => setPaymentType(value)}
+                                                    defaultValue={paymentType}
+                                                    className="mb-4"
+                                  />
+                                  {
+                                      paymentType == "full" ?
+                                        <CustomDropDown id="fullPaymentDate"
+                                                        label="Payment Date"
+                                                        options={paidDataOptions}
+                                                        value={fullPaymentData.key}
+                                                        onChange={(e) => setFullPaymentData({key: e.target.value, details: e.target.options[e.target.selectedIndex].text})}
+                                        />
+                                        : paymentType == "partial" ?
+                                          <div className="text-center">
+                                              {
+                                                partialDataSets.length < 10 && (
+                                                  <Button type="button" variant="accent" size="lg" onClick={addPartialDataSet}>Add</Button>
+                                                )
+                                              }
+                                              {
+                                                  partialDataSets.map((set, index) => (
+                                                    <div key={set.id} className={`flex gap-x-2`}>
+                                                        <CustomDropDown id={`paymentDate${index + 1}`} label={`Payment Date ${index + 1}`}
+                                                                        className={`flex-[1_1_73%]`} options={paidDataOptions}
+                                                                        value={partialDataSets[index].key}
+                                                                        onChange={(e) => {
+                                                                            handlePartialDataChange(set.id, "details", e.target.options[e.target.selectedIndex].text);
+                                                                            handlePartialDataChange(set.id, "key", e.target.value);
+                                                                        }}
+                                                        />
+                                                        <CustomInput id={`paymentAmount${index + 1}`} label={`Amount ${index + 1}`}
+                                                                     type="number" pre={`৳`} className={`flex-[1_1_27%]`}
+                                                                     value={partialDataSets[index].amount}
+                                                                     onChange={(e) => handlePartialDataAmountChange(set.id, Number(e.target.value))}
+                                                        />
+                                                        <Button variant="destructive" className="mt-[18px]" size="icon" onClick={() => removePartialDataSet(set.id)}>
+                                                            <MdDelete/>
+                                                        </Button>
+                                                    </div>
+                                                  ))
+                                              }
+                                          </div>
+                                          : null
+                                  }
+                              </div>
+                            }
                             <DialogFooter className={"sm:justify-center pt-8"}>
                                 <DialogClose asChild>
                                     <Button type="button" size="lg" variant="secondary">
