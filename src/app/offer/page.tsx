@@ -85,9 +85,9 @@ export default function OfferPage() {
 						</DialogTrigger>
 						<DialogContent className={"border border-blue-500"}>
 							<DialogHeader>
-								<DialogTitle>Edit Offer</DialogTitle>
+								<DialogTitle>Add New Offer</DialogTitle>
 								<DialogDescription>
-									Click update to save the changes.
+									Click save to save the new offer.
 								</DialogDescription>
 							</DialogHeader>
 							<CustomSeparator orientation={"horizontal"}/>
