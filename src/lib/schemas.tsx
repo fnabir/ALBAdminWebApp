@@ -23,7 +23,7 @@ export const transactionSchema = z.object({
 			invalid_type_error: "Input must be a number",
 		}).nonnegative("Amount must be positive")
 		.refine((val) => !isNaN(val), {
-			message: "Input cannot be empty or NaN",
+			message: "Input cannot be empty or not a number",
 		}),
 	date: z.string().nonempty("Date is required"),
 });
