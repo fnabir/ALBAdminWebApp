@@ -15,30 +15,22 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {deleteEvent} from "@/lib/functions";
+import {deleteEvent, updateEvent} from "@/lib/functions";
 import CustomSeparator from "@/components/generic/CustomSeparator";
 import {useForm} from "react-hook-form";
 import {EventFormData, eventSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import CustomInput from "@/components/generic/CustomInput";
-import CustomCheckbox from "@/components/generic/CustomCheckBox";
 
 const CardCalendarEvent: FC<calendarEvent> = ({
   id, title, details, assigned, start, end, allDay }) => {
   const [editDialog, setEditDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [allDayEvent, setAllDayEvent] = useState<boolean>(allDay);
-
-  const handleDelete = () => {
-    deleteEvent(id).finally(() => {
-      setDeleteDialog(false);
-      window.location.reload();
-    });
-  }
 
   const {
     register,
     reset,
+    handleSubmit,
     formState: { errors },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -46,15 +38,32 @@ const CardCalendarEvent: FC<calendarEvent> = ({
       title: title,
       details: details,
       assigned: assigned,
+      allDay: allDay,
       start: start,
       end: end,
-      allDay: allDay
     },
   });
 
   const handleReset = () => {
-    setAllDayEvent(allDay);
     reset();
+  }
+
+  const onSubmit = (data: EventFormData) => {
+    updateEvent(id, {
+      title: data.title,
+      details: data.details,
+      assigned: data.assigned,
+    }).finally(() => {
+      setEditDialog(false);
+      window.location.reload();
+    });
+  }
+
+  const handleDelete = () => {
+    deleteEvent(id).finally(() => {
+      setDeleteDialog(false);
+      window.location.reload();
+    });
   }
 
   return(
@@ -75,8 +84,8 @@ const CardCalendarEvent: FC<calendarEvent> = ({
         <Dialog open={editDialog} onOpenChange={setEditDialog}>
           <DialogTrigger asChild>
             <button onClick={handleReset}
-                    className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
-              <MdEditNote color={"white"} size={24}/>
+                    className={"p-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-accent hover:text-accent-foreground"}>
+              <MdEditNote size={24}/>
             </button>
           </DialogTrigger>
           <DialogContent className={"border border-blue-500"}>
@@ -87,7 +96,7 @@ const CardCalendarEvent: FC<calendarEvent> = ({
               </DialogDescription>
             </DialogHeader>
             <CustomSeparator orientation={"horizontal"} className={"mb-2"}/>
-            <form>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <CustomInput id="title"
                            type="text"
                            label={"Title"}
@@ -102,28 +111,14 @@ const CardCalendarEvent: FC<calendarEvent> = ({
                            helperText={errors.details ? errors.details.message : ""}
                            color={errors.details ? "error" : "default"}
               />
-              <CustomCheckbox id="allDay"
-                              label="All day"
-                              {...register("allDay")}
-                              onChange={(e) => setAllDayEvent(e.target.checked)}
+              <CustomInput id="assigned"
+                           type="text"
+                           label={"Assigned"}
+                           {...register('assigned')}
+                           helperText={errors.assigned ? errors.assigned.message : ""}
+                           color={errors.assigned ? "error" : "default"}
               />
-              <CustomInput id="start"
-                           type="datetime-local"
-                           label={"Start"}
-                           {...register('start')}
-                           helperText={errors.start ? errors.start.message : ""}
-                           color={errors.start ? "error" : "default"}
-              />
-              {
-                !allDayEvent && <CustomInput id="end"
-                                            type="datetime-local"
-                                            label={"End"}
-                                            {...register('end')}
-                                            helperText={errors.end ? errors.end.message : ""}
-                                            color={errors.end ? "error" : "default"}
-                />
-              }
-              <DialogFooter className={"sm:justify-center pt-8"}>
+              <DialogFooter className={"sm:justify-center pt-4"}>
                 <DialogClose asChild>
                   <Button type="button" size="lg" variant="secondary">
                     Close
@@ -137,8 +132,8 @@ const CardCalendarEvent: FC<calendarEvent> = ({
         </Dialog>
         <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
           <DialogTrigger asChild>
-            <button className={"p-2 bg-black bg-opacity-40 rounded-lg hover:bg-opacity-70"}>
-              <MdDelete color={"white"} size={24}/>
+            <button className={"p-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-accent hover:text-accent-foreground"}>
+              <MdDelete size={24}/>
             </button>
           </DialogTrigger>
           <DialogContent className={"border border-destructive"}>
