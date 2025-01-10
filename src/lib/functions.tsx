@@ -135,6 +135,23 @@ export async function deleteCallback(projectName: string, id: string) {
 	})
 }
 
+export async function addNewEvent(date:string, data: object) {
+	const newKey: string = `${format(new Date(date), "yyMMdd")}${generateDatabaseKey(`calendar`)}`;
+	await set(getDatabaseReference(`calendar/${newKey}`), data).then(() => {
+		showToast("Successful", "Saved the new event successfully.", "success");
+	}).catch ((error) => {
+		showToast("Error", `Failed to save the new event: ${error.message}`, "destructive");
+	})
+}
+
+export async function updateEvent(id: string, data: object) {
+	await update(getDatabaseReference(`calendar/${id}`), data).then(() => {
+		showToast("Successful", "Updated the event details successfully.", "success");
+	}).catch ((error) => {
+		showToast("Error", `Failed to update the event details: ${error.message}`, "destructive");
+	})
+}
+
 export async function deleteEvent(id: string) {
 	await remove(getDatabaseReference(`calendar/${id}`)).then(() => {
 		showToast("Successful", "Deleted the event successfully.", "success");
