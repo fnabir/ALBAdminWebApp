@@ -47,8 +47,9 @@ const CardTransactionProject: React.FC<Props> = ({
     const [data] = useList(getDatabaseReference(`${databaseRef}/data`));
     const [dataKeys] = useListKeys(getDatabaseReference(`${databaseRef}/data`));
     const total: number = getTotalValue(data, "amount");
-    const bg = amount <= 0 || amount == total ? 'bg-green-900' : amount > 0 && amount < total ? 'bg-yellow-900' : 'bg-red-900';
-
+    const bg: string = amount == 0 ? 'green-900' :
+                       amount < 0 ? total + amount == 0 ? 'green-900' : total == 0 ? `muted` : total > amount ? 'yellow-900' : 'sky-900' :
+                       total == 0 ? 'red-900' : amount == total ? 'green-900' : total > amount ? 'yellow-900' : `sky-900`;
     const {
         register,
         getValues,
@@ -205,7 +206,7 @@ const CardTransactionProject: React.FC<Props> = ({
     }
 
     return (
-        <Card className={"flex w-full p-1 text-start " + bg + " hover:bg-opacity-80 items-center"}>
+        <Card className={`flex w-full p-1 text-start bg-${bg} hover:bg-opacity-80 items-center`}>
             <div className="flex-col w-full items-center pl-2 md:pl-6 mr-1 text-white">
                 <div className="w-full mx-auto flex items-center justify-between text-sm md:text-base gap-2 md:gap-6">
                     <div className="font-mono">
