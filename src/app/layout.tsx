@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/themeProvider";
-import { Geist, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/toaster"
+import type {Metadata} from "next";
+import {ThemeProvider} from "@/components/themeProvider";
+import {Geist, Geist_Mono} from "next/font/google";
+import {Toaster} from "@/components/ui/toaster"
 import "@/styles/globals.css"
 import React from "react";
 
@@ -10,8 +10,8 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${jetBrainsMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
