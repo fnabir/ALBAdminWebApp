@@ -104,7 +104,7 @@ export default function ProjectPage() {
 									</CardIcon>
 									: <div className={"space-y-2"}>
 										{
-											sort == "balance" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().value - b.val().value)).map((item: DataSnapshot) => {
+											sort == "name" ? data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot) => {
 												const snapshot = item.val();
 												return (
 													<div key={item.key}>
@@ -114,7 +114,7 @@ export default function ProjectPage() {
 																				 status={snapshot.status}/>
 													</div>
 												)
-											}) : sort == "register" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().register - b.val().register)).map((item: DataSnapshot) => {
+											}) : sort == "balance" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().value - b.val().value)).map((item: DataSnapshot) => {
 												const snapshot = item.val();
 												return (
 													<div key={item.key}>
@@ -124,12 +124,12 @@ export default function ProjectPage() {
 																				 status={snapshot.status}/>
 													</div>
 												)
-											}) : data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot) => {
+											}) : data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().register - b.val().register)).map((item: DataSnapshot) => {
 												const snapshot = item.val();
 												return (
-													<div key={item.key}>
-														<CardBalance type={"project"} id={item.key ? item.key : "undefined"}
-																				 name={item.key ? item.key : "undefined"} value={snapshot.value}
+													<div key={item.key!}>
+														<CardBalance type={"project"} id={item.key!}
+																				 name={item.key!} value={snapshot.value}
 																				 date={snapshot.date}
 																				 status={snapshot.status}/>
 													</div>
