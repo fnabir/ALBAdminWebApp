@@ -59,13 +59,58 @@ export default function ProjectTransactionPage() {
 		{ text: projectName },
 	]
 
+	const transactionColourInfo = {
+		expense: {
+			1: {
+				colour: "green-900",
+				details: "৳0 expense such as Free servicing, etc.",
+			},
+			2: {
+				colour: "red-900",
+				details: "No payment record",
+			},
+			3: {
+				colour: "sky-900",
+				details: "Payment record covering partial of the expense amount"
+			},
+			4: {
+				colour: "green-900",
+				details: "Payment record covering the full expense amount"
+			},
+			5: {
+				colour: "yellow-900",
+				details: "Payment record covering more than the expense amount"
+			}
+		},
+		payment: {
+			1: {
+				colour: "muted",
+				details: "No expense record"
+			},
+			2: {
+				colour: "sky-900",
+				details: "Expense record covering the partial amount of payment"
+			},
+			3: {
+				colour: "green-900",
+				details: "Expense record covering the full amount of payment"
+			},
+			4: {
+				colour: "yellow-900",
+				details: "Expense record covering more than the payment amount"
+			},
+		}
+	}
+
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference(`transaction/project/${projectName}`));
 	const total = getTotalValue(data, "amount");
 	const [totalBalanceData, totalBalanceLoading] = useObject(getDatabaseReference(`balance/project/${projectName}`));
 	const totalBalanceValue: number = totalBalanceData?.val().value;
 	const totalBalanceDate = totalBalanceData?.val().date;
 	const servicingCharge: number = useObject(getDatabaseReference(`info/project/${projectName}/servicing`))[0]?.val();
-	const paidDataOptions = data?.filter(t=>t.val().amount < 0).map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}: ${formatCurrency(Math.abs(item.val().amount))}`}));
+	const paidDataOptions = data?.filter(t=> t.val().amount < 0)
+		.sort((a, b) => b.key!.localeCompare(a.key!))
+		.map((item) => ({value: item.key!, label: `${item.val().date} ${item.val().title}: ${formatCurrency(Math.abs(item.val().amount))}`}));
 
 	const [fullPaymentData, setFullPaymentData] = useState<FullPaymentDataType>({key: '', details: ''})
 	const [partialDataSets, setPartialDataSets] = useState<PartialPaymentDataType[]>([
@@ -396,8 +441,45 @@ export default function ProjectTransactionPage() {
 						<CustomButtonGroup options={projectTransactionFilterOptions} onChange={(value) => setFilter(value)}/>
 					</div>
 
+					<Separator orientation={`vertical`}/>
+
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant={"accent"}>Transaction Colour Info</Button>
+						</DialogTrigger>
+						<DialogContent className={"border border-accent"}>
+							<DialogHeader>
+								<DialogTitle>Transaction Colour Info</DialogTitle>
+								<DialogDescription>
+									Read to know what each coloured transaction means.
+								</DialogDescription>
+							</DialogHeader>
+							{
+								Object.entries(transactionColourInfo).map(([key, value]) => (
+									<div key={key}>
+										<div className="capitalize underline font-semibold">{`${key} Transaction`}</div>
+										<div className="mt-2 space-y-2">
+											{
+												Object.entries(value).map(([id, { colour, details }]) => (
+													<div key={id} className={`text-sm p-1 bg-${colour} rounded-lg`}>{details}</div>
+												))
+											}
+										</div>
+									</div>
+								))
+							}
+							<DialogFooter className={"sm:justify-center pt-8"}>
+								<DialogClose asChild>
+									<Button type="button" size="lg" variant="secondary">
+										Close
+									</Button>
+								</DialogClose>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+
 					{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
-            <div className={"flex gap-x-2 h-full"}>
+          <div className={"flex gap-x-2 h-full"}>
               <Separator orientation={`vertical`}/>
               <Button variant="accent" onClick={handleUpdateBalance}>
                 Update Total Balance
