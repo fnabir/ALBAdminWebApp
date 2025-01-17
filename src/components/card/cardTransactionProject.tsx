@@ -48,8 +48,8 @@ const CardTransactionProject: React.FC<Props> = ({
     const [dataKeys] = useListKeys(getDatabaseReference(`${databaseRef}/data`));
     const total: number = getTotalValue(data, "amount");
     const bg: string = amount == 0 ? 'green-900' :
-                       amount < 0 ? total + amount == 0 ? 'green-900' : total == 0 ? `muted` : total > amount ? 'yellow-900' : 'sky-900' :
-                       total == 0 ? 'red-900' : amount == total ? 'green-900' : total > amount ? 'yellow-900' : `sky-900`;
+                       amount < 0 ? total + amount == 0 ? 'green-900' : total == 0 ? `muted` : total > amount ? 'yellow-900' : 'accent' :
+                       total == 0 ? 'red-900' : amount == total ? 'green-900' : total > amount ? 'yellow-900' : `accent`;
     const {
         register,
         getValues,

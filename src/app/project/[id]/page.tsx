@@ -70,7 +70,7 @@ export default function ProjectTransactionPage() {
 				details: "No payment record",
 			},
 			3: {
-				colour: "sky-900",
+				colour: "accent",
 				details: "Payment record covering partial of the expense amount"
 			},
 			4: {
@@ -88,7 +88,7 @@ export default function ProjectTransactionPage() {
 				details: "No expense record"
 			},
 			2: {
-				colour: "sky-900",
+				colour: "accent",
 				details: "Expense record covering the partial amount of payment"
 			},
 			3: {
