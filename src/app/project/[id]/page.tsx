@@ -254,7 +254,7 @@ export default function ProjectTransactionPage() {
 	}
 
 	const onSubmit = async (data: TransactionFormData) => {
-		if (paymentType == "full" && (!fullPaymentData || !fullPaymentData.key || fullPaymentData.details === "Select" || fullPaymentData.details === "")) {
+		if (data.type == "+" && paymentType == "full" && (!fullPaymentData || !fullPaymentData.key || fullPaymentData.details === "Select" || fullPaymentData.details === "")) {
 			showToast("Error", "Please select a valid payment date", "destructive");
 		} else {
 			let paymentData = {}
