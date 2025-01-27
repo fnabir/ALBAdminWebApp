@@ -4,6 +4,7 @@ import {format} from "date-fns";
 import {formatInTimeZone} from "date-fns-tz";
 import {signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {auth} from "@/firebase/config";
+import {PaymentInfoFormData} from "@/lib/schemas";
 
 export async function login(email: string, password: string) {
 	return signInWithEmailAndPassword(auth, email, password);
@@ -132,6 +133,24 @@ export async function deleteCallback(projectName: string, id: string) {
 		showToast("Successful", "Deleted the callback record successfully.", "success");
 	}).catch ((error) => {
 		showToast("Error", `Failed to delete the callback record: ${error.message}`, "destructive");
+	})
+}
+
+export async function addNewPaymentInfo(data: PaymentInfoFormData) {
+	await update(getDatabaseReference(`info/payment/${data.type === "cellAccount" ? "cell" : data.type}`), {
+		[data.details]: data.project,
+	}).then(() => {
+		showToast("Successful", "Saved the new payment info successfully.", "success");
+	}).catch ((error) => {
+		showToast("Error", `Failed to save the new payment info: ${error.message}`, "destructive");
+	})
+}
+
+export async function deletePaymentInfo(type:string, key: string) {
+	await remove(getDatabaseReference(`info/payment/${type}/${key}`)).then(() => {
+		showToast("Successful", "Deleted the payment info successfully.", "success");
+	}).catch ((error) => {
+		showToast("Error", `Failed to delete the payment info record: ${error.message}`, "destructive");
 	})
 }
 

@@ -89,3 +89,13 @@ export const staffTransactionTypeOptions = [
 	{value: 'Cashback'},
 	{value: 'Others'},
 ];
+
+export const paymentInfoOptions = [
+	{value: 'account', label: 'Account Transfer'},
+	{value: 'bank', label: 'Bank Transfer'},
+	{value: 'bKash', label: 'bKash'},
+	{value: 'cash', label: 'Cash'},
+	{value: 'cell', label: 'CellFin (Phone)'},
+	{value: 'cellAccount', label: 'CellFin (Account)'},
+	{value: 'cheque', label: 'Cheque'},
+];
