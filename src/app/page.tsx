@@ -8,7 +8,7 @@ import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components
 import {Skeleton} from "@/components/ui/skeleton";
 import {DataSnapshot} from "@firebase/database";
 import CardIcon from "@/components/card/cardIcon";
-import {FaBook, FaBuildingUser, FaTag, FaWrench} from "react-icons/fa6";
+import {FaBook, FaBuildingUser, FaMoneyBillTransfer, FaTag, FaWrench} from "react-icons/fa6";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import Loading from "@/components/loading";
@@ -107,6 +107,12 @@ export default function Page() {
             route={"/error-code"}
           >
             <FaBook size={24}/>
+          </CardIcon>
+          <CardIcon
+            title={"Payment Info"}
+            route={"/payment-info"}
+          >
+            <FaMoneyBillTransfer size={24}/>
           </CardIcon>
         </div>
       </Layout>
