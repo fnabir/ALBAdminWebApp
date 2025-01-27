@@ -7,7 +7,7 @@ import {formatCurrency, generateDatabaseKey, getDatabaseReference, getTotalValue
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
-import {MdAddCircle, MdDelete, MdError} from "react-icons/md";
+import {MdAdd, MdAddCircle, MdDelete, MdError} from "react-icons/md";
 import {usePathname} from "next/navigation";
 import React, {useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
@@ -45,6 +45,7 @@ import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
 import {set, update} from "firebase/database";
 
 export default function ProjectTransactionPage() {
+
 	const { userRole } = useAuth();
   const path = usePathname();
 	const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
@@ -334,7 +335,7 @@ export default function ProjectTransactionPage() {
 							</DialogHeader>
 							<CustomSeparator orientation={"horizontal"}/>
 							<form onSubmit={handleSubmit(onSubmit)}
-										className="flex-col space-y-4">
+										className="flex-col">
 								<CustomRadioGroup id={'type'} options={projectTransactionOptions}
 																	onChange={(value) => handleTypeChange(value)}
 																	defaultValue={"+"}
@@ -355,34 +356,45 @@ export default function ProjectTransactionPage() {
 														 helperText={errors.details ? errors.details.message : ""}
 														 color={errors.details ? "error" : "default"}
 								/>
-								<CustomInput id="amount"
-														 type="number"
-														 label="Amount"
-														 min={0}
-														 step={1}
-														 {...register("amount", {valueAsNumber: true})}
-														 pre="৳"
-														 sign={getValues("type") == "-" ? "-" : ""}
-														 helperText={errors.amount ? errors.amount.message : ""}
-														 color={errors.amount ? "error" : "default"}
-														 required
-								/>
-								<CustomInput id="date"
-														 type="date"
-														 label="Date"
-														 helperText={errors.date ? errors.date.message : ""}
-														 color={errors.date ? "error" : "default"}
-														 {...register("date")}
-														 required
-								/>
+								<div className="w-full flex items-start space-x-2">
+									<CustomInput id="amount"
+															 type="number"
+															 label="Amount"
+															 min={0}
+															 step={1}
+															 {...register("amount", {valueAsNumber: true})}
+															 pre="৳"
+															 sign={getValues("type") == "-" ? "-" : ""}
+															 helperText={errors.amount ? errors.amount.message : ""}
+															 color={errors.amount ? "error" : "default"}
+															 className="flex-[1_1_50]"
+															 required
+									/>
+									<CustomInput id="date"
+															 type="date"
+															 label="Date"
+															 className="flex-[1_1_50]"
+															 helperText={errors.date ? errors.date.message : ""}
+															 color={errors.date ? "error" : "default"}
+															 {...register("date")}
+															 required
+									/>
+								</div>
 								{paidDataOptions && getValues("type") === "+" &&
                   <div>
                     <CustomSeparator orientation={"horizontal"} className={"my-4"}/>
-                    <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
-                                      onChange={(value) => setPaymentType(value)}
-                                      defaultValue={paymentType}
-																			className="mb-4"
-                    />
+										<div className="flex space-x-2 justify-center">
+                      <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
+                                        onChange={(value) => setPaymentType(value)}
+                                        defaultValue={paymentType}
+                                        className="mb-4"
+                      />
+											{
+												paymentType === "partial" && partialDataSets.length < 10 && (
+													<Button className="w-6 h-6" type="button" variant="accent" size="sm" onClick={addPartialDataSet}><MdAdd/></Button>
+												)
+											}
+										</div>
 										{
 											paymentType == "full" ?
 												<CustomDropDown id="fullPaymentDate"
@@ -391,12 +403,7 @@ export default function ProjectTransactionPage() {
 																				onChange={(e) => setFullPaymentData({key: e.target.value, details: e.target.options[e.target.selectedIndex].text})}
 												/>
 											: paymentType == "partial" ?
-												<div className="text-center">
-													{
-														partialDataSets.length < 10 && (
-															<Button variant="accent" size="lg" onClick={addPartialDataSet}>Add</Button>
-														)
-													}
+												<ScrollArea className="h-72 text-center pr-4 pb-4">
 													{
 														partialDataSets.map((set, index) => (
 															<div key={set.id} className={`flex gap-x-2`}>
@@ -417,7 +424,7 @@ export default function ProjectTransactionPage() {
 															</div>
 														))
 													}
-												</div>
+												</ScrollArea>
 											: null
 										}
                   </div>
@@ -428,7 +435,7 @@ export default function ProjectTransactionPage() {
 											Close
 										</Button>
 									</DialogClose>
-									<Button type="submit" size="lg" variant="accent">Save</Button>
+									<Button type="submit" size="lg" variant="accent">Submit</Button>
 								</DialogFooter>
 							</form>
 						</DialogContent>

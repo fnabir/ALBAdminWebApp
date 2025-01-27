@@ -1,5 +1,5 @@
 import {formatCurrency, getDatabaseReference, getTotalValue} from "@/lib/utils";
-import {MdDelete, MdEditNote} from "react-icons/md";
+import {MdAdd, MdDelete, MdEditNote} from "react-icons/md";
 import React, {useState} from "react";
 import {useList, useListKeys} from "react-firebase-hooks/database";
 import {Card} from "@/components/ui/card";
@@ -26,6 +26,7 @@ import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import {projectPaymentTypeOptions} from "@/lib/arrays";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import {remove, update} from "firebase/database";
+import {ScrollArea} from "@/components/ui/scrollArea";
 
 interface Props {
     projectName: string,
@@ -257,7 +258,7 @@ const CardTransactionProject: React.FC<Props> = ({
                         </DialogHeader>
                         <CustomSeparator orientation={"horizontal"} className={"mb-2"}/>
                         <form onSubmit={handleSubmit(onSubmit)}
-                              className="flex-col space-y-4">
+                              className="flex-col">
                             <CustomInput id="title"
                                          type="text"
                                          label={"Title"}
@@ -272,35 +273,46 @@ const CardTransactionProject: React.FC<Props> = ({
                                          helperText={errors.details ? errors.details.message : ""}
                                          color={errors.details ? "error" : "default"}
                             />
-                            <CustomInput id="amount"
-                                         type="number"
-                                         label="Amount"
-                                         min={0}
-                                         step={1}
-                                         {...register("amount", {valueAsNumber: true})}
-                                         pre="৳"
-                                         sign={getValues("type") == "-" ? "-" : ""}
-                                         helperText={errors.amount ? errors.amount.message : ""}
-                                         color={errors.amount ? "error" : "default"}
-                                         required
-                            />
-                            <CustomInput id="date"
-                                         type="date"
-                                         label="Date"
-                                         helperText={errors.date ? errors.date.message : ""}
-                                         color={errors.date ? "error" : "default"}
-                                         {...register("date")}
-                                         required
-                                         disabled
-                            />
+                            <div className="w-full flex items-start space-x-2">
+                                <CustomInput id="amount"
+                                             type="number"
+                                             label="Amount"
+                                             min={0}
+                                             step={1}
+                                             {...register("amount", {valueAsNumber: true})}
+                                             pre="৳"
+                                             sign={getValues("type") == "-" ? "-" : ""}
+                                             helperText={errors.amount ? errors.amount.message : ""}
+                                             color={errors.amount ? "error" : "default"}
+                                             className="flex-[1_1_50%]"
+                                             required
+                                />
+                                <CustomInput id="date"
+                                             type="date"
+                                             label="Date"
+                                             className="flex-[1_1_50%]"
+                                             helperText={errors.date ? errors.date.message : ""}
+                                             color={errors.date ? "error" : "default"}
+                                             {...register("date")}
+                                             required
+                                             disabled
+                                />
+                            </div>
                             {paidDataOptions && getValues("type") === "+" &&
                               <div>
                                   <CustomSeparator orientation={"horizontal"} className={"my-4"}/>
-                                  <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
-                                                    onChange={(value) => setPaymentType(value)}
-                                                    defaultValue={paymentType}
-                                                    className="mb-4"
-                                  />
+                                  <div className="flex space-x-2 justify-center">
+                                      <CustomRadioGroup id={'paymentType'} options={projectPaymentTypeOptions}
+                                                        onChange={(value) => setPaymentType(value)}
+                                                        defaultValue={paymentType}
+                                                        className="mb-4"
+                                      />
+                                      {
+                                        paymentType === "partial" && partialDataSets.length < 10 && (
+                                          <Button className="w-6 h-6" type="button" variant="accent" size="sm" onClick={addPartialDataSet}><MdAdd/></Button>
+                                        )
+                                      }
+                                  </div>
                                   {
                                       paymentType == "full" ?
                                         <CustomDropDown id="fullPaymentDate"
@@ -310,12 +322,7 @@ const CardTransactionProject: React.FC<Props> = ({
                                                         onChange={(e) => setFullPaymentData({key: e.target.value, details: e.target.options[e.target.selectedIndex].text})}
                                         />
                                         : paymentType == "partial" ?
-                                          <div className="text-center">
-                                              {
-                                                partialDataSets.length < 10 && (
-                                                  <Button type="button" variant="accent" size="lg" onClick={addPartialDataSet}>Add</Button>
-                                                )
-                                              }
+                                          <ScrollArea className="h-72 text-center pr-4 pb-4">
                                               {
                                                   partialDataSets.map((set, index) => (
                                                     <div key={set.id} className={`flex gap-x-2`}>
@@ -338,7 +345,7 @@ const CardTransactionProject: React.FC<Props> = ({
                                                     </div>
                                                   ))
                                               }
-                                          </div>
+                                          </ScrollArea>
                                           : null
                                   }
                               </div>
