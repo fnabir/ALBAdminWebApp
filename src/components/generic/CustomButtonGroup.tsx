@@ -4,9 +4,10 @@ type ButtonGroupProps = {
 	value?: string;
 	options: { label?: string; value: string }[];
 	onChange: (value: string) => void;
+	className?: string;
 };
 
-const ButtonGroup: React.FC<ButtonGroupProps> = ({ value, options, onChange }) => {
+const ButtonGroup: React.FC<ButtonGroupProps> = ({ value, options, onChange, className }) => {
 	const [selected, setSelected] = useState<string>(value ? value : options[0]?.value || "");
 
 	const handleClick = (value: string) => {
@@ -15,7 +16,7 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({ value, options, onChange }) =
 	};
 
 	return (
-		<div className={`flex gap-x-2`}>
+		<div className={`flex gap-x-2 ${className}`}>
 			{options.map((option) => (
 				<button
 					key={option.value}
