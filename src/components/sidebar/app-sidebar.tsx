@@ -19,7 +19,7 @@ import {
   FaCalendarDay,
   FaGlobe,
   FaLinkedin,
-  FaMicrosoft,
+  FaMicrosoft, FaMoneyBillTransfer,
   FaSquareFacebook,
   FaTag,
   FaUser,
@@ -74,6 +74,11 @@ const navData = {
       title: "Info",
       url: "/project-info",
       icon: FaBuildingUser,
+    },
+    {
+      title: "Payment",
+      url: "/payment-info",
+      icon: FaMoneyBillTransfer,
     },
   ],
   utility: [
