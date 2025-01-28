@@ -47,6 +47,7 @@ const CardPaymentInfo: FC<{type:string, id: string, value: string, userRole: str
                 This action cannot be undone. This will permanently delete the payment info.
               </DialogDescription>
             </DialogHeader>
+            <div className="text-center">{`${(type === "account" || (type === "cell" && originalId.length === 8)) ? "***": ""}${originalId}: ${value}`}</div>
             <DialogFooter className={"mx-auto"}>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
