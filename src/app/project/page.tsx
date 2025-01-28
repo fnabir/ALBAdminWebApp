@@ -16,8 +16,14 @@ import {Separator} from "@/components/ui/separator";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
 import {projectFilterOptions, projectSortOptions} from "@/lib/arrays";
 import {updateTotalBalance} from "@/lib/functions";
+import {useAuth} from "@/hooks/useAuth";
+import Loading from "@/components/loading";
+import {useRouter} from "next/navigation";
 
 export default function ProjectPage() {
+	const {user, loading} = useAuth();
+	const router = useRouter();
+
 	const [filter, setFilter] = useState('none');
 	const [sort, setSort] = useState('name');
 	const [data, setData] = useState<DataSnapshot[]>();
@@ -54,6 +60,12 @@ export default function ProjectPage() {
 		}).catch((error) => {
 			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
 		})
+	}
+
+	if (loading || projectLoading) return <Loading/>
+
+	if (!user) {
+		router.push("/login");
 	}
 
 	return (
@@ -104,30 +116,36 @@ export default function ProjectPage() {
 									</CardIcon>
 									: <div className={"space-y-2"}>
 										{
-											sort == "name" ? data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot) => {
+											sort == "name" ? data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot, index:number) => {
 												const snapshot = item.val();
 												return (
-													<div key={item.key}>
+													<div key={item.key}
+															 className={"opacity-0 animate-fade-in-x"}
+															 style={{animationDelay: `${index * 0.025}s`}}>
 														<CardBalance type={"project"} id={item.key ? item.key : "undefined"}
 																				 name={item.key ? item.key : "undefined"} value={snapshot.value}
 																				 date={snapshot.date}
 																				 status={snapshot.status}/>
 													</div>
 												)
-											}) : sort == "balance" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().value - b.val().value)).map((item: DataSnapshot) => {
+											}) : sort == "balance" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().value - b.val().value)).map((item: DataSnapshot, index: number) => {
 												const snapshot = item.val();
 												return (
-													<div key={item.key}>
+													<div key={item.key}
+															 className={"opacity-0 animate-fade-in-x"}
+															 style={{animationDelay: `${index * 0.05}s`}}>
 														<CardBalance type={"project"} id={item.key ? item.key : "undefined"}
 																				 name={item.key ? item.key : "undefined"} value={snapshot.value}
 																				 date={snapshot.date}
 																				 status={snapshot.status}/>
 													</div>
 												)
-											}) : data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().register - b.val().register)).map((item: DataSnapshot) => {
+											}) : data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().register - b.val().register)).map((item: DataSnapshot, index: number) => {
 												const snapshot = item.val();
 												return (
-													<div key={item.key!}>
+													<div key={item.key}
+															 className={"opacity-0 animate-fade-in-x"}
+															 style={{animationDelay: `${index * 0.05}s`}}>
 														<CardBalance type={"project"} id={item.key!}
 																				 name={item.key!} value={snapshot.value}
 																				 date={snapshot.date}
@@ -139,7 +157,7 @@ export default function ProjectPage() {
 									</div>
 					}
 				</ScrollArea>
-				<div>
+				<div className={"opacity-0 animate-fade-in-y delay-300"}>
 					{totalBalanceData &&
             <CardTotalBalance value={total}
                               date={totalBalanceData.val().date}
