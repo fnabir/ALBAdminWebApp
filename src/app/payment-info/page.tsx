@@ -195,7 +195,7 @@ export default function PaymentInfoPage() {
 									return (
 										<Card
 											key={item.key}
-											className="bg-muted p-2 opacity-0 animate-fade-in"
+											className="bg-muted p-2 opacity-0 animate-fade-in-y"
 											style={{ animationDelay: `${typeIndex * 0.3}s` }}>
 											<h3 className="text-lg text-center font-bold mb-1 uppercase">{item.key === "bank" || item.key === "account" ? `${item.key!} transfer` : item.key === "cell" ? "cellfin" : item.key!}</h3>
 											<ul className={"space-y-1 text-sm gap-x-2"}>

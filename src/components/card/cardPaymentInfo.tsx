@@ -28,7 +28,7 @@ const CardPaymentInfo: FC<{type:string, id: string, value: string, userRole: str
   }
 
   return (
-    <div className="flex space-x-2 opacity-0 animate-fade-in"
+    <div className="flex space-x-2 opacity-0 animate-fade-in-y"
          style={{ animationDelay: `${animationDelay}s` }}>
       <Card className={`flex-auto flex items-center bg-card hover:text-card hover:bg-card-foreground hover:cursor-pointer rounded-lg py-1 px-2 transition-all duration-200 ${className}`}>
         <div className="flex-auto font-mono font-bold">{`${(type === "account" || (type === "cell" && originalId.length === 8)) ? "***": ""}${originalId}`}</div>
