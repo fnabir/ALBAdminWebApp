@@ -169,7 +169,7 @@ export default function PaymentInfoPage() {
 				<ScrollArea className={"flex-grow -mr-4 pr-4 mb-2"}>
 					{
 						paymentLoading ?
-							<div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-3">
+							<div className="grid gap-4 mt-4 md:grid-cols-3">
 								<Skeleton className="w-full h-10 rounded-xl"/>
 								<Skeleton className="w-full h-10 rounded-xl"/>
 								<Skeleton className="w-full h-10 rounded-xl"/>
@@ -188,7 +188,7 @@ export default function PaymentInfoPage() {
 								title={"No Record Found"}>
 								<MdError size={28}/>
 							</CardIcon>
-						: <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+						: <div className="grid gap-4 md:grid-cols-3">
 							{
 								paymentData.map((item, typeIndex) => {
 									const details = item.val();
