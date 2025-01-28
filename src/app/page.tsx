@@ -12,7 +12,8 @@ import {FaBook, FaBuildingUser, FaMoneyBillTransfer, FaTag, FaWrench} from "reac
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import Loading from "@/components/loading";
-import {useEffect} from "react";
+import React, {useEffect} from "react";
+import CardIconVertical from "@/components/card/cardIconVertical";
 
 export default function Page() {
   const { user, loading, userRole } = useAuth();
@@ -57,7 +58,7 @@ export default function Page() {
                   <CardTitle className={"text-xl"}>No data found</CardTitle>
                 </CardHeader>
               </Card>
-            : <div className={`grid auto-rows-min gap-4 md:grid-cols-3`}>
+            : <div className={`grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3`}>
               {
                 dataTotalBalance.sort((a: DataSnapshot, b: DataSnapshot) => b.val().value - a.val().value).map((item) => (
                   <Link
@@ -82,38 +83,31 @@ export default function Page() {
             </div>
           }
         </div>
-        <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-1">
-          <CardIcon
-            title={"Project Info"}
-            route={"/project-info"}
-          >
-            <FaBuildingUser size={24}/>
-          </CardIcon>
-          <CardIcon
-            title={"Offer"}
-            number={snapshotOffer?.length}
-            route={"/offer"}
-          >
-            <FaTag size={24}/>
-          </CardIcon>
-          <CardIcon
-            title={"Callback"}
-            route={"/callback"}
-          >
-            <FaWrench size={24}/>
-          </CardIcon>
-          <CardIcon
-            title={"Error Code"}
-            route={"/error-code"}
-          >
-            <FaBook size={24}/>
-          </CardIcon>
-          <CardIcon
-            title={"Payment Info"}
-            route={"/payment-info"}
-          >
-            <FaMoneyBillTransfer size={24}/>
-          </CardIcon>
+        <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-3 xl:grid-cols-5">
+          <CardIconVertical title={"Project Info"}
+                            route={"/project-info"}
+                            description={"Location, Contact"}>
+            <FaBuildingUser size={48}/>
+          </CardIconVertical>
+          <CardIconVertical title={"Offer"}
+                            number={snapshotOffer?.length}
+                            route={"/offer"}>
+            <FaTag size={48}/>
+          </CardIconVertical>
+          <CardIconVertical title={"Callback"}
+                            route={"/callback"}
+                            description={"Details, Status"}>
+            <FaWrench size={48}/>
+          </CardIconVertical>
+          <CardIconVertical title={"Error Code"}
+                            route={"/error-code"}
+                            description={"NICE 3000"}>
+            <FaBook size={48}/>
+          </CardIconVertical>
+          <CardIconVertical title={"Payment Info"}
+                            route={"/payment-info"}>
+            <FaMoneyBillTransfer size={48}/>
+          </CardIconVertical>
         </div>
       </Layout>
     );
