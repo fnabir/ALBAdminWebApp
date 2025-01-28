@@ -2,13 +2,16 @@ import React, { FC } from 'react';
 import Link from "next/link";
 import {Card} from "@/components/ui/card";
 
-const CardIconVertical: FC<{title: string, number?: number, description?: string, route?: string, className?: string, children: React.ReactNode}> = ({
-	title, number, description, route, children, className,
+const CardIconVertical: FC<{
+	title: string, number?: number, description?: string, route?: string,
+	className?: string, animationDelay?: number, children: React.ReactNode}> = ({
+	title, number, description, route, children, className, animationDelay=0,
 }) => {
 	return(
 		<Link
 			href={route ? route : "#"}>
-			<Card className={`flex-col w-full h-full px-6 py-3 items-center text-center rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted ${className}`}>
+			<Card className={`flex-col w-full h-full px-6 py-3 items-center text-center rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted ${className}`}
+						style={{animationDelay: `${animationDelay}s`}}>
 				<div className={"flex justify-center"}>
 					{
 						number && number > 0 ?

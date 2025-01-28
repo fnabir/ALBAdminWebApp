@@ -66,7 +66,7 @@ export default function Page() {
                     key={item.key}
                   >
                     <Card className={"rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted/100 opacity-0 animate-fade-in-y"}
-                          style={{ animationDelay: `${0.1 + index * 0.1}s` }}>
+                          style={{ animationDelay: `${0.1 + index * 0.1}s`}}>
                       <CardHeader className={"pb-2"}>
                         <CardTitle className={"text font-medium capitalize"}>{item.key}</CardTitle>
                       </CardHeader>
@@ -87,30 +87,35 @@ export default function Page() {
           <CardIconVertical title={"Project Info"}
                             route={"/project-info"}
                             description={"Location, Contact"}
-                            className={"opacity-0 animate-fade-in-y delay-100"}>
+                            className={"opacity-0 animate-fade-in-y"}
+                            animationDelay={0.15}>
             <FaBuildingUser size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Offer"}
                             number={snapshotOffer?.length}
                             route={"/offer"}
-                            className={"opacity-0 animate-fade-in-y delay-200"}>
+                            className={"opacity-0 animate-fade-in-y"}
+                            animationDelay={0.3}>
             <FaTag size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Callback"}
                             route={"/callback"}
                             description={"Details, Status"}
-                            className={"opacity-0 animate-fade-in-y delay-300"}>
+                            className={"opacity-0 animate-fade-in-y"}
+                            animationDelay={0.45}>
             <FaWrench size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Error Code"}
                             route={"/error-code"}
                             description={"NICE 3000"}
-                            className={"opacity-0 animate-fade-in-y delay-500"}>
+                            className={"opacity-0 animate-fade-in-y"}
+                            animationDelay={0.6}>
             <FaBook size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Payment Info"}
                             route={"/payment-info"}
-                            className={"opacity-0 animate-fade-in-y delay-700"}>
+                            className={"opacity-0 animate-fade-in-y"}
+                            animationDelay={0.75}>
             <FaMoneyBillTransfer size={48}/>
           </CardIconVertical>
         </div>
