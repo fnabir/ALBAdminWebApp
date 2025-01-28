@@ -7,7 +7,6 @@ import {formatCurrency, getDatabaseReference} from "@/lib/utils";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Skeleton} from "@/components/ui/skeleton";
 import {DataSnapshot} from "@firebase/database";
-import CardIcon from "@/components/card/cardIcon";
 import {FaBook, FaBuildingUser, FaMoneyBillTransfer, FaTag, FaWrench} from "react-icons/fa6";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
@@ -20,7 +19,7 @@ export default function Page() {
   const router = useRouter();
 
   const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(getDatabaseReference('balance/total'));
-  const [snapshotOffer] = useListKeys(getDatabaseReference('offer'));
+  const [snapshotOffer, offerLoading] = useListKeys(getDatabaseReference('offer'));
 
   const breadcrumb: {text: string, link?: string}[] = [
     { text: "Home"},
@@ -32,7 +31,7 @@ export default function Page() {
     }
   }, [user, loading, router])
 
-  if (loading) return <Loading/>
+  if (loading || offerLoading) return <Loading/>
 
   if (user) {
     return (
@@ -60,13 +59,14 @@ export default function Page() {
               </Card>
             : <div className={`grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3`}>
               {
-                dataTotalBalance.sort((a: DataSnapshot, b: DataSnapshot) => b.val().value - a.val().value).map((item) => (
+                dataTotalBalance.sort((a: DataSnapshot, b: DataSnapshot) => b.val().value - a.val().value).map((item, index) => (
                   <Link
                     className={(item.key != "project" && userRole != "admin") ? "hidden" : ""}
                     href={`/${item.key}`}
                     key={item.key}
                   >
-                    <Card className={"rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted/100"}>
+                    <Card className={"rounded-xl bg-muted/50 hover:cursor-pointer hover:bg-muted/100 opacity-0 animate-fade-in-y"}
+                          style={{ animationDelay: `${0.1 + index * 0.1}s` }}>
                       <CardHeader className={"pb-2"}>
                         <CardTitle className={"text font-medium capitalize"}>{item.key}</CardTitle>
                       </CardHeader>
@@ -86,26 +86,31 @@ export default function Page() {
         <div className="grid auto-rows-min gap-4 mt-4 md:grid-cols-3 xl:grid-cols-5">
           <CardIconVertical title={"Project Info"}
                             route={"/project-info"}
-                            description={"Location, Contact"}>
+                            description={"Location, Contact"}
+                            className={"opacity-0 animate-fade-in-y delay-100"}>
             <FaBuildingUser size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Offer"}
                             number={snapshotOffer?.length}
-                            route={"/offer"}>
+                            route={"/offer"}
+                            className={"opacity-0 animate-fade-in-y delay-200"}>
             <FaTag size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Callback"}
                             route={"/callback"}
-                            description={"Details, Status"}>
+                            description={"Details, Status"}
+                            className={"opacity-0 animate-fade-in-y delay-300"}>
             <FaWrench size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Error Code"}
                             route={"/error-code"}
-                            description={"NICE 3000"}>
+                            description={"NICE 3000"}
+                            className={"opacity-0 animate-fade-in-y delay-500"}>
             <FaBook size={48}/>
           </CardIconVertical>
           <CardIconVertical title={"Payment Info"}
-                            route={"/payment-info"}>
+                            route={"/payment-info"}
+                            className={"opacity-0 animate-fade-in-y delay-700"}>
             <FaMoneyBillTransfer size={48}/>
           </CardIconVertical>
         </div>
