@@ -138,7 +138,7 @@ export async function deleteCallback(projectName: string, id: string) {
 
 export async function addNewPaymentInfo(data: PaymentInfoFormData) {
 	await update(getDatabaseReference(`info/payment/${data.type === "cellAccount" ? "cell" : data.type}`), {
-		[`${data.details}_${generateDatabaseKey(`info/payment/${data.type === "cellAccount" ? "cell" : data.type}`)}`]: data.project,
+		[`${data.details}_${data.project}`]: data.project,
 	}).then(() => {
 		showToast("Successful", "Saved the new payment info successfully.", "success");
 	}).catch ((error) => {
