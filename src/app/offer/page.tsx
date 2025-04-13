@@ -171,7 +171,7 @@ export default function OfferPage() {
 						</DialogContent>
 					</Dialog>
 				</div>
-				<ScrollArea className={"flex-grow -mr-4 pr-4 mb-2"}>
+				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						dataLoading ?
 							<div className="p-4 rounded-xl bg-muted/100 flex items-center">

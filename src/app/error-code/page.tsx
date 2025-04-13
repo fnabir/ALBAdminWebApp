@@ -524,7 +524,7 @@ export default function CallbackPage() {
 					/>
 					<Button type="submit" className="mt-4" variant="accent" onClick={handleSearch}>Search</Button>
 				</div>
-				<ScrollArea className={"flex-grow mb-4 -mr-4 pr-4"}>
+				<ScrollArea className={"grow mb-4 -mr-4 pr-4"}>
 					{ description &&
 						(
 							description == "No Error Code Found!" ?

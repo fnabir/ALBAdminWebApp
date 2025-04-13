@@ -166,7 +166,7 @@ export default function PaymentInfoPage() {
 						</DialogContent>
 					</Dialog>
 				</div>
-				<ScrollArea className={"flex-grow -mr-4 pr-4 mb-2"}>
+				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						paymentLoading ?
 							<div className="grid gap-4 mt-4 md:grid-cols-3">

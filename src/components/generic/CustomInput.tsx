@@ -35,7 +35,7 @@ const CustomInput: FC<Props> = ({
             }
             <input
               id={id}
-              className={`w-full py-2 border rounded-lg focus:border-blue-500 focus:outline-none focus:ring-0 peer 
+              className={`w-full py-2 border rounded-lg focus:border-blue-500 focus:outline-hidden focus:ring-0 peer 
                             ${pre ? 'pl-9 pr-2.5' : 'px-2.5'} ${disabled ? "bg-muted/50" : "text-primary bg-transparent"}
                             ${disabled ? "text-primary/50 border-gray-600" : color == "error" ? 'text-destructive-foreground border-red-500' : 'text-primary border-gray-600'}`}
               placeholder={placeholder}
@@ -48,7 +48,7 @@ const CustomInput: FC<Props> = ({
             <label
               htmlFor={id}
               className={`text-card-foreground absolute -translate-y-5 z-10 start-1 
-                            ${floating ? "text-md duration-300 scale-[0.85] transform top-2 z-10 origin-[0] bg-card px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                            ${floating ? "text-md duration-300 scale-[0.85] transform top-2 z-10 origin-[0] bg-card px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-[.85] peer-focus:-translate-y-5 peer-focus:rtl:translate-x-1/4 peer-focus:rtl:left-auto"
                 : "text-sm"}`}>
               {label}
               {required && <span className="absolute text-red-500 text-xl pl-[0.1rem] -translate-y-1">*</span>}

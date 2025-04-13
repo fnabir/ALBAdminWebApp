@@ -35,7 +35,7 @@ interface Props {
     return (
       <button
         onClick={onClick}
-        className={"w-full justify-center rounded-md px-3 py-1.5 font-semibold leading-6 text-white shadow-sm " + 
+        className={"w-full justify-center rounded-md px-3 py-1.5 font-semibold leading-6 text-white shadow-xs " + 
             backgroundColour + " " +  
             className + 
             (disabled? "text-opacity-50 " : "text-opacity-0 hover:bg-opacity-70 ")}

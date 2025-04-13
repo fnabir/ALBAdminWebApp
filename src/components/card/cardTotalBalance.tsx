@@ -31,7 +31,7 @@ const TotalBalance: React.FC<Props> = ({
 	};
 
     return (
-      <Card className={`rounded-xl shadow bg-muted flex pl-6 pr-2 pt-2 ${className}`}>
+      <Card className={`rounded-xl shadow-sm bg-muted flex pl-6 pr-2 pt-2 ${className}`}>
           <div className={(updateState && update ? "" : "pr-2") + " w-full mx-auto md:flex md:items-center md:justify-between text-primary"}>
               <div>
                   <div className="text-xl text-center md:text-start">{titleText}</div>

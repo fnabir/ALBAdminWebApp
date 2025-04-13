@@ -213,7 +213,7 @@ export default function StaffTransactionPage() {
             </div>
 					}
 				</div>
-				<ScrollArea className={"flex-grow mb-2 -mr-4 pr-4"}>
+				<ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
 					{
 						dataLoading ?
 							<div className="p-4 rounded-xl bg-muted/100 flex items-center">

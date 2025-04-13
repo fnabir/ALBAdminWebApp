@@ -24,7 +24,7 @@ const CustomCheckbox: React.FC<Props> = ({
 				type="checkbox"
 				disabled={disabled}
 				onMouseDown={(e) => e.currentTarget.blur()}
-				className={`${disabled ? "opacity-70" : ""} size-5 rounded-lg transition-colors focus:outline-none`}
+				className={`${disabled ? "opacity-70" : ""} size-5 rounded-lg transition-colors focus:outline-hidden`}
 				{...rest}
 			/>
 			<span className={ disabled ? 'text-gray-500' : 'text-primary'}>

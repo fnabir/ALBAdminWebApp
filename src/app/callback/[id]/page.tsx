@@ -135,7 +135,7 @@ export default function CallbackProjectPage() {
 						</DialogContent>
 					</Dialog>
 				</div>
-				<ScrollArea className={"flex-grow mb-4 -mr-4 pr-4"}>
+				<ScrollArea className={"grow mb-4 -mr-4 pr-4"}>
 					{
 						dataLoading ?
 							<div className="p-4 rounded-xl bg-muted/100 flex items-center">

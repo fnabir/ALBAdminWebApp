@@ -10,7 +10,7 @@ const CustomSeparator: React.FC<SeparatorProps> = ({
 																					 className,
 																				 }) => {
 	return (
-		<div className={`${orientation == "horizontal" ? `w-full h-0.5 bg-gradient-to-r` : `self-stretch w-0.5 bg-gradient-to-b`}  from-transparent to-transparent via-primary rounded-full ${className}`}/>
+		<div className={`${orientation == "horizontal" ? `w-full h-0.5 bg-linear-to-r` : `self-stretch w-0.5 bg-linear-to-b`}  from-transparent to-transparent via-primary rounded-full ${className}`}/>
 	)};
 
 export default CustomSeparator;

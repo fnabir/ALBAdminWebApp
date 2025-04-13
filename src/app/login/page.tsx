@@ -65,7 +65,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-svh items-center justify-center">
       <div className="relative md:py-3 max-w-full md:max-w-xl mx-auto">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform md:-rotate-6 rounded-2xl"/>
+        <div className="absolute inset-0 bg-linear-to-r from-blue-300 to-blue-600 shadow-lg transform md:-rotate-6 rounded-2xl"/>
         <Card className="w-full md:w-96 mx-auto bg-black/80 ring-1 ring-blue-800/5 shadow-black shadow-lg md:rounded-2xl backdrop-blur-2xl">
           <Image className={`w-2/3 pt-10 mx-auto`} src={TextLogo} alt={"Asian Lift Bangladesh"} priority={false}/>
           <CardHeader>
