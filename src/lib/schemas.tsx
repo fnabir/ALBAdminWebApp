@@ -26,9 +26,6 @@ export const transactionSchema = z.object({
 			message: "Input cannot be empty or not a number",
 		}),
 	date: z.string().nonempty("Date is required"),
-}).refine((data) => data.type === "-" && data.amount !== 0, {
-	message: "Payment amount cannot be 0",
-	path: ["amount"],
 });
 
 export type TransactionFormData = z.infer<typeof transactionSchema>;
