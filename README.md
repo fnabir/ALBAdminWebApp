@@ -40,3 +40,10 @@ npm update xml2js
 This project is deployed on Vercel.
 
 Production branch is the branch which deployed and can be seen through [https://alb-admin-webapp.vercel.app/](https://alb-admin-webapp.vercel.app/)
+
+
+## Changelog
+
+### 1.1.3
+- Fix project expense amount validation error
+- Upgrade Tailwind CSS v3 to v4
