@@ -4,17 +4,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {IconType} from "react-icons";
+import { SidebarItemInterface } from "@/lib/interfaces";
 
 export function NavLinks({
   items
 }: {
-  items: {
-    title: string
-    url: string
-    icon?: IconType
-    access?: string
-  }[],
+  items: SidebarItemInterface[],
   access?: string,
 }) {
   return (
@@ -22,15 +17,15 @@ export function NavLinks({
       <SidebarGroupLabel>Links</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild tooltip={item.title}>
+          <SidebarMenuItem key={item.label}>
+            <SidebarMenuButton asChild tooltip={item.label}>
               <a
-                href={item.url}
+                href={item.href}
                 target={"_blank"}
                 rel="noopener noreferrer"
               >
                 {item.icon && <item.icon/>}
-                <span>{item.title}</span>
+                <span>{item.label}</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -4,19 +4,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { SidebarItemInterface } from "@/lib/interfaces";
 import Link from "next/link";
-import {IconType} from "react-icons";
 export function NavMain({
-  items, userAccess, label
+  items, isAdmin, label
 }: {
-  items: {
-    title: string
-    url: string
-    icon?: IconType
-    access?: string
-  }[],
+  items: SidebarItemInterface[],
   access?: string,
-  userAccess?: string,
+  isAdmin?: boolean,
   label?: string
 }) {
   return (
@@ -24,11 +19,11 @@ export function NavMain({
       {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => (
-          (!item.access || item.access === userAccess) && <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild tooltip={item.title}>
-              <Link href={item.url}>
+          (item.isAdmin ? item.isAdmin === isAdmin : true) && <SidebarMenuItem key={item.label}>
+            <SidebarMenuButton asChild tooltip={item.label}>
+              <Link href={item.href}>
                 {item.icon && <item.icon/>}
-                {item.title}
+                {item.label}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
