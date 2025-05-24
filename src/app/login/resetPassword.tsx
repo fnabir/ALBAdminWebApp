@@ -11,11 +11,12 @@ import {Button} from "@/components/ui/button";
 import {useSendPasswordResetEmail} from "react-firebase-hooks/auth";
 import {auth} from "@/firebase/config";
 import {useForm} from "react-hook-form";
-import {ForgotPasswordFormValues, forgotPasswordSchema} from "@/lib/schemas";
+import {ForgotPasswordFormData, ForgotPasswordSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {showToast} from "@/lib/utils";
-import CustomInput from "@/components/generic/CustomInput";
+import InputText from "@/components/generic/InputText";
 import React, {useEffect, useState} from "react";
+import { ButtonLoading } from "@/components/generic/ButtonLoading";
 
 export default function ResetPassword() {
 	const [sendPasswordResetEmail, loading, error] = useSendPasswordResetEmail(auth);
@@ -25,23 +26,22 @@ export default function ResetPassword() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<ForgotPasswordFormValues>({
-		resolver: zodResolver(forgotPasswordSchema),
+	} = useForm<ForgotPasswordFormData>({
+		resolver: zodResolver(ForgotPasswordSchema),
 	});
 
-	const onSubmit = async (data: ForgotPasswordFormValues) => {
-		await sendPasswordResetEmail(data.email).then(() => {
-			setSubmit(true);
-		})
+	const onSubmit = async (data: ForgotPasswordFormData) => {
+		await sendPasswordResetEmail(data.email);
+		setSubmit(true);
 	}
 
 	useEffect(() => {
 		if (submit && !loading) {
 			if (error) {
 				if (error.message === 'Firebase: Error (auth/user-not-found).') {
-					showToast("Error", 'Email not registered with us!', "destructive");
+					showToast("Error", 'Email not registered with us!', "error");
 				} else {
-					showToast("Error", `"Error sending reset email: ${error.message}`, "destructive");
+					showToast("Error", `"Error sending reset email: ${error.message}`, "error");
 				}
 			} else {
 				setOpen(false);
@@ -65,16 +65,19 @@ export default function ResetPassword() {
 								password</DrawerDescription>
 						</DrawerHeader>
 						<form onSubmit={handleSubmit(onSubmit)}>
-							<CustomInput id={"email"}
-													 type={"email"}
-													 label={"Email"}
-													 {...register('email')}
-													 helperText={errors.email ? errors.email.message : ""}
-													 color={errors.email ? "error" : "default"}
-													 required
+							<InputText type={"email"}
+												 label={"Email"}
+												 {...register('email')}
+												 error={errors.email?.message || ""}
+												 required
 							/>
 							<DrawerFooter>
-								<Button type="submit" disabled={loading}>{loading ? "Sending..." : "Send Reset Password Link"}</Button>
+                <ButtonLoading
+                  type = "submit"
+                  loading = {submit || loading}
+                  text = "Send Reset Password Link"
+                  loadingText = "Sending..."
+                />
 								<DrawerClose asChild>
 									<Button variant="outline">Cancel</Button>
 								</DrawerClose>
@@ -84,5 +87,5 @@ export default function ResetPassword() {
 				</DrawerContent>
 			</Drawer>
 		</div>
-)
+	)
 }
