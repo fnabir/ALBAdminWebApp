@@ -1,12 +1,4 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -15,9 +7,10 @@ import {
 } from "@/components/ui/sidebar";
 import { FC, ReactNode } from "react";
 import {ThemeToggle} from "@/components/header/themeToggle";
-import {breadcrumbItem} from "@/lib/types";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+import BreadcrumbSection from "./header/breadcrumbSection";
 
-const Layout: FC<{ breadcrumb: breadcrumbItem[], children: ReactNode }> = ({
+const Layout: FC<{ breadcrumb: BreadcrumbInterface[], children: ReactNode }> = ({
     breadcrumb, children
   }) => {
     return(
@@ -29,23 +22,7 @@ const Layout: FC<{ breadcrumb: breadcrumbItem[], children: ReactNode }> = ({
               className="flex px-4 py-2 h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
               <SidebarTrigger className="-ml-1"/>
               <Separator orientation="vertical" className="mr-2 h-5"/>
-              <Breadcrumb className={"flex-auto"}>
-                <BreadcrumbList>
-                  {breadcrumb.map((crumb, index) => (
-                    index != breadcrumb.length - 1 ?
-                      crumb.text != "/" ?
-                        <BreadcrumbItem key={index}>
-                          <BreadcrumbLink href={crumb.link}>{crumb.text}</BreadcrumbLink>
-                        </BreadcrumbItem>
-                        :
-                        <BreadcrumbSeparator key={index}/>
-                    :
-                      <BreadcrumbItem key={index}>
-                        <BreadcrumbPage>{crumb.text}</BreadcrumbPage>
-                      </BreadcrumbItem>
-                  ))}
-                </BreadcrumbList>
-              </Breadcrumb>
+              <BreadcrumbSection breadcrumb={breadcrumb}/>
               <ThemeToggle/>
             </header>
             <div className="flex-1 gap-4 px-4 overflow-y-auto">
