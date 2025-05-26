@@ -55,7 +55,7 @@ export default function ChangelogSection({ isAdmin }: { isAdmin: boolean }) {
             <div className="text-sm text-secondary-foreground">{format(new Date(packageJson.releaseDate), "dd MMMM yyyy")}</div>
           </div>
         </div>
-        <div className="p-4 text-sm text-start divide-y divide-slate-500 space-y-1">
+        <div className="p-4 text-sm text-start divide-y-2 divide-primary/40 space-y-1">
           {Object.entries(changelog).map(([key, items]) => (
             <ChangelogCategory key={key} title={key} items={items} />
           ))}
