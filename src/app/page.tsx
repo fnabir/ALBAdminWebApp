@@ -4,10 +4,10 @@ import Layout from "@/components/layout";
 import {useList, useListKeys} from "react-firebase-hooks/database";
 import {useAuth} from "@/hooks/useAuth";
 import {formatCurrency, getDatabaseReference} from "@/lib/utils";
-import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Skeleton} from "@/components/ui/skeleton";
 import {DataSnapshot} from "@firebase/database";
-import {FaBook, FaBuildingUser, FaMoneyBillTransfer, FaRegEye, FaRegEyeSlash, FaTag, FaWrench, FaRegMoneyBill1, FaBuilding} from "react-icons/fa6";
+import {FaBook, FaBuildingUser, FaRegEye, FaRegEyeSlash, FaTag, FaWrench, FaRegMoneyBill1} from "react-icons/fa6";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import Loading from "@/components/loading";
@@ -25,7 +25,7 @@ export default function Page() {
   const { user, userLoading, isAdmin } = useAuth();
   const router = useRouter();
 
-  const [dataTotalBalance, loadingTotalBalance, errorTotalBalance] = useList(getDatabaseReference('balance/total'));
+  const [dataTotalBalance, loadingTotalBalance] = useList(getDatabaseReference('balance/total'));
   const [snapshotOffer, offerLoading] = useListKeys(getDatabaseReference('offer'));
 
   const getInitialShowBalance = () => {
@@ -105,29 +105,29 @@ export default function Page() {
               index={1}
               loading={false}/>
             <IconCard
-              href="/callback"
+              href="/offer"
               count={snapshotOffer?.length ?? 0}
               title="Offer"
               details="Location, Contact"
               index={1}
               loading={offerLoading}/>
             <IconCard
-              href="/project-info"
-              icon={FaBuildingUser}
+              href="/callback"
+              icon={FaWrench}
               title="Callback"
               details="Details, Status"
               index={1}
               loading={false}/>
             <IconCard
               href="/error-code"
-              icon={FaBuildingUser}
+              icon={FaBook}
               title="Error Code"
               details="NICE 3000"
               index={1}
               loading={false}/>
             <IconCard
               href="/payment-info"
-              icon={FaMoneyBillTransfer}
+              icon={FaTag}
               title="Payment Info"
               index={1}
               loading={false}/>
@@ -167,9 +167,9 @@ function BalanceCard({ data, href, icon: Icon, loading, showBalance, index} :
   { data: DataSnapshot | undefined; href: string; icon?: IconType; loading: boolean; showBalance: boolean, index: number}) {
   const snapshot = data?.val()
   return (
-    loading ? <Skeleton className="min-h-30 rounded-lg"/>
+    loading ? <Skeleton className="min-h-30 rounded-xl"/>
     : data ?
-      <Link className={`bg-secondary/20 rounded-lg border border-cyan-700 p-4 relative overflow-hidden hover:bg-secondary ${index ? "opacity-0 animate-fade-in-y" : ""}`} 
+      <Link className={`bg-secondary/20 rounded-xl border border-cyan-700 p-4 relative overflow-hidden hover:bg-secondary ${index ? "opacity-0 animate-fade-in-y" : ""}`} 
             href={href}
             style={{ animationDelay: `${0.1 + index * 0.1}s`}}>
         <div className="capitalize">{href}</div>
