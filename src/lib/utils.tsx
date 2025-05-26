@@ -1,19 +1,30 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import {toast} from "@/hooks/useToast";
 import {child, DatabaseReference, DataSnapshot, push, ref} from "@firebase/database";
 import {database} from "@/firebase/config";
+import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function showToast(title?: string, description?: string, variant?: "default" | "success" | "destructive") {
-  toast({
-    variant: variant ? variant : "default",
-    title: title ? title : "",
-    description: description ? description : "",
-  })
+export function showToast(title?: string, description?: string, variant?: "default" | "success" | "error") {
+  switch(variant) {
+    case "success":
+      toast.success(title, {
+        description: description ? description : "",
+      })
+      break
+    case "error":
+      toast.error(title, {
+        description: description ? description : "",
+      })
+      break
+    default:
+      toast(title, {
+        description: description ? description : "",
+      });
+  }
 }
 
 export function generateDatabaseKey(databaseReference: string) : string {
