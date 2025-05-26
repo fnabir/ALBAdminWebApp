@@ -1,9 +1,9 @@
 import type {Metadata} from "next";
 import {ThemeProvider} from "@/components/themeProvider";
 import {Geist, Geist_Mono} from "next/font/google";
-import {Toaster} from "@/components/ui/toaster"
-import "@/styles/globals.css"
+import "@/styles/globals.css";
 import React from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster richColors/>
         </ThemeProvider>
       </body>
     </html>
