@@ -5,7 +5,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { SidebarItemInterface } from "@/lib/interfaces";
-import Link from "next/link";
+import Link from "@/components/link";
 export function NavMain({
   items, isAdmin, label
 }: {
