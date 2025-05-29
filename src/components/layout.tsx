@@ -49,27 +49,17 @@ const Layout: FC<{ breadcrumb: BreadcrumbInterface[], children: ReactNode }> = (
                 © {new Date().getFullYear()} <a href="https://asianliftbd.com/" className="hover:underline">Asian Lift Bangladesh</a>. All Rights Reserved.
               </span>
               <ul className="flex space-x-4">
-                <li>
-                  <a
-                    className="hover:underline"
-                    href="https://asianliftbd.com/privacy-policy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="hover:underline"
-                    href="https://asianliftbd.com/terms-of-use"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Terms Of Use
-                  </a>
-                </li>
-              </ul>
+              <li>
+                <a href="https://asianliftbd.com/privacy-policy" target="_blank" className="hover:underline" rel="noopener noreferrer">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="https://asianliftbd.com/terms-of-use" target="_blank" className="hover:underline" rel="noopener noreferrer">
+                  Terms Of Use
+                </a>
+              </li>
+            </ul>
             </footer>
           </div>
         </SidebarInset>
