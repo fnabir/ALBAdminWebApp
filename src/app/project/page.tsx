@@ -10,7 +10,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import CardBalance from "@/components/card/cardBalance";
 import {DataSnapshot} from "@firebase/database";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
@@ -19,54 +19,51 @@ import {updateTotalBalance} from "@/lib/functions";
 import {useAuth} from "@/hooks/useAuth";
 import Loading from "@/components/loading";
 import {useRouter} from "next/navigation";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
 
-export default function ProjectPage() {
-	const {user, loading} = useAuth();
-	const router = useRouter();
-
-	const [filter, setFilter] = useState('none');
-	const [sort, setSort] = useState('name');
-	const [data, setData] = useState<DataSnapshot[]>();
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Project" },
+	const breadcrumb: BreadcrumbInterface[] = [
+		{ label: "Home", href: "/" },
+		{ label: "Project" },
 	]
 
-	const [projectData, projectLoading, projectError] = useList(getDatabaseReference("balance/project"))
-	const [totalBalanceData, totalBalanceLoading] = useObject(getDatabaseReference("balance/total/project"))
-	const total: number = getTotalValue(projectData)
-	const totalBalanceValue = totalBalanceData?.val().value;
+export default function ProjectPage() {
+	const {user, userLoading} = useAuth();
+	const router = useRouter();
 
-	useEffect(() => {
-		if (projectData) {
-			let filteredData = projectData;
-			if (filter === "+") {
-				filteredData = projectData.filter((t) => t.val().value > 0);
-			} else if (filter === "0") {
-				filteredData = projectData.filter((t) => t.val().value == 0);
-			} else if (filter === "-") {
-				filteredData = projectData.filter((t) => t.val().value < 0);
-			} else if (filter === "x") {
-				filteredData = projectData.filter((t) => t.val().status === "cancel");
-			}
-			setData((filteredData));
-		}
-	}, [projectData, filter]);
+	const [filter, setFilter] = useState<string>("none");
+	const [sort, setSort] = useState<string>("name");
+
+  const [balanceData, balanceLoading, balanceError] = useList(
+    user && !userLoading ? getDatabaseReference("balance/project") : null
+  );
+	const [totalBalanceSnapshot, totalBalanceLoading, totalBalanceError] = useObject(
+    user && !userLoading ? getDatabaseReference("balance/total/project") : null
+  );
+  
+  const totalBalanceData = totalBalanceSnapshot?.val();
+  const total = useMemo(() => {
+    return getTotalValue(balanceData);
+  }, [balanceData]);
+	const totalBalanceValue = totalBalanceData?.value ?? 0;
+
+  const data = useFilteredSortedBalance(balanceData, filter, sort);
 
 	const handleUpdateTotalBalance = () => {
 		updateTotalBalance("project", total).then(() => {
 			showToast("Success", "Total balance updated successfully", "success");
 		}).catch((error) => {
-			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+			showToast("Error", `Error updating total balance: ${error.message}`, "error");
 		})
 	}
 
-	if (loading || projectLoading) return <Loading/>
+	useEffect(() => {
+    if (!userLoading && !user) router.push('/login');
+  }, [user, userLoading, router]);
 
-	if (!user) {
-		router.push("/login");
-	}
+  if (userLoading) return <Loading />
+
+  if (!user) return null;
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
@@ -84,7 +81,7 @@ export default function ProjectPage() {
 						<CustomButtonGroup options={projectFilterOptions} onChange={(value) => setFilter(value)}/>
 					</div>
 
-					{!projectLoading && !totalBalanceLoading && total != totalBalanceValue &&
+					{!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
             <div className={"flex gap-x-2 h-full"}>
               <Separator orientation={`vertical`}/>
               <Button variant="accent" onClick={handleUpdateTotalBalance}>
@@ -95,76 +92,50 @@ export default function ProjectPage() {
 				</div>
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
-						projectLoading ?
-							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
-								<Skeleton className="flex-wrap h-10 w-10 mr-4 rounded-full"/>
-								<div className={"flex-auto"}>
-									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
-									<Skeleton className="h-4 w-2/5 rounded-xl"/>
-								</div>
-							</div>
-							: projectError ?
+						balanceLoading ?
+              <div className="flex flex-col space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full h-14 rounded-xl" />
+                ))}
+              </div>
+							: balanceError ?
 								<CardIcon
 									title={"Error"}
-									description={projectError.message}>
+									description={balanceError.message}>
 									<MdError size={28}/>
 								</CardIcon>
-								: !projectData || !data || projectData.length == 0 ?
+								: !data?.length ?
 									<CardIcon
 										title={"No Record Found"}>
 										<MdError size={28}/>
 									</CardIcon>
-									: <div className={"space-y-2"}>
+									: <div className={"flex flex-col space-y-2"}>
 										{
-											sort == "name" ? data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot, index:number) => {
-												const snapshot = item.val();
-												return (
-													<div key={item.key}
-															 className={"opacity-0 animate-fade-in-x"}
-															 style={{animationDelay: `${index * 0.025}s`}}>
-														<CardBalance type={"project"} id={item.key ? item.key : "undefined"}
-																				 name={item.key ? item.key : "undefined"} value={snapshot.value}
-																				 date={snapshot.date}
-																				 status={snapshot.status}/>
-													</div>
-												)
-											}) : sort == "balance" ? data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().value - b.val().value)).map((item: DataSnapshot, index: number) => {
-												const snapshot = item.val();
-												return (
-													<div key={item.key}
-															 className={"opacity-0 animate-fade-in-x"}
-															 style={{animationDelay: `${index * 0.05}s`}}>
-														<CardBalance type={"project"} id={item.key ? item.key : "undefined"}
-																				 name={item.key ? item.key : "undefined"} value={snapshot.value}
-																				 date={snapshot.date}
-																				 status={snapshot.status}/>
-													</div>
-												)
-											}) : data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().register - b.val().register)).map((item: DataSnapshot, index: number) => {
-												const snapshot = item.val();
-												return (
-													<div key={item.key}
-															 className={"opacity-0 animate-fade-in-x"}
-															 style={{animationDelay: `${index * 0.05}s`}}>
-														<CardBalance type={"project"} id={item.key!}
-																				 name={item.key!} value={snapshot.value}
-																				 date={snapshot.date}
-																				 status={snapshot.status}/>
-													</div>
-												)
+											data.map((item: DataSnapshot, index) => {
+                        const val = item.val();
+                        return (
+                          <CardBalance 
+                            key={item.key!}
+                            type={"project"}
+                            id={item.key!}
+                            name={item.key!} value={val.value}
+                            date={val.date}
+                            status={val.status}
+                            animationDelay={index * 0.05}/>
+                        )
 											})
 										}
 									</div>
 					}
 				</ScrollArea>
-				<div className={"opacity-0 animate-fade-in-y delay-300"}>
-					{totalBalanceData &&
+        {totalBalanceData &&
             <CardTotalBalance value={total}
-                              date={totalBalanceData.val().date}
+                              date={totalBalanceData.date}
+                              error={totalBalanceError?.message}
                               onClick={handleUpdateTotalBalance}
-                              update={total != totalBalanceValue}/>
-					}
-				</div>
+                              update={total != totalBalanceValue}
+                              className="opacity-0 animate-fade-in-y delay-300"/>
+        }
 			</div>
 		</Layout>
 	)
