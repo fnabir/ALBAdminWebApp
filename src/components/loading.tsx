@@ -1,6 +1,6 @@
 export default function Loading() {
 	return (
-		<div className="absolute w-full h-screen flex items-center flex-col justify-center">
+		<div className="absolute w-full z-50 bg-background h-screen flex items-center flex-col justify-center">
 			<span className="relative flex h-10 w-10 justify-center items-center m-8">
 				<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
 				<span className="relative inline-flex rounded-full h-5 w-5 bg-sky-500"></span>
