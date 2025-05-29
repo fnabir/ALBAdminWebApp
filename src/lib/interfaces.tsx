@@ -82,7 +82,7 @@ export interface CallbackInterface {
     project: string;
     details: string;
     name: string;
-    status: "Select" | "New" | "Assigned" | "In Progress" | "Fixed" | "Cannot be fixed" | undefined;
+    status?: "Select" | "New" | "Assigned" | "In Progress" | "Fixed" | "Cannot be fixed";
     date: string;
 }
 
