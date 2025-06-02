@@ -47,7 +47,7 @@ export default function ChangelogSection({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <Card className="backdrop-blur-sm overflow-hidden">
-      <CardContent className="-m-2 p-0 text-center">
+      <CardContent className="p-0 text-center">
         <div className="bg-gradient-to-br from-cyan-500/30 p-2 border-b border-slate-700/50">
           <div className="text-center">
             <div className="text-sm">VERSION</div>
