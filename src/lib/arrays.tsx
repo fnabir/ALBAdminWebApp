@@ -1,3 +1,5 @@
+import { OptionsInterface } from "@/lib/interfaces";
+
 export const callbackStatusOptions = [
 	{value: 'New'},
 	{value: 'Assigned'},
@@ -34,6 +36,12 @@ export const projectSortOptions = [
 	{value: 'name', label: 'Name' },
 	{value: 'balance', label: 'Balance' },
 	{value: 'register', label: 'Register' },
+];
+
+export const StaffSortOptions: OptionsInterface[] = [
+	{value: 'name', label: 'Name' },
+	{value: 'balance', label: 'Balance' },
+	{value: 'position', label: 'Position' },
 ];
 
 export const projectFilterOptions = [
@@ -79,7 +87,7 @@ export const projectPaymentTypeOptions = [
 	{value: 'partial', label: 'Partial'},
 ];
 
-export const staffTransactionTypeOptions = [
+export const StaffTransactionTypeOptions: OptionsInterface[] = [
 	{value: 'Advance'},
 	{value: 'For Conveyance'},
 	{value: 'House Rent'},

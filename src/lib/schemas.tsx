@@ -32,8 +32,7 @@ export const AccountFormSchema = z.object({
 
 export type AccountFormData = z.infer<typeof AccountFormSchema>;
 
-export const transactionSchema = z.object({
-	type: z.string().nonempty("Transaction type is required"),
+export const TransactionFormSchema = z.object({
 	title: z.string().nonempty("Title is required")
 		.refine((val) => val != "Select", {message: "Choose transaction type"}),
 	details: z.string().optional(),
@@ -47,7 +46,7 @@ export const transactionSchema = z.object({
 	date: z.string().nonempty("Date is required"),
 });
 
-export type TransactionFormData = z.infer<typeof transactionSchema>;
+export type TransactionFormData = z.infer<typeof TransactionFormSchema>;
 
 export const offerSchema = z.object({
 	name: z.string().nonempty("Name is required"),

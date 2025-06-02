@@ -67,7 +67,7 @@ export interface ProjectTransactionInterface {
     data: DataSnapshot | null;
 }
 
-export interface calendarEvent {
+export interface CalendarEventInterface {
     id: string,
     title: string,
     details?: string,
@@ -88,11 +88,11 @@ export interface CallbackInterface {
 
 export interface ProjectInfoInterface {
     project: string;
-    location: string;
-    phone: string;
-    contactName: string;
-    status: string;
-    servicing: number | undefined;
+    location?: string;
+    phone?: string;
+    contactName?: string;
+    status?: string;
+    servicing?: number;
 }
 
 export interface PartialPaymentDataInterface {
