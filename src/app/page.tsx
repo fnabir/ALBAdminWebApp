@@ -62,7 +62,7 @@ export default function Page() {
     <Layout breadcrumb={breadcrumb}>
       <div className="grid grid-cols-12 gap-2 lg:gap-6">
         
-        <div className="col-span-12 lg:col-span-9 gap-2 lg:gap-6">
+        <div className="col-span-12 lg:col-span-9 gap-2 lg:gap-6 space-y-2 lg:space-y-4">
           
           <Card className="backdrop-blur-sm overflow-hidden">
             <div className="-z-1 absolute -top-5 -right-5 size-30 rounded-full opacity-40 blur-2xl bg-cyan-500"/>
