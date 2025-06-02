@@ -9,9 +9,12 @@ export const useAuth = () => {
   const [user, userLoading, userError] = useAuthState(auth);
 
   const userRef = user ? getDatabaseReference(`info/user/${user.uid}`) : null;
-  const userData = useObject(userRef)[0]?.val();
+  const [userSnapshot, roleLoading, roleError] = useObject(userRef);
 
-  const userRole = userData?.role ?? "";
-  const isAdmin = userRole  === "admin";
-	return { user, isAdmin, userLoading, userError };
+  const userRole = userSnapshot?.val()?.role ?? "";
+  const isAdmin = userRole === "admin";
+  const loading = userLoading || roleLoading;
+  const error = userError || roleError;
+
+  return { user, isAdmin, userLoading: loading, userError: error };
 };
