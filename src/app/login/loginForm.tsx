@@ -1,10 +1,9 @@
 
-import {useSendPasswordResetEmail} from "react-firebase-hooks/auth";
 import {auth} from "@/firebase/config";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {getDatabaseReference, showToast} from "@/lib/utils";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import { ButtonLoading } from "@/components/generic/ButtonLoading";
 import InputPassword from "@/components/generic/InputPassword";
 import InputText from "@/components/generic/InputText";
@@ -16,7 +15,6 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
 	const router = useRouter();
-	const [submit, setSubmit] = useState<boolean>(false);
 	
 	const {
     register,
@@ -38,7 +36,7 @@ export default function LoginForm() {
         return;
       }
 
-      const snapshot = await get(getDatabaseReference(`info/user/${user.uid}/webAppAccess`));
+      const snapshot = await get(getDatabaseReference(`info/user/${user.uid}/adminWebApp`));
 
       if (snapshot?.val() === true) {
         router.push("/");
