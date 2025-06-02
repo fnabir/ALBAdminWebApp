@@ -31,6 +31,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import CardCallbackProject from "@/components/card/cardCallbackProject";
 import {addNewCallback} from "@/lib/functions";
 import {format} from "date-fns";
+import { BreadcrumbInterface } from "@/lib/interfaces";
 
 export default function CallbackProjectPage() {
 	const path = usePathname();
@@ -38,12 +39,10 @@ export default function CallbackProjectPage() {
 
 	const [dialog, setDialog] = useState<boolean>(false);
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference(`callback/${projectName}`));
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Callback", link: "/callback" },
-		{ text: "/" },
-		{ text: projectName },
+	const breadcrumb: BreadcrumbInterface[] = [
+		{ label: "Home", href: "/" },
+		{ label: "Callback", href: "/callback" },
+		{ label: projectName },
 	]
 
 	const {

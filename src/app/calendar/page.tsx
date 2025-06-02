@@ -13,7 +13,7 @@ import CardIcon from "@/components/card/cardIcon";
 import {MdError, MdInfo} from "react-icons/md";
 import CardCalendarEvent from "@/components/card/cardCalendarEvent";
 import React, {useEffect, useState} from "react";
-import {calendarEvent} from "@/lib/types";
+import {BreadcrumbInterface, CalendarEventInterface} from "@/lib/interfaces";
 import {update} from "firebase/database";
 import {EventDropArg} from "@fullcalendar/core";
 import {useForm} from "react-hook-form";
@@ -34,17 +34,16 @@ import {Button} from "@/components/ui/button";
 import CustomCheckbox from "@/components/generic/CustomCheckBox";
 import {addNewEvent} from "@/lib/functions";
 
+const breadcrumb: BreadcrumbInterface[] = [
+  { label: "Home", href: "/" },
+  { label: "Calendar" },
+]
+
 export default function CalendarPage() {
 	const [dialog, setDialog] = useState<boolean>(false);
 	const [ eventsData, eventsLoading, eventsError] = useList(getDatabaseReference("calendar"));
-	const [ currentEvents, setCurrentEvents ] = useState<calendarEvent[]>([]);
+	const [ currentEvents, setCurrentEvents ] = useState<CalendarEventInterface[]>([]);
 	const [allDayEvent, setAllDayEvent] = useState<boolean>(false);
-
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Calendar" },
-	]
 
 	const {
 		register,
@@ -114,7 +113,7 @@ export default function CalendarPage() {
 
 	useEffect(() => {
 		if (eventsData && !eventsLoading) {
-			const firebaseEvents:calendarEvent[] = eventsData.map((item) => {
+			const firebaseEvents:CalendarEventInterface[] = eventsData.map((item) => {
 				const snapshot = item.val();
 				return {
 					id: item.key,
@@ -124,7 +123,7 @@ export default function CalendarPage() {
 					start: snapshot.start,
 					end: snapshot.end,
 					allDay: snapshot.allDay,
-				} as calendarEvent;
+				} as CalendarEventInterface;
 			});
 			setCurrentEvents(firebaseEvents);
 		}

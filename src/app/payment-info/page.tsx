@@ -32,16 +32,16 @@ import {useAuth} from "@/hooks/useAuth";
 import CardPaymentInfo from "@/components/card/cardPaymentInfo";
 import {useRouter} from "next/navigation";
 import Loading from "@/components/loading";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+
+const breadcrumb: BreadcrumbInterface[] = [
+  { label: "Home", href: "/" },
+  { label: "Payment Info" },
+]
 
 export default function PaymentInfoPage() {
-	const { user, loading, userRole } = useAuth();
+	const {user, userLoading, isAdmin} = useAuth();
 	const router = useRouter();
-
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Payment Info" },
-	]
 
 	const [open, setOpen] = useState<boolean>(false);
 	const [details, setDetails] = useState<boolean>(false);
@@ -70,12 +70,12 @@ export default function PaymentInfoPage() {
 	}
 
 	useEffect(() => {
-		if (!loading && !user) {
-			router.push('/login');
-		}
-	}, [user, loading, router])
+    if (!userLoading && !user) router.push('/login');
+  }, [user, userLoading, router]);
 
-	if (loading) return <Loading/>
+  if (userLoading) return <Loading />
+
+  if (!user) return null;
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
@@ -205,7 +205,7 @@ export default function PaymentInfoPage() {
 														key={key}
 														id={key}
 														value={value!.toString()}
-														userRole={userRole}
+														isAdmin={isAdmin}
 														animationDelay={typeIndex * 0.3 + 0.2 + index * 0.1}
 													/>
 												))}

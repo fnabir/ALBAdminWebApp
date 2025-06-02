@@ -8,26 +8,25 @@ import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import React from "react";
-import {projectInfo} from "@/lib/types";
 import {DataTable} from "@/components/ui/dataTable";
 import {ColumnDef} from "@tanstack/react-table";
+import { BreadcrumbInterface, ProjectInfoInterface } from "@/lib/interfaces";
+
+const breadcrumb: BreadcrumbInterface[] = [
+  { label: "Home", href: "/" },
+  { label: "Project Info" },
+]
 
 export default function ProjectInfoPage() {
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Project Info" },
-	]
-
 	const [projectData, projectLoading, projectError] = useList(getDatabaseReference("info/project"));
-	const data: projectInfo[] = projectData
+	const data: ProjectInfoInterface[] = projectData
 		? projectData.map((item) => ({
-			...(item.val() as projectInfo),
+			...(item.val() as ProjectInfoInterface),
 			project: item.key!,
 		}))
 		: [];
 
-	const columns: ColumnDef<projectInfo>[] = [
+	const columns: ColumnDef<ProjectInfoInterface>[] = [
 		{
 			accessorKey: "project",
 			header: () => ( <div className="text-center">Project Name</div> ),

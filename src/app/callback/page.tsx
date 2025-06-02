@@ -31,18 +31,18 @@ import {callbackStatusOptions} from "@/lib/arrays";
 import CustomDropDown from "@/components/generic/CustomDropDown";
 import CustomInput from "@/components/generic/CustomInput";
 import CustomDateTimeInput from "@/components/generic/CustomDateTimeInput";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+
+const breadcrumb: BreadcrumbInterface[] = [
+		{ label: "Home", href: "/" },
+		{ label: "Callback" },
+	]
 
 export default function CallbackPage() {
 	const [dialog, setDialog] = useState<boolean>(false);
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('callback'));
 	const projectNames = useListKeys(getDatabaseReference(`balance/project`))[0];
 	const projectNameOptions = projectNames?.map((projectName) => ({ value: projectName}))
-
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Callback" },
-	]
 
 	const {
 		register,
