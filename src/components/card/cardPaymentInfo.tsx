@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 
-const CardPaymentInfo: FC<{type:string, id: string, value: string, userRole: string, className?: string, animationDelay?: number}> = ({
-    type, id, value, userRole, className, animationDelay
+const CardPaymentInfo: FC<{type:string, id: string, value: string, isAdmin: boolean, className?: string, animationDelay?: number}> = ({
+    type, id, value, isAdmin, className, animationDelay
 }) => {
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
   const originalId = id.split("_")[0];
@@ -35,7 +35,7 @@ const CardPaymentInfo: FC<{type:string, id: string, value: string, userRole: str
         <div>{(type !== "cash") && value}</div>
       </Card>
       {
-        userRole === "admin" &&
+        isAdmin &&
         <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
           <DialogTrigger asChild>
             <Button size="icon"><MdDelete/></Button>
