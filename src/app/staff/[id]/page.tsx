@@ -15,13 +15,13 @@ import {Separator} from "@/components/ui/separator";
 import Loading from "@/components/loading";
 import {updateTransactionBalance} from "@/lib/functions";
 import { BreadcrumbInterface } from "@/lib/interfaces";
-import NoAccess from "@/components/accessDenied";
 import AddStaffTransactionDialog from "@/components/transaction/AddStaffTransactionDialog";
 import CardSection from "@/components/card/cardSection";
 import { FaListUl } from "react-icons/fa6";
 import { ScrollArea } from "@/components/ui/scrollArea";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { TransactionRow } from "@/components/transaction/TransactionRow";
+import AccessDenied from "@/components/accessDenied";
 
 export default function StaffTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
@@ -77,7 +77,7 @@ export default function StaffTransactionPage() {
 
 	if (!user) return null;
 
-	if (!isAdmin) return <NoAccess />
+	if (!isAdmin) return <AccessDenied />
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
