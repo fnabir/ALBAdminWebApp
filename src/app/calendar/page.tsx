@@ -11,13 +11,12 @@ import {useList} from "react-firebase-hooks/database";
 import {getDatabaseReference, showToast} from "@/lib/utils";
 import CardIcon from "@/components/card/cardIcon";
 import {MdError, MdInfo} from "react-icons/md";
-import CardCalendarEvent from "@/components/card/cardCalendarEvent";
 import React, {useEffect, useState} from "react";
 import {BreadcrumbInterface, CalendarEventInterface} from "@/lib/interfaces";
 import {update} from "firebase/database";
 import {EventDropArg} from "@fullcalendar/core";
 import {useForm} from "react-hook-form";
-import {EventFormData, eventSchema} from "@/lib/schemas";
+import {EventFormData, EventFormSchema} from "@/lib/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {
 	Dialog,
@@ -28,11 +27,13 @@ import {
 	DialogHeader,
 	DialogTitle
 } from "@/components/ui/dialog";
-import CustomSeparator from "@/components/generic/CustomSeparator";
-import CustomInput from "@/components/generic/CustomInput";
 import {Button} from "@/components/ui/button";
 import CustomCheckbox from "@/components/generic/CustomCheckBox";
 import {addNewEvent} from "@/lib/functions";
+import { InputDate } from "@/components/generic/InputDate";
+import InputText from "@/components/generic/InputText";
+import EventRow from "@/app/calendar/event-row";
+import { Separator } from "@/components/ui/separator";
 
 const breadcrumb: BreadcrumbInterface[] = [
   { label: "Home", href: "/" },
@@ -51,7 +52,7 @@ export default function CalendarPage() {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<EventFormData>({
-		resolver: zodResolver(eventSchema),
+		resolver: zodResolver(EventFormSchema),
 	});
 
 	const onSubmit = (data: EventFormData) => {
@@ -140,50 +141,37 @@ export default function CalendarPage() {
 								Click update to save the changes.
 							</DialogDescription>
 						</DialogHeader>
-						<CustomSeparator orientation={"horizontal"} className={"mb-2"}/>
+						<Separator orientation={"horizontal"} className={"mb-2"}/>
 						<form onSubmit={handleSubmit(onSubmit)}>
-							<CustomInput id="title"
-													 type="text"
-													 label={"Title"}
-													 {...register('title')}
-													 helperText={errors.title ? errors.title.message : ""}
-													 color={errors.title ? "error" : "default"}
-							/>
-							<CustomInput id="details"
-													 type="text"
-													 label={"Details"}
-													 {...register('details')}
-													 helperText={errors.details ? errors.details.message : ""}
-													 color={errors.details ? "error" : "default"}
-							/>
-							<CustomInput id="assigned"
-													 type="text"
-													 label={"Assigned"}
-													 {...register('assigned')}
-													 helperText={errors.assigned ? errors.assigned.message : ""}
-													 color={errors.assigned ? "error" : "default"}
-							/>
-							<CustomCheckbox id="allDay"
-															label="All day"
-															{...register("allDay")}
-															onChange={(e) => setAllDayEvent(e.target.checked)}
-							/>
-							<CustomInput id="start"
-													 type="datetime-local"
-													 label={"Start"}
-													 {...register('start')}
-													 helperText={errors.start ? errors.start.message : ""}
-													 color={errors.start ? "error" : "default"}
-							/>
-							{
-								!allDayEvent && <CustomInput id="end"
-                                             type="datetime-local"
-                                             label={"End"}
-																						 {...register('end')}
-                                             helperText={errors.end ? errors.end.message : ""}
-                                             color={errors.end ? "error" : "default"}
+							<InputText label="Title"
+                    {...register("title")}
+                    error={errors.title?.message || ""}
+              />
+              <InputText label="Details"
+                        {...register("details")}
+                        error={errors.details?.message || ""}
+              />
+              <InputText label="Assigned"
+                        {...register('assigned')}
+                        error={errors.assigned?.message || ""}
+              />
+              <CustomCheckbox id="allDay"
+                              label="All day"
+                              {...register("allDay")}
+                              onChange={(e) => setAllDayEvent(e.target.checked)}
+              />
+              <InputDate type="datetime-local"
+                        label="Start"
+                        {...register('start')}
+                        error={errors.start?.message || ""}
+              />
+              {
+                !allDayEvent && <InputDate type="datetime-local"
+                                          label="End"
+                                          {...register('end')}
+                                          error={errors.end?.message || ""}
                 />
-							}
+              }
 							<DialogFooter className={"sm:justify-center pt-8"}>
 								<DialogClose asChild>
 									<Button type="button" size="lg" variant="secondary">
@@ -219,7 +207,7 @@ export default function CalendarPage() {
 									const snapshot = item.val();
 									return (
 										<div key={item.key}>
-											<CardCalendarEvent id={item.key!} title={snapshot.title} details={snapshot.details}
+											<EventRow id={item.key!} title={snapshot.title} details={snapshot.details}
 																				 assigned={snapshot.assigned} start={snapshot.start} end={snapshot.end}
 																				 allDay={snapshot.allDay}/>
 										</div>
