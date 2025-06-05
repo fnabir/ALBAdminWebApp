@@ -14,13 +14,13 @@ import {useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
-import {projectFilterOptions, projectSortOptions} from "@/lib/arrays";
 import {updateTotalBalance} from "@/lib/functions";
 import {useAuth} from "@/hooks/useAuth";
 import Loading from "@/components/loading";
 import {useRouter} from "next/navigation";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
+import { ProjectFilterOptions, ProjectSortOptions } from "@/lib/arrays";
 
 	const breadcrumb: BreadcrumbInterface[] = [
 		{ label: "Home", href: "/" },
@@ -71,14 +71,14 @@ export default function ProjectPage() {
 				<div className="flex items-center pb-2 gap-x-2">
 					<div className="flex items-center gap-x-2">
 						<span>Sort by</span>
-						<CustomButtonGroup options={projectSortOptions} onChange={(value) => setSort(value)}/>
+						<CustomButtonGroup options={ProjectSortOptions} onChange={(value) => setSort(value)}/>
 					</div>
 
 					<Separator orientation={`vertical`}/>
 
 					<div className="flex items-center gap-x-2">
 						<span>Filter by</span>
-						<CustomButtonGroup options={projectFilterOptions} onChange={(value) => setFilter(value)}/>
+						<CustomButtonGroup options={ProjectFilterOptions} onChange={(value) => setFilter(value)}/>
 					</div>
 
 					{!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
