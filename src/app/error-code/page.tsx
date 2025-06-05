@@ -3,10 +3,10 @@
 import Layout from "@/components/layout"
 import React, {useState} from "react";
 import {ScrollArea} from "@/components/ui/scrollArea";
-import CustomInput from "@/components/generic/CustomInput";
 import {Button} from "@/components/ui/button";
 import CardErrorCode from "@/components/card/cardErrorCode";
 import { BreadcrumbInterface } from "@/lib/interfaces";
+import InputText from "@/components/generic/InputText";
 
 const breadcrumb: BreadcrumbInterface[] = [
   {label: "Home", href: "/"},
@@ -516,11 +516,9 @@ export default function CallbackPage() {
 			<div className={"flex flex-col h-full"}>
 				<div className="flex items-center pb-2 gap-x-2">
 					<span className="mt-4">NICE 3000</span>
-					<CustomInput id="errorCode"
-											 type="text"
-											 label="Error Code"
-											 pre={"E"}
-											 onChange={(e) => setErrorCode(e.target.value)}
+					<InputText label="Error Code"
+                    pre={"E"}
+                    onChange={(e) => setErrorCode(e.target.value)}
 					/>
 					<Button type="submit" className="mt-4" variant="accent" onClick={handleSearch}>Search</Button>
 				</div>
