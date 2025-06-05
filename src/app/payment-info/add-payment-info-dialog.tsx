@@ -48,9 +48,15 @@ export default function AddPaymentInfoDialog() {
 		})
 	}
 
+  const handleReset = () => {
+    setDetails(false);
+    setDetailsLabel("Details");
+    reset();
+  }
+
   const handleDialogOpenChange = (state: boolean) => {
     setOpen(state);
-    reset();
+    handleReset();
   };
 
   const handleTypeChange = (paymentType: string) => {
@@ -88,7 +94,7 @@ export default function AddPaymentInfoDialog() {
   return(
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={"accent"} onClick={() => reset()}>
+        <Button variant={"accent"}>
           <MdAddCircle/> Add New Payment Info
         </Button>
       </DialogTrigger>
@@ -99,7 +105,7 @@ export default function AddPaymentInfoDialog() {
             Click submit to add the new payment info.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} onReset={() => reset}>
+        <form onSubmit={handleSubmit(onSubmit)} onReset={handleReset}>
           <InputDropDown label="Project Name"
                         options={projectNameOptions ?? []}
                         {...register('project')}
@@ -107,7 +113,7 @@ export default function AddPaymentInfoDialog() {
                         required
           />
           {
-            watch("project") !== "Select" &&
+            (watch("project") !== "Select" ||  watch("project") !== "") &&
             <InputDropDown label="Payment Info Type"
                           options={PaymentInfoOptions}
                           {...register('type')}
