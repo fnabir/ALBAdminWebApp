@@ -23,12 +23,12 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from "@/components/ui/dialog";
-import CardTransaction from "@/components/card/cardTransaction";
 import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
 import {remove} from "firebase/database";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import Loading from "@/components/loading";
 import AccessDenied from "@/components/accessDenied";
+import { TransactionRow } from "@/components/transaction/TransactionRow";
 
 export default function ConveyanceTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
@@ -145,11 +145,15 @@ export default function ConveyanceTransactionPage() {
 						: data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
 							const snapshot = item.val();
 							return (
-								<div className="flex-col my-2" key={item.key}>
-									<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
-																	 title={snapshot.title} details={snapshot.details}
-																	 amount={snapshot.amount} date={snapshot.date}/>
-								</div>
+                <TransactionRow key={item.key}
+                                type="conveyance"
+                                id={staffID}
+                                transactionId={item.key!}
+                                title={snapshot.title}
+                                details={snapshot.details}
+                                value={snapshot.amount}
+                                date={snapshot.date}
+                />
 							)
 						})
 					}
