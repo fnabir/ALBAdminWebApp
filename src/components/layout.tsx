@@ -35,7 +35,7 @@ const Layout: FC<{ breadcrumb: BreadcrumbInterface[], children: ReactNode }> = (
         <SidebarInset>
           <div className={"flex flex-col h-screen space-y-2 mx-2 lg:mx-4 pb-2"}>
             <header
-              className="flex bg-muted rounded-xl mt-2 px-4 py-0.5 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+              className="flex bg-muted rounded-lg mt-2 px-4 py-0.5 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
               <SidebarTrigger className="-ml-1"/>
               <Separator orientation="vertical" className="mr-2 h-5"/>
               <BreadcrumbSection breadcrumb={breadcrumb}/>
