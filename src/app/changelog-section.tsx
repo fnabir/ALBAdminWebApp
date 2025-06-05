@@ -14,14 +14,16 @@ function getChangelog(isAdmin: boolean): Record<string, ChangelogItem[]> {
     changed: [
       {
         access: isAdmin,
-        details: "Loading winodow now shows up as soon as the page found and fades out at the end."
+        details: "All transctions now divided into 2 sections - expense and payment replacing filter options before."
       }
     ],
     fixed: [
       {
-        access: isAdmin,
-        details: "Changing year to see the files would create another entry to url history. Thus clicking back would take through the change of years in the same page."
-      }
+        details: "Project Balance would cause issue in different combination of sort and filter."
+      },
+      {
+        details: "Major optimization and bug fixes."
+      },
     ],
   };
 }
