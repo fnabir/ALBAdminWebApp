@@ -65,7 +65,7 @@ export const OfferFormSchema = z.object({
 
 export type OfferFormData = z.infer<typeof OfferFormSchema>;
 
-export const callbackSchema = z.object({
+export const CallbackFormSchema = z.object({
 	project: z.string().nonempty("Project Name is required")
 		.refine((val) => val != "Select", {message: "Choose Project"}),
 	details: z.string().nonempty("Callback Details is required"),
@@ -75,7 +75,7 @@ export const callbackSchema = z.object({
 		.refine((val) => val != "Select", {message: "Choose status"}),
 });
 
-export type CallbackFormData = z.infer<typeof callbackSchema>;
+export type CallbackFormData = z.infer<typeof CallbackFormSchema>;
 
 export const PaymentInfoFormSchema = z.object({
 	project: z.string().nonempty("Project Name is required")
@@ -113,7 +113,7 @@ export const PaymentInfoFormSchema = z.object({
 
 export type PaymentInfoFormData = z.infer<typeof PaymentInfoFormSchema>;
 
-export const eventSchema = z.object({
+export const EventFormSchema = z.object({
 	title: z.string().nonempty("Title is required")
 		.refine((val) => val != "Select", {message: "Choose event type"}),
 	details: z.string().optional(),
@@ -123,4 +123,4 @@ export const eventSchema = z.object({
 	allDay: z.boolean(),
 });
 
-export type EventFormData = z.infer<typeof eventSchema>;
+export type EventFormData = z.infer<typeof EventFormSchema>;
