@@ -28,6 +28,7 @@ import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
 import {remove} from "firebase/database";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import Loading from "@/components/loading";
+import AccessDenied from "@/components/accessDenied";
 
 export default function ConveyanceTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
@@ -78,6 +79,8 @@ export default function ConveyanceTransactionPage() {
 	if (userLoading) return <Loading />
 
 	if (!user) return null;
+
+  if (!isAdmin) return <AccessDenied />
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
