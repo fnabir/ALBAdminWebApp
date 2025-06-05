@@ -10,83 +10,126 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import CardBalance from "@/components/card/cardBalance";
 import {DataSnapshot} from "@firebase/database";
-import {breadcrumbItem} from "@/lib/types";
 import {updateTotalBalance} from "@/lib/functions";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {Button} from "@/components/ui/button";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+import Loading from "@/components/loading";
+import { StaffSortOptions } from "@/lib/arrays";
+import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
+import NoAccess from "@/components/accessDenied";
+
+const breadcrumb: BreadcrumbInterface[] = [
+  { label: "Home", href: "/" },
+  { label: "Conveyance" },
+]
 
 export default function ConveyancePage() {
-	const breadcrumb: breadcrumbItem[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Conveyance" },
-	]
+  const {user, userLoading, isAdmin} = useAuth();
+  const router = useRouter();
 
-	const [data, dataLoading, dataError] = useList(getDatabaseReference("balance/conveyance"))
-	const [totalBalanceData, totalBalanceLoading] = useObject(getDatabaseReference("balance/total/conveyance"));
-	const total: number = getTotalValue(data);
-	const totalBalanceValue = totalBalanceData?.val().value;
+  const [sort, setSort] = useState<string>("position");
+
+  const [balanceData, balanceLoading, balanceError] = useList(
+    user && !userLoading ? getDatabaseReference("balance/conveyance") : null
+  );
+  const [totalBalanceSnapshot, totalBalanceLoading, totalBalanceError] = useObject(
+    user && !userLoading ? getDatabaseReference("balance/total/conveyance") : null
+  );
+  
+  const totalBalanceData = totalBalanceSnapshot?.val();
+  const total = useMemo(() => {
+    return getTotalValue(balanceData);
+  }, [balanceData]);
+  const totalBalanceValue = totalBalanceData?.value ?? 0;
+
+  const data = useFilteredSortedBalance(balanceData, "none", sort);
 
 	const handleUpdateTotalBalance = () => {
 		updateTotalBalance("conveyance", total).then(() => {
 			showToast("Success", "Total balance updated successfully", "success");
 		}).catch((error) => {
-			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+			showToast("Error", `Error updating total balance: ${error.message}`, "error");
 		})
 	}
+
+  useEffect(() => {
+    if (!userLoading && !user) router.push('/login');
+  }, [user, userLoading, router]);
+
+  if (userLoading) return <Loading />
+
+  if (!user) return null;
+
+  if (!isAdmin) return <NoAccess />
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
 			<div className={"flex flex-col h-full"}>
-				{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
-          <div>
-            <Button variant="accent" onClick={handleUpdateTotalBalance}>
-              Update Total Balance
-            </Button>
-          </div>
-				}
-				<ScrollArea className={"grow mb-4 -mr-4 pr-4"}>
+				<div className="flex items-center pb-2 gap-x-2">
+          <div className="flex items-center gap-x-2">
+						<span>Sort by</span>
+						<CustomButtonGroup options={StaffSortOptions} value={sort} onChange={(value) => setSort(value)}/>
+					</div>
+          {!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
+            <div className={"flex gap-x-2 h-full"}>
+              <Separator orientation={`vertical`}/>
+              <Button variant="accent" onClick={handleUpdateTotalBalance}>
+                Update Total Balance
+              </Button>
+            </div>
+          }
+        </div>
+				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
-						dataLoading ?
-							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
-								<div className={"flex-auto"}>
-									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
-									<Skeleton className="h-4 w-2/5 rounded-xl"/>
-								</div>
-								<Skeleton className="flex-wrap h-8 w-32 mr-4 rounded-xl"/>
-							</div>
-							: dataError ?
+						balanceLoading ?
+              <div className="flex flex-col space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full h-14 rounded-xl" />
+                ))}
+              </div>
+							: balanceError ?
 								<CardIcon
 									title={"Error"}
-									description={dataError.message}>
+									description={balanceError.message}>
 									<MdError size={28}/>
 								</CardIcon>
-								: !data || data.length == 0 ?
+								: !data?.length ?
 									<CardIcon
 										title={"No Record Found"}>
 										<MdError size={28}/>
 									</CardIcon>
-									:
-									data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().position - b.val().position)).map((item: DataSnapshot) => {
-										const snapshot = item.val();
-										return (
-											<div className="flex-col my-2" key={item.key}>
-												<CardBalance type={"conveyance"} id={item.key ? item.key : "undefined"} name={snapshot.name}
-																		 value={snapshot.value} date={snapshot.date}
-																		 status={snapshot.status}/>
-											</div>
-										)
-									})
+									: <div className={"flex flex-col space-y-2"}>
+										{
+											data.map((item: DataSnapshot, index) => {
+                        const val = item.val();
+                        return (
+                          <CardBalance 
+                            key={item.key!}
+                            type={"conveyance"}
+                            id={item.key!}
+                            name={val.name} value={val.value}
+                            date={val.date}
+                            status={val.status}
+                            animationDelay={index * 0.05}/>
+                        )
+											})
+										}
+									</div>
 					}
 				</ScrollArea>
-				<div>
-					{totalBalanceData &&
+				{totalBalanceData &&
             <CardTotalBalance value={total}
-                              date={totalBalanceData?.val().date}
+                              date={totalBalanceData.date}
+                              error={totalBalanceError?.message}
                               onClick={handleUpdateTotalBalance}
-                              update={total != totalBalanceValue}/>
-					}
-				</div>
+                              update={total != totalBalanceValue}
+                              className="opacity-0 animate-fade-in-y delay-300"/>
+        }
 			</div>
 		</Layout>
 	)

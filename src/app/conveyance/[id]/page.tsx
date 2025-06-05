@@ -9,7 +9,7 @@ import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
 import {MdDelete, MdError} from "react-icons/md";
 import {usePathname, useRouter} from "next/navigation";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
@@ -23,13 +23,14 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from "@/components/ui/dialog";
-import Loading from "@/app/conveyance/[id]/loading";
 import CardTransaction from "@/components/card/cardTransaction";
 import {updateLastUpdateDate, updateTransactionBalance} from "@/lib/functions";
 import {remove} from "firebase/database";
+import { BreadcrumbInterface } from "@/lib/interfaces";
+import Loading from "@/components/loading";
 
 export default function ConveyanceTransactionPage() {
-	const {user, loading, userRole} = useAuth();
+	const {user, userLoading, isAdmin} = useAuth();
 	const router = useRouter();
 	const path = usePathname();
 	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
@@ -42,19 +43,17 @@ export default function ConveyanceTransactionPage() {
 	const totalBalanceValue: number = totalBalanceData ? totalBalanceData.val().value : 0;
 	const totalBalanceDate = totalBalanceData?.val().date;
 
-	const breadcrumb: {text: string, link?: string}[] = [
-		{ text: "Home", link: "/" },
-		{ text: "/" },
-		{ text: "Conveyance", link: "/conveyance" },
-		{ text: "/" },
-		{ text: staffName },
+	const breadcrumb: BreadcrumbInterface[] = [
+		{ label: "Home", href: "/" },
+		{ label: "Conveyance", href: "/conveyance" },
+		{ label: staffName },
 	]
 
 	const handleUpdateBalance = () => {
 		updateTransactionBalance("staff", staffID, total).then(() => {
 			showToast("Success", "Total balance updated successfully", "success");
 		}).catch((error) => {
-			showToast("Error", `Error updating total balance: ${error.message}`, "destructive");
+			showToast("Error", `Error updating total balance: ${error.message}`, "error");
 		})
 	}
 
@@ -65,19 +64,20 @@ export default function ConveyanceTransactionPage() {
 			});
 			showToast("Success", "All conveyance deleted successfully", "success");
 		}).catch((error) => {
-			showToast("Error", `Error deleting all conveyance: ${error.message}`, "destructive");
+			showToast("Error", `Error deleting all conveyance: ${error.message}`, "error");
 		}).finally(() => {
 			setDeleteDialog(false);
 			router.refresh();
 		});
 	}
 
-	if (loading) return <Loading/>
+	useEffect(() => {
+		if (!userLoading && !user) router.push('/login');
+	}, [user, userLoading, router]);
 
-	if (!user) {
-		router.push("/login");
-		return null;
-	}
+	if (userLoading) return <Loading />
+
+	if (!user) return null;
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
@@ -145,7 +145,7 @@ export default function ConveyanceTransactionPage() {
 								<div className="flex-col my-2" key={item.key}>
 									<CardTransaction type={"staff"} uid={staffID} transactionId={item.key!}
 																	 title={snapshot.title} details={snapshot.details}
-																	 amount={snapshot.amount} date={snapshot.date} access={userRole}/>
+																	 amount={snapshot.amount} date={snapshot.date}/>
 								</div>
 							)
 						})
