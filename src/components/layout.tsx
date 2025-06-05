@@ -33,18 +33,18 @@ const Layout: FC<{ breadcrumb: BreadcrumbInterface[], children: ReactNode }> = (
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <div className={"flex flex-col h-screen pb-2"}>
+          <div className={"flex flex-col h-screen space-y-2 mx-2 lg:mx-4 pb-2"}>
             <header
-              className="flex px-4 py-2 h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+              className="flex bg-muted rounded-xl mt-2 px-4 py-0.5 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
               <SidebarTrigger className="-ml-1"/>
               <Separator orientation="vertical" className="mr-2 h-5"/>
               <BreadcrumbSection breadcrumb={breadcrumb}/>
               <ThemeToggle/>
             </header>
-            <div className="flex-1 px-2 md:px-4 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               {children}
             </div>
-            <footer className="hidden md:flex shrink-0 items-center md:justify-between space-x-4 mx-4 my-2 p-4 rounded-xl bg-muted text-sm">
+            <footer className="hidden md:flex shrink-0 items-center md:justify-between space-x-4 p-4 rounded-xl bg-muted text-sm">
               <span>
                 © {new Date().getFullYear()} <a href="https://asianliftbd.com/" className="hover:underline">Asian Lift Bangladesh</a>. All Rights Reserved.
               </span>
