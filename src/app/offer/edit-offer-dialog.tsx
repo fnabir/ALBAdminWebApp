@@ -37,11 +37,6 @@ export default function EditOfferDialog({ data }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<OfferFormData>({
     resolver: zodResolver(OfferFormSchema),
-    defaultValues: {
-      floor: val.floor,
-      shaft: val.shaft,
-      note: val.note,
-    },
   });
   
   const onSubmit = (formData: OfferFormData) => {
