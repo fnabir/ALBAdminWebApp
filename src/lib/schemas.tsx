@@ -48,7 +48,7 @@ export const TransactionFormSchema = z.object({
 
 export type TransactionFormData = z.infer<typeof TransactionFormSchema>;
 
-export const offerSchema = z.object({
+export const OfferFormSchema = z.object({
 	name: z.string().nonempty("Name is required"),
 	address: z.string().optional(),
 	product: z.string().nonempty("Product type is required")
@@ -63,7 +63,7 @@ export const offerSchema = z.object({
 	refer: z.string().optional(),
 });
 
-export type OfferFormData = z.infer<typeof offerSchema>;
+export type OfferFormData = z.infer<typeof OfferFormSchema>;
 
 export const callbackSchema = z.object({
 	project: z.string().nonempty("Project Name is required")

@@ -1,6 +1,6 @@
 import { OptionsInterface } from "@/lib/interfaces";
 
-export const callbackStatusOptions = [
+export const CallbackStatusOptions: OptionsInterface[] = [
 	{value: 'New'},
 	{value: 'Assigned'},
 	{value: 'In Progress'},
@@ -8,7 +8,7 @@ export const callbackStatusOptions = [
 	{value: 'Cannot be fixed'}
 ];
 
-export const offerProductOptions=[
+export const OfferProductOptions: OptionsInterface[] = [
 	{value: 'Passenger Lift'},
 	{value: 'Cargo Lift'},
 	{value: 'Hospital Lift'},
@@ -19,20 +19,20 @@ export const offerProductOptions=[
 	{value: 'Other'}
 ]
 
-export const offerWorkOptions = [
+export const OfferWorkOptions: OptionsInterface[] = [
 	{value: 'Full Project'},
 	{value: 'Servicing'},
 	{value: 'Installation'},
 	{value: 'Repair'}
 ];
 
-export const calendarEventOptions = [
+export const CalendarEventOptions: OptionsInterface[] = [
 	{value: 'Servicing'},
 	{value: 'Callback'},
 	{value: 'Other'}
 ];
 
-export const projectSortOptions = [
+export const ProjectSortOptions: OptionsInterface[] = [
 	{value: 'name', label: 'Name' },
 	{value: 'balance', label: 'Balance' },
 	{value: 'register', label: 'Register' },
@@ -44,7 +44,7 @@ export const StaffSortOptions: OptionsInterface[] = [
 	{value: 'position', label: 'Position' },
 ];
 
-export const projectFilterOptions = [
+export const ProjectFilterOptions = [
 	{value: 'none', label: 'None' },
 	{value: '+', label: 'Outstanding' },
 	{value: '0', label: 'Paid' },
@@ -52,7 +52,7 @@ export const projectFilterOptions = [
 	{value: 'x', label: 'Cancelled' },
 ];
 
-export const projectTransactionFilterOptions = [
+export const ProjectTransactionFilterOptions = [
 	{value: 'none', label: 'None' },
 	{value: '+', label: 'Expense' },
 	{value: '-', label: 'Payment' },
