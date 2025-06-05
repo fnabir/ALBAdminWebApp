@@ -77,7 +77,7 @@ export const callbackSchema = z.object({
 
 export type CallbackFormData = z.infer<typeof callbackSchema>;
 
-export const paymentInfoSchema = z.object({
+export const PaymentInfoFormSchema = z.object({
 	project: z.string().nonempty("Project Name is required")
 		.refine((val) => val != "Select", {message: "Choose Project"}),
 	type: z.string().nonempty("Type is required")
@@ -111,7 +111,7 @@ export const paymentInfoSchema = z.object({
 	}
 });
 
-export type PaymentInfoFormData = z.infer<typeof paymentInfoSchema>;
+export type PaymentInfoFormData = z.infer<typeof PaymentInfoFormSchema>;
 
 export const eventSchema = z.object({
 	title: z.string().nonempty("Title is required")

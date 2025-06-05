@@ -40,14 +40,14 @@ export async function updateLastUpdateDate(type: string, id: string) {
 			date: formattedDate,
 		}).catch((error) => {
 			console.error(error.message);
-			showToast(error.name, error.message, "destructive");
+			showToast(error.name, error.message, "error");
 		})
 
 		await update(getDatabaseReference(`balance/${type}/${id}`), {
 			date: formattedDate,
 		}).catch((error) => {
 			console.error(error.message);
-			showToast(error.name, error.message, "destructive");
+			showToast(error.name, error.message, "error");
 		})
 }
 
@@ -56,7 +56,7 @@ export async function addNewTransaction(type: string, id: string, date: string, 
 	await set(getDatabaseReference(`transaction/${type}/${id}/${newKey}`), data).then(() => {
 		showToast("Successful", "Submitted the new transaction successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to save the new transaction: ${error.message}`, "destructive");
+		showToast("Error", `Failed to save the new transaction: ${error.message}`, "error");
 	})
 }
 
@@ -64,11 +64,11 @@ export async function updateTransaction(type: string, id: string, transactionId:
 	await update(getDatabaseReference(`transaction/${type}/${id}/${transactionId}`), data).then(() => {
 		updateLastUpdateDate(type, id).catch((error) => {
 			console.error(error.message());
-			showToast("Error", `Failed to update the last update date: ${error.message}`, "destructive");
+			showToast("Error", `Failed to update the last update date: ${error.message}`, "error");
 		});
 		showToast("Successful", "Updated the transaction successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to update the transaction: ${error.message}`, "destructive");
+		showToast("Error", `Failed to update the transaction: ${error.message}`, "error");
 	})
 }
 
@@ -82,7 +82,7 @@ export async function deleteTransaction(type: string, id: string, transactionId:
 		}
 		showToast("Successful", "Deleted the transaction successfully.", "success");
 	}).catch ((error) => {
-		showToast(error.name, error.message, "destructive");
+		showToast(error.name, error.message, "error");
 	})
 }
 
@@ -91,7 +91,7 @@ export async function addNewOffer(data: object) {
 	await set(getDatabaseReference(`offer/${newKey}`), data).then(() => {
 		showToast("Successful", "Submitted the new offer successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to save the new offer: ${error.message}`, "destructive");
+		showToast("Error", `Failed to save the new offer: ${error.message}`, "error");
 	})
 }
 
@@ -99,7 +99,7 @@ export async function updateOffer(id: string, data: object) {
 	await update(getDatabaseReference(`offer/${id}`), data).then(() => {
 		showToast("Successful", "Updated the offer successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to update the offer: ${error.message}`, "destructive");
+		showToast("Error", `Failed to update the offer: ${error.message}`, "error");
 	})
 }
 
@@ -107,7 +107,7 @@ export async function deleteOffer(id: string) {
 	await remove(getDatabaseReference(`offer/${id}`)).then(() => {
 		showToast("Successful", "Deleted the offer successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to delete the offer: ${error.message}`, "destructive");
+		showToast("Error", `Failed to delete the offer: ${error.message}`, "error");
 	})
 }
 
@@ -116,7 +116,7 @@ export async function addNewCallback(projectName: string, date: string, data: ob
 	await set(getDatabaseReference(`callback/${projectName}/${newKey}`), data).then(() => {
 		showToast("Successful", "Submitted the new callback record successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to save the new callback record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to save the new callback record: ${error.message}`, "error");
 	})
 }
 
@@ -124,7 +124,7 @@ export async function updateCallback(projectName: string, id: string, data: obje
 	await update(getDatabaseReference(`callback/${projectName}/${id}`), data).then(() => {
 		showToast("Successful", "Updated the callback record successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to update the callback record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to update the callback record: ${error.message}`, "error");
 	})
 }
 
@@ -132,7 +132,7 @@ export async function deleteCallback(projectName: string, id: string) {
 	await remove(getDatabaseReference(`callback/${projectName}/${id}`)).then(() => {
 		showToast("Successful", "Deleted the callback record successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to delete the callback record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to delete the callback record: ${error.message}`, "error");
 	})
 }
 
@@ -142,7 +142,7 @@ export async function addNewPaymentInfo(data: PaymentInfoFormData) {
 	}).then(() => {
 		showToast("Successful", "Saved the new payment info successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to save the new payment info: ${error.message}`, "destructive");
+		showToast("Error", `Failed to save the new payment info: ${error.message}`, "error");
 	})
 }
 
@@ -150,7 +150,7 @@ export async function deletePaymentInfo(type:string, key: string) {
 	await remove(getDatabaseReference(`info/payment/${type}/${key}`)).then(() => {
 		showToast("Successful", "Deleted the payment info successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to delete the payment info record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to delete the payment info record: ${error.message}`, "error");
 	})
 }
 
@@ -159,7 +159,7 @@ export async function addNewEvent(date:string, data: object) {
 	await set(getDatabaseReference(`calendar/${newKey}`), data).then(() => {
 		showToast("Successful", "Saved the new event successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to save the new event: ${error.message}`, "destructive");
+		showToast("Error", `Failed to save the new event: ${error.message}`, "error");
 	})
 }
 
@@ -167,7 +167,7 @@ export async function updateEvent(id: string, data: object) {
 	await update(getDatabaseReference(`calendar/${id}`), data).then(() => {
 		showToast("Successful", "Updated the event details successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to update the event details: ${error.message}`, "destructive");
+		showToast("Error", `Failed to update the event details: ${error.message}`, "error");
 	})
 }
 
@@ -175,7 +175,7 @@ export async function deleteEvent(id: string) {
 	await remove(getDatabaseReference(`calendar/${id}`)).then(() => {
 		showToast("Successful", "Deleted the event successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to delete the event record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to delete the event record: ${error.message}`, "error");
 	})
 }
 
@@ -183,6 +183,6 @@ export async function updateAccountInfo(uid: string, data: object) {
 	await update(getDatabaseReference(`info/user/${uid}`), data).then(() => {
 		showToast("Successful", "Updated the account info successfully.", "success");
 	}).catch ((error) => {
-		showToast("Error", `Failed to update the account info record: ${error.message}`, "destructive");
+		showToast("Error", `Failed to update the account info record: ${error.message}`, "error");
 	})
 }

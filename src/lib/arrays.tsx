@@ -58,12 +58,12 @@ export const projectTransactionFilterOptions = [
 	{value: '-', label: 'Payment' },
 ];
   
-export const projectTransactionOptions = [
+export const ProjectTransactionOptions: OptionsInterface[] = [
 	{value: '+', label: 'Expense' },
 	{value: '-', label: 'Payment' },
 ];
 
-export const projectExpenseOptions = [
+export const ProjectExpenseOptions: OptionsInterface[] = [
 	{value: 'Servicing'},
 	{value: 'Callback'},
 	{value: 'Spare Parts'},
@@ -71,7 +71,7 @@ export const projectExpenseOptions = [
 	{value: 'Others'},
 ];
 
-export const projectPaymentOptions = [
+export const ProjectPaymentOptions: OptionsInterface[] = [
 	{value: 'Cash', label: 'Cash'},
 	{value: 'Cheque', label: 'Cheque'},
 	{value: 'Account Transfer', label: 'Account Transfer'},
@@ -81,7 +81,7 @@ export const projectPaymentOptions = [
 	{value: 'bKash', label: 'bKash'},
 ];
 
-export const projectPaymentTypeOptions = [
+export const ProjectPaymentTypeOptions: OptionsInterface[] = [
 	{value: 'notPaid', label: 'Not Paid'},
 	{value: 'full', label: 'Full'},
 	{value: 'partial', label: 'Partial'},
@@ -98,7 +98,7 @@ export const StaffTransactionTypeOptions: OptionsInterface[] = [
 	{value: 'Others'},
 ];
 
-export const paymentInfoOptions = [
+export const PaymentInfoOptions: OptionsInterface[] = [
 	{value: 'account', label: 'Account Transfer'},
 	{value: 'bank', label: 'Bank Transfer'},
 	{value: 'bKash', label: 'bKash'},
