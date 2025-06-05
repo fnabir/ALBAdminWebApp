@@ -1,9 +1,9 @@
+import { OptionsInterface } from '@/lib/interfaces';
 import React, {useState} from 'react';
-import {options} from "@/lib/types";
 
 interface RadioGroupProps {
   id: string;
-  options: options[];
+  options: OptionsInterface[];
   onChange: (value: string) => void;
   defaultValue?: string;
   className?: string;

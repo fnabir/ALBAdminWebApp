@@ -1,9 +1,9 @@
+import { OptionsInterface } from "@/lib/interfaces";
 import React, { FC, useId } from "react";
-import { options } from "@/lib/types";
 import { FaChevronDown } from "react-icons/fa"; // Small down arrow
 
 interface Props extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  options: options[];
+  options: OptionsInterface[];
   label: string;
   helperText?: string;
   error?: string;
