@@ -49,7 +49,7 @@ export default function CallbackPage() {
 							</CardIcon>
 						: <div className="space-y-2">
 							{
-								data.sort((a: DataSnapshot, b: DataSnapshot) => (a.val().position - b.val().position)).map((item: DataSnapshot) => {
+								data.sort((a: DataSnapshot, b: DataSnapshot) => ((a.val().position ?? 0) - (b.val().position ?? 0))).map((item: DataSnapshot) => {
 									return (
 										<div key={item.key}>
 											<CardCallbackTotal name={item.key!} value={item.size} id={item.key!}/>
