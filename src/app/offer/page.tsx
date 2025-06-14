@@ -2,11 +2,9 @@
 
 import Layout from "@/components/layout"
 import {ScrollArea} from "@/components/ui/scrollArea";
-import {Skeleton} from "@/components/ui/skeleton";
 import CardIcon from "@/components/card/cardIcon";
 import {MdError} from "react-icons/md";
-import {DataSnapshot} from "@firebase/database";
-import React, {useEffect} from "react";
+import React, {useEffect, useMemo} from "react";
 import {useList} from "react-firebase-hooks/database";
 import {getDatabaseReference} from "@/lib/utils";
 import {useAuth} from "@/hooks/useAuth";
@@ -15,6 +13,7 @@ import AddOfferDialog from "./add-offer-dialog";
 import Loading from "@/components/loading";
 import { useRouter } from "next/navigation";
 import OfferRow from "@/app/offer/offer-row";
+import RowSkeleton from "@/components/generic/skeleton";
 
 const breadcrumb: BreadcrumbInterface[] = [
 		{ label: "Home", href: "/" },
@@ -25,6 +24,11 @@ export default function OfferPage() {
 	const { user, userLoading, isAdmin } = useAuth();
   const router = useRouter();
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('offer'));
+
+	const sortedData = useMemo(() => {
+		if (!data) return [];
+		return [...data].sort((a, b) => (b.key ?? "").localeCompare(a.key ?? ""));
+	}, [data]);
 
   useEffect(() => {
     if (!userLoading && !user) router.push('/login');
@@ -43,15 +47,7 @@ export default function OfferPage() {
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						dataLoading ?
-							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
-								<Skeleton className="flex-wrap h-6 w-24 mr-4 rounded-xl"/>
-								<div className={"flex-auto space-y-1"}>
-									<Skeleton className="h-6 w-3/5 rounded-xl"/>
-									<Skeleton className="h-4 w-1/3 rounded-xl"/>
-									<Skeleton className="h-4 w-1/2 rounded-xl"/>
-									<Skeleton className="h-4 w-2/5 rounded-xl"/>
-								</div>
-							</div>
+							<RowSkeleton skeletonClassName="h-24"/>
 						: dataError ?
 							<CardIcon
 								title={"Error"}
@@ -65,7 +61,7 @@ export default function OfferPage() {
 							</CardIcon>
 						: <div className={"space-y-2"}>
 							{
-								data.sort((a: DataSnapshot, b: DataSnapshot) => a.key!.localeCompare(b.key!)).map((item: DataSnapshot) => {
+								sortedData.map((item) => {
 									return (
                     <OfferRow key={item.key} data={item} isAdmin={isAdmin}/>
 									)
