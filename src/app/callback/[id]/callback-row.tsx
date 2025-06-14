@@ -19,7 +19,7 @@ export default function CallbackRow({projectName, data, isAdmin=false} : Props) 
     <Card className={"flex flex-col lg:flex-row w-full px-4 py-1 text-start bg-muted hover:bg-muted/80 items-center space-x-2"}>
         <div className="font-mono pr-4">{val.date}
         </div>
-        <div className="flex-auto font-semibold">
+        <div className="grow font-semibold flex">
           <div>{val.details}</div>
           {
             val.status && val.status != "Select" ?
