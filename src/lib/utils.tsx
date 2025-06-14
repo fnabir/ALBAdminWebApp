@@ -49,7 +49,7 @@ export function getTotalValue(data:DataSnapshot[] | undefined, dataName?:string)
   }
 }
 
-export function formatCurrency(initialValue: number, precision: number=0): string {
+export function formatCurrency(initialValue: number, precision: number=0, symbol:string="৳"): string {
   let signed: boolean = true
   if (initialValue >= 0) signed = false
 
@@ -58,6 +58,6 @@ export function formatCurrency(initialValue: number, precision: number=0): strin
   const formattedValue = split[0].replace(/(\d)(?=(\d{3})(\d{2})*$)/g, '$1,');
   const cents = split.length > 1 ? String(split[1]).padEnd(precision, '0') : '0'.repeat(precision);
 
-  return `${signed ? '-' : '' } ৳ ${formattedValue.split('').join('')}
+  return `${signed ? '-' : '' } ${symbol} ${formattedValue.split('').join('')}
     ${precision > 0 ? '.' + cents : ''}`;
 }
