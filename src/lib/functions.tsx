@@ -122,6 +122,7 @@ export async function addNewCallback(projectName: string, date: string, data: ob
 
 export async function updateCallback(projectName: string, id: string, data: object) {
 	await update(getDatabaseReference(`callback/${projectName}/${id}`), data).then(() => {
+    window.location.reload();
 		showToast("Successful", "Updated the callback record successfully.", "success");
 	}).catch ((error) => {
 		showToast("Error", `Failed to update the callback record: ${error.message}`, "error");

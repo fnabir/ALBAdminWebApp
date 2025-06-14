@@ -50,7 +50,6 @@ export default function EditCallbackDialog({ projectName, data }: Props) {
       date: format(new Date(formData.date), "dd.MM.yy"),
     }).finally(() => {
       setOpen(false);
-      window.location.reload();
     });
   };
 
