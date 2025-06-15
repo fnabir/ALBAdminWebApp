@@ -14,6 +14,7 @@ import Loading from "@/components/loading";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import AddPaymentInfoDialog from "./add-payment-info-dialog";
 import PaymentInfoGrid from "./payment-info-grid";
+import RowSkeleton from "@/components/generic/skeleton";
 
 const breadcrumb: BreadcrumbInterface[] = [
   { label: "Home", href: "/" },
@@ -49,14 +50,7 @@ export default function PaymentInfoPage() {
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						paymentLoading ?
-							<div className="grid gap-4 mt-4 md:grid-cols-3">
-								<Skeleton className="w-full h-10 rounded-xl"/>
-								<Skeleton className="w-full h-10 rounded-xl"/>
-								<Skeleton className="w-full h-10 rounded-xl"/>
-								<Skeleton className="w-full h-10 rounded-xl"/>
-								<Skeleton className="w-full h-10 rounded-xl"/>
-								<Skeleton className="w-full h-10 rounded-xl"/>
-							</div>
+							<RowSkeleton repeat={6} className="grid gap-4 mt-4 md:grid-cols-3" skeletonClassName="h-20"/>
 						: paymentError ?
 							<CardIcon
 								title={"Error"}

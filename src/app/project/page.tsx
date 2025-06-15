@@ -21,6 +21,7 @@ import {useRouter} from "next/navigation";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
 import { ProjectFilterOptions, ProjectSortOptions } from "@/lib/arrays";
+import RowSkeleton from "@/components/generic/skeleton";
 
 	const breadcrumb: BreadcrumbInterface[] = [
 		{ label: "Home", href: "/" },
@@ -93,11 +94,7 @@ export default function ProjectPage() {
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						balanceLoading ?
-              <div className="flex flex-col space-y-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="w-full h-14 rounded-xl" />
-                ))}
-              </div>
+							<RowSkeleton skeletonClassName="h-14" />
 							: balanceError ?
 								<CardIcon
 									title={"Error"}
