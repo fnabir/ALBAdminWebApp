@@ -6,10 +6,9 @@ import {useList, useObject} from "react-firebase-hooks/database";
 import {formatCurrency, getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
-import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
-import {usePathname, useRouter} from "next/navigation";
-import React, {useEffect, useMemo} from "react";
+import {useParams, useRouter} from "next/navigation";
+import React, {useEffect, useMemo, useRef} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
@@ -21,12 +20,17 @@ import AddProjectTransactionDialog from "@/components/transaction/AddProjectTran
 import TransactionColorInfoDialog from "@/components/transaction/TransactionColourInfoDialog";
 import { ProjectTransactionRow } from "@/components/transaction/ProjectTransactionRow";
 import TransactionSection from "@/components/transaction/TransactionSection";
+import { useReactToPrint } from 'react-to-print';
+import { FaPrint } from "react-icons/fa6";
+import { format } from "date-fns";
+import ProjectTransactionPrint from "./ProjectTransactionPrint";
+import RowSkeleton from "@/components/generic/skeleton";
 
 export default function ProjectTransactionPage() {
 	const { user, userLoading, isAdmin } = useAuth();
   const router = useRouter();
-  const path = usePathname();
-	const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+  const {id} = useParams() as {id: string};
+  const projectName = decodeURIComponent(id);
 
 	const breadcrumb: BreadcrumbInterface[] = [
 		{ label: "Home", href: "/" },
@@ -71,6 +75,12 @@ export default function ProjectTransactionPage() {
 		})
 	};
 
+  const contentRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFn = useReactToPrint({ contentRef, documentTitle: `${projectName}_${format(new Date(), "yyyyMMdd")}`});
+  const handlePrint = () => {
+    if (contentRef.current) reactToPrintFn();
+  };
+
   useEffect(() => {
       if (!userLoading && !user) router.push('/login');
     }, [user, userLoading, router]);
@@ -85,7 +95,11 @@ export default function ProjectTransactionPage() {
 				<div className="flex items-center gap-x-2 divide-x-2">
           <AddProjectTransactionDialog projectName={projectName} paidDataOptions={paidDataOptions} servicingCharge={servicingCharge}/>
           <TransactionColorInfoDialog/>
-
+          {
+            isAdmin && transactionData &&<Button variant="accent" onClick={handlePrint}>
+              <FaPrint/> Print Statement
+            </Button>
+          }
 					{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
           <div className={"flex gap-x-2 h-full"}>
               <Separator orientation={`vertical`}/>
@@ -95,67 +109,68 @@ export default function ProjectTransactionPage() {
             </div>
 					}
 				</div>
-				<ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
-					{
-						dataLoading ?
-							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
-								<Skeleton className="flex-wrap h-10 w-10 mr-4 rounded-full"/>
-								<div className={"flex-auto"}>
-									<Skeleton className="h-6 mb-1 w-1/2 rounded-xl"/>
-									<Skeleton className="h-4 w-2/5 rounded-xl"/>
-								</div>
-							</div>
-						: dataError ?
-							<CardIcon
-								title={"Error"}
-								description={dataError.message}>
-								<MdError size={28}/>
-							</CardIcon>
-						: !transactionData || transactionData.length == 0 ?
-							<CardIcon
-								title={"No Record Found"}>
-								<MdError size={28}/>
-							</CardIcon>
-						: <div className="grid grid-cols-2 gap-2 lg:gap-4">
-                <TransactionSection title="Bill"
-                                    balance={totalBill}
-                                    contentClassName="flex flex-col space-y-2"
-                                    backdropColor="bg-blue-500">
-                  {
-                    billData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
-                    return (
-                      <ProjectTransactionRow key={index}
-                                            projectName={projectName}
-                                            transactionId={item.key!}
-                                            transactionData={item.val() as ProjectTransactionInterface}
-                                            servicingCharge={servicingCharge}
-                                            paidDataOptions={paidDataOptions}
-                                            isAdmin={isAdmin}/>
-                    )
-                  })
-                }
-                </TransactionSection>
-                <TransactionSection title="Payment"
-                                    balance={Math.abs(totalPayment)}
-                                    contentClassName="flex flex-col space-y-2"
-                                    backdropColor="bg-green-500">
-                  {
-                    paymentData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
-                    return (
-                      <ProjectTransactionRow key={index}
-                                            projectName={projectName}
-                                            transactionId={item.key!}
-                                            transactionData={item.val() as ProjectTransactionInterface}
-                                            servicingCharge={servicingCharge}
-                                            paidDataOptions={paidDataOptions}
-                                            isAdmin={isAdmin}/>
-                    )
-                  })
-                }
-                </TransactionSection>
-              </div>
-          }
-				</ScrollArea>
+        <ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
+        <div className="grid grid-cols-2 gap-2 lg:gap-4">
+            <TransactionSection title="Bill"
+                                balance={totalBill}
+                                className="border border-blue-600"
+                                contentClassName="flex flex-col space-y-2"
+                                backdropColor="bg-blue-500">
+              {
+                dataLoading ?
+                  <RowSkeleton repeat={6} className="h-10" />
+                : dataError ?
+                  <CardIcon title={"Error"} description={dataError.message}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                :!paymentData || paymentData.length == 0 ?
+                  <CardIcon title={"No payment record found"}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                : billData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
+                  return (
+                    <ProjectTransactionRow key={index}
+                                          projectName={projectName}
+                                          transactionId={item.key!}
+                                          transactionData={item.val() as ProjectTransactionInterface}
+                                          servicingCharge={servicingCharge}
+                                          paidDataOptions={paidDataOptions}
+                                          isAdmin={isAdmin}/>
+                  )
+                })
+              }
+            </TransactionSection>
+            <TransactionSection title="Payment"
+                                balance={Math.abs(totalPayment)}
+                                className="border border-green-600"
+                                contentClassName="flex flex-col space-y-2"
+                                backdropColor="bg-green-500">
+              {
+                dataLoading ?
+                  <RowSkeleton repeat={4} className="h-10" />
+                : dataError ?
+                  <CardIcon title={"Error"} description={dataError.message}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                :!paymentData || paymentData.length == 0 ?
+                  <CardIcon title={"No payment record found"}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                : paymentData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
+                  return (
+                    <ProjectTransactionRow key={index}
+                                          projectName={projectName}
+                                          transactionId={item.key!}
+                                          transactionData={item.val() as ProjectTransactionInterface}
+                                          servicingCharge={servicingCharge}
+                                          paidDataOptions={paidDataOptions}
+                                          isAdmin={isAdmin}/>
+                  )
+                })
+              }
+            </TransactionSection>
+          </div>
+        </ScrollArea>
 				{totalBalanceData &&
             <CardTotalBalance value={total}
                               date={totalBalanceData.date}
@@ -164,7 +179,13 @@ export default function ProjectTransactionPage() {
                               update={total != totalBalanceValue}
                               className="opacity-0 animate-fade-in-y delay-300"/>
         }
-			</div>
+      </div>
+      <ProjectTransactionPrint
+        ref={contentRef}
+        projectName={projectName}
+        transactionData={transactionData}
+        total={total}
+      />
 		</Layout>
 	)
 }

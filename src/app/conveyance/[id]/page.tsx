@@ -8,9 +8,9 @@ import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
 import {MdDelete, MdError} from "react-icons/md";
-import {usePathname, useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import React, {useEffect, useState} from "react";
-import { useAuth } from "@/hooks/useAuth";
+import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
 import {
@@ -33,8 +33,8 @@ import { TransactionRow } from "@/components/transaction/TransactionRow";
 export default function ConveyanceTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
 	const router = useRouter();
-	const path = usePathname();
-	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+	const {id} = useParams() as {id: string};
+	const staffID: string = decodeURIComponent(id);
 
 	const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference('transaction/conveyance/' + staffID));

@@ -1,7 +1,7 @@
 "use client"
 
 import Layout from "@/components/layout";
-import {usePathname, useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {MdError} from "react-icons/md";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import {Skeleton} from "@/components/ui/skeleton";
@@ -18,8 +18,8 @@ import Loading from "@/components/loading";
 export default function CallbackProjectPage() {
   const { user, userLoading, isAdmin } = useAuth();
   const router = useRouter();
-	const path = usePathname();
-	const projectName: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+  const {id} = useParams() as {id: string};
+	const projectName = decodeURIComponent(id);
 
 	const [ data, dataLoading, dataError ] = useList(getDatabaseReference(`callback/${projectName}`));
 	const breadcrumb: BreadcrumbInterface[] = [
@@ -45,12 +45,16 @@ export default function CallbackProjectPage() {
 				<ScrollArea className={"grow mb-4 -mr-4 pr-4"}>
 					{
 						dataLoading ?
-							<div className="p-4 rounded-xl bg-muted/100 flex items-center">
-								<div className={"flex-auto"}>
-									<Skeleton className="h-6 mb-1 w-2/5 rounded-xl"/>
-								</div>
-								<Skeleton className="h-6 w-32 mr-4 rounded-xl"/>
-							</div>
+							<div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="p-4 rounded-xl bg-muted flex items-center space-x-2">
+                    <Skeleton className="h-6 w-1/24 rounded-xl" />
+                    <Skeleton className="h-6 w-1/2 rounded-xl grow" />
+                    <Skeleton className="h-6 w-1/8 ml-4 rounded-xl" />
+                    <Skeleton className="h-6 w-1/24 ml-4 rounded-xl" />
+                  </div>
+                ))}
+              </div>
             : dataError ?
               <CardIcon
                 title={"Error"}
@@ -66,11 +70,11 @@ export default function CallbackProjectPage() {
               {
                 data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
                   return (
-                      <CallbackRow key={item.key}
-                                  projectName={projectName}
-                                  data={item}
-                                  isAdmin={isAdmin}
-                      />
+                    <CallbackRow key={item.key}
+                                projectName={projectName}
+                                data={item}
+                                isAdmin={isAdmin}
+                    />
                   )
                 })
               }

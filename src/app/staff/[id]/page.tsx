@@ -7,7 +7,7 @@ import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import CardIcon from "@/components/card/cardIcon";
 import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
-import {usePathname, useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import React, {useEffect, useMemo} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
@@ -22,12 +22,13 @@ import { ScrollArea } from "@/components/ui/scrollArea";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { TransactionRow } from "@/components/transaction/TransactionRow";
 import AccessDenied from "@/components/accessDenied";
+import RowSkeleton from "@/components/generic/skeleton";
 
 export default function StaffTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
 	const router = useRouter();
-	const path = usePathname();
-	const staffID: string = decodeURIComponent(path.substring(path.lastIndexOf("/") + 1));
+	const {id} = useParams() as {id: string};
+	const staffID: string = decodeURIComponent(id);
 	const [staffData] = useObject(getDatabaseReference(`balance/conveyance/${staffID}`));
 	const staffName = staffData?.val().name;
 
@@ -99,11 +100,10 @@ export default function StaffTransactionPage() {
 				<div className={"grow overflow-auto -mr-4 pr-4"}>
 					{
 						transactionLoading ?
-							<div className="grid grid-cols-2 gap-2 lg:gap-6">
-                {Array.from({ length: 2 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 rounded-lg" />
-                ))}
-              </div>
+							<div className="grid grid-cols-2 gap-2 lg:gap-4">
+								<RowSkeleton repeat={6} className="h-10" />
+								<RowSkeleton repeat={4} className="h-10" />
+							</div>
 						: transactionError ? 
 							<CardIcon
                 title={"Error"}
