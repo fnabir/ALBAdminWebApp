@@ -35,7 +35,7 @@ export function ProjectTransactionRow({ projectName, transactionId, transactionD
               {val.details && <span className={"font-medium"}> - {val.details}</span> }
             </div>
           </div>
-          <div className="items-center md:text-2xl font-mono font-medium sm:mt-0">
+          <div className="items-center md:text-lg font-mono font-medium sm:mt-0">
             {formatCurrency(val.amount)}
           </div>
         </div>
