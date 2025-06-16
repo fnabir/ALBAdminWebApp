@@ -73,7 +73,7 @@ export default function LoginForm() {
 									label={"Email"}
 									floating={false}
 									{...register('email')}
-									placeholder="user@ahsanenterprise.com"
+									placeholder="user@asianliftbd.com"
 									error={errors.email?.message || ""}
 									required
 			/>
