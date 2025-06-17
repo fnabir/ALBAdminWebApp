@@ -23,6 +23,7 @@ import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { TransactionRow } from "@/components/transaction/TransactionRow";
 import AccessDenied from "@/components/accessDenied";
 import RowSkeleton from "@/components/generic/skeleton";
+import TransactionSection from "@/components/transaction/TransactionSection";
 
 export default function StaffTransactionPage() {
 	const {user, userLoading, isAdmin} = useAuth();
@@ -97,88 +98,74 @@ export default function StaffTransactionPage() {
 						</div>
 					}
 				</div>
-				<div className={"grow overflow-auto -mr-4 pr-4"}>
-					{
-						transactionLoading ?
-							<div className="grid grid-cols-2 gap-2 lg:gap-4">
-								<RowSkeleton repeat={6} className="h-10" />
-								<RowSkeleton repeat={4} className="h-10" />
-							</div>
-						: transactionError ? 
-							<CardIcon
-                title={"Error"}
-                description={transactionError.message ?? "Error occurred retrieving transaction data."}>
-                <MdError size={28}/>
-              </CardIcon>
-						: <div className="grid grid-cols-2 gap-2 lg:gap-6">
-								<CardSection
-									title="Bill"
-									icon={FaListUl}
-									iconColor="text-blue-500"
-									backdropColor="bg-blue-500"
-									className="col-span-2 xl:col-span-1"
-									contentClassName="flex flex-col gap-2 lg:gap-4">
-									<ScrollArea className="grow">
-										{
-                      !billData || billData.length == 0 ?
-                        <CardIcon
-                          title={"No Expense Record Found"}>
-                          <MdError size={28}/>
-                        </CardIcon>
-                      : billData.map((item) => {
-                        const val = item.val()
-                        return (
-                          <TransactionRow
-                            key={item.key}
-                            type="staff"
-                            id={staffID}
-                            transactionId={item.key!}
-                            title={val.title}
-                            details={val.details}
-                            value={val.amount}
-                            date={val.date}/>
-                        )
-                      })
-                    }
-									</ScrollArea>
-                  <CardTotalBalance text="Total Bill" value={totalBill} />
-								</CardSection>
-
-								<CardSection
-									title="Payment"
-                  icon={FaRegMoneyBillAlt}
-                  iconColor="text-green-500"
-                  backdropColor="bg-green-500"
-                  className="col-span-2 xl:col-span-1"
-                  contentClassName="flex flex-col gap-2 lg:gap-4">
-									<ScrollArea className="flex-1 overflow-auto">
-										{
-                      !paymentData || paymentData.length == 0 ?
-                        <CardIcon
-                          title={"No Payment Record Found"}>
-                          <MdError size={28}/>
-                        </CardIcon>
-                      : paymentData.map((item) => {
-                        const val = item.val()
-                        return (
-                          <TransactionRow
-                            key={item.key}
-                            type="staff"
-                            id={staffID}
-                            transactionId={item.key!}
-                            title={val.title}
-                            details={val.details}
-                            value={val.amount}
-                            date={val.date}/>
-                        )
-                      })
-                    }
-									</ScrollArea>
-									<CardTotalBalance text="Total Bill" value={totalPayment} className="py-1!"/>
-								</CardSection>
-							</div>
-					}
-				</div>
+        <ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
+          <div className="grid grid-cols-2 gap-2 lg:gap-4">
+            <TransactionSection title="Bill"
+                                balance={totalBill}
+                                className="border border-blue-600"
+                                contentClassName="flex flex-col space-y-2"
+                                backdropColor="bg-blue-500">
+              {
+                transactionLoading ?
+                  <RowSkeleton repeat={6} className="h-10" />
+                : transactionError ?
+                  <CardIcon title={"Error"} description={transactionError.message}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                :!billData || billData.length == 0 ?
+                  <CardIcon title={"No bill record found"}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                : billData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
+                  const val = item.val();
+                  return (
+                    <TransactionRow key={index}
+                                    type="staff"
+                                    id={staffID}
+                                    transactionId={item.key!}
+                                    title={val.title}
+                                    details={val.details}
+                                    value={val.amount}
+                                    date={val.date}
+                                    isAdmin={isAdmin}/>
+                  )
+                })
+              }
+            </TransactionSection>
+            <TransactionSection title="Payment"
+                                balance={Math.abs(totalPayment)}
+                                className="border border-green-600"
+                                contentClassName="flex flex-col space-y-2"
+                                backdropColor="bg-green-500">
+              {
+                transactionLoading ?
+                  <RowSkeleton repeat={4} className="h-10" />
+                : transactionError ?
+                  <CardIcon title={"Error"} description={transactionError.message}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                :!paymentData || paymentData.length == 0 ?
+                  <CardIcon title={"No payment record found"}>
+                    <MdError size={28}/>
+                  </CardIcon>
+                : paymentData.sort((a, b) => b.key!.localeCompare(a.key!)).map((item, index) => {
+                  const val = item.val();
+                  return (
+                    <TransactionRow key={index}
+                                    type="staff"
+                                    id={staffID}
+                                    transactionId={item.key!}
+                                    title={val.title}
+                                    details={val.details}
+                                    value={val.amount}
+                                    date={val.date}
+                                    isAdmin={isAdmin}/>
+                  )
+                })
+              }
+            </TransactionSection>
+          </div>
+        </ScrollArea>
 				
 				{staffData &&
 					<CardTotalBalance className={"mb-2"} text={"Conveyance Balance"} value={conveyanceValue}
