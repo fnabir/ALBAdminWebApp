@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import NoAccess from "@/components/accessDenied";
 import { StaffSortOptions } from "@/lib/arrays";
 import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
+import { ButtonGroup } from "@/components/generic/ButtonGroup";
 
 const breadcrumb: BreadcrumbInterface[] = [
   { label: "Home", href: "/" },
@@ -69,12 +70,9 @@ export default function StaffPage() {
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
-			<div className={"flex flex-col h-full"}>
-        <div className="flex items-center pb-2 gap-x-2">
-          <div className="flex items-center gap-x-2">
-						<span>Sort by</span>
-						<CustomButtonGroup options={StaffSortOptions} value={sort} onChange={(value) => setSort(value)}/>
-					</div>
+			<div className={"flex flex-col h-full sapce-x-2"}>
+        <div className="flex items-center space-x-2">
+          <ButtonGroup title="Sort" options={StaffSortOptions} value={sort} onChange={setSort} className="hidden"/>
           {!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
             <div className={"flex gap-x-2 h-full"}>
               <Separator orientation={`vertical`}/>

@@ -22,6 +22,7 @@ import { BreadcrumbInterface } from "@/lib/interfaces";
 import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
 import { ProjectFilterOptions, ProjectSortOptions } from "@/lib/arrays";
 import RowSkeleton from "@/components/generic/skeleton";
+import { ButtonGroup } from "@/components/generic/ButtonGroup";
 
 	const breadcrumb: BreadcrumbInterface[] = [
 		{ label: "Home", href: "/" },
@@ -68,27 +69,14 @@ export default function ProjectPage() {
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
-			<div className={"flex flex-col h-full"}>
-				<div className="flex items-center pb-2 gap-x-2">
-					<div className="flex items-center gap-x-2">
-						<span>Sort by</span>
-						<CustomButtonGroup options={ProjectSortOptions} onChange={(value) => setSort(value)}/>
-					</div>
-
-					<Separator orientation={`vertical`}/>
-
-					<div className="flex items-center gap-x-2">
-						<span>Filter by</span>
-						<CustomButtonGroup options={ProjectFilterOptions} onChange={(value) => setFilter(value)}/>
-					</div>
-
+			<div className={"h-full flex flex-col space-y-2"}>
+				<div className="flex flex-wrap items-center space-x-2 divide-x-2 divide-muted-foreground">
+					<ButtonGroup title="Sort" options={ProjectSortOptions} value={sort} onChange={setSort} className="hidden"/>
+					<ButtonGroup title="Filter" options={ProjectFilterOptions} value={filter} onChange={setFilter} className="hidden"/>
 					{!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
-            <div className={"flex gap-x-2 h-full"}>
-              <Separator orientation={`vertical`}/>
-              <Button variant="accent" onClick={handleUpdateTotalBalance}>
-                Update Total Balance
-              </Button>
-            </div>
+            <Button variant="accent" onClick={handleUpdateTotalBalance}>
+							Update Total Balance
+						</Button>
 					}
 				</div>
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
