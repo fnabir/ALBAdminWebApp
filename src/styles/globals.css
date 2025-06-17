@@ -252,3 +252,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     background-color: hsl(var(--muted));
   }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+  }
+}
