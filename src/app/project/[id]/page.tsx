@@ -110,7 +110,7 @@ export default function ProjectTransactionPage() {
 					}
 				</div>
         <ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
-        <div className="grid grid-cols-2 gap-2 lg:gap-4">
+          <div className="grid grid-cols-2 gap-2 lg:gap-4">
             <TransactionSection title="Bill"
                                 balance={totalBill}
                                 className="border border-blue-600"
