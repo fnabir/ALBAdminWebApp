@@ -16,8 +16,8 @@ import { InputDate } from "@/components/generic/InputDate";
 import { FullPaymentDataInterface, OptionsInterface, PartialPaymentDataInterface, ProjectTransactionInterface } from "@/lib/interfaces";
 import { DataSnapshot, remove, update } from "firebase/database";
 import { Separator } from "@/components/ui/separator";
-import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import { ScrollArea } from "@/components/ui/scrollArea";
+import { RadioButtonGroup } from "../generic/RadioButtonGroup";
 
 type Props = {
   projectName: string;
@@ -35,61 +35,60 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
   const sign = formVal?.amount >= 0 ? "+" : "-";
   const [open, setOpen] = useState<boolean>(false);
 	const [detailsLabel, setDetailsLabel] = useState<string>("Details");
-
-  
-  
-  const [paymentType, setPaymentType] = useState<string|undefined>(!data || data.length == 0 ? 'notPaid' : ((data.length == 1 && formVal.amount <= total) ? 'full' : 'partial'));
+  const [paymentType, setPaymentType] = useState<string>('notPaid');
   const [fullPaymentData, setFullPaymentData] = useState<FullPaymentDataInterface>({key: '', details: ''})
   const [partialDataSets, setPartialDataSets] = useState<PartialPaymentDataInterface[]>([
     { id: 1, key: '', details: "", amount: 0 },
   ]);
 
   const {
-      register,
-      setValue,
-      reset,
-      handleSubmit,
-      formState: { errors, isSubmitting },
+    register,
+    setValue,
+    reset,
+    handleSubmit,
+    formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
-      resolver: zodResolver(TransactionFormSchema),
+    resolver: zodResolver(TransactionFormSchema),
   });
 
   function addPartialDataSet() {
-      if (partialDataSets.length < 10) {
-          setPartialDataSets((prev) => [
-              ...prev,
-              { id: prev.length + 1, key: "", details: "", amount: 0 },
-          ]);
-      }
+    if (partialDataSets.length < 10) {
+      setPartialDataSets((prev) => [
+        ...prev,
+        { id: prev.length + 1, key: "", details: "", amount: 0 },
+      ]);
+    }
   }
 
   function removePartialDataSet (id: number) {
-      setPartialDataSets((prev) => prev.filter((set) => set.id !== id));
+    setPartialDataSets((prev) => prev.filter((set) => set.id !== id));
   }
   
   const updatePaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, key: string, details: string, amount: number) => {
-      const expenseRef = getDatabaseReference(`${databaseRef}/data/${key}`);
-      const paymentRef = getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`);
-      const expenseData = {
-          details: `${format(new Date(formData.date), "dd.MM.yy")} ${formData.title} ${formData.details ? `- ${formData.details}` : ""}`,
-          amount: amount,
-      }
-      const paymentData = {
-          details: details,
-          amount: amount,
-      }
-      update(expenseRef, paymentData)
-        .catch((error) => console.error(`Payment Data in Expense Transaction: ${error.message}`))
-      update(paymentRef, expenseData)
-        .catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
+    const expenseRef = getDatabaseReference(`${databaseRef}/data/${key}`);
+    const paymentRef = getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`);
+    const expenseData = {
+      details: `${format(new Date(formData.date), "dd.MM.yy")} ${formData.title} ${formData.details ? `- ${formData.details}` : ""}`,
+      amount: amount,
+    }
+    const paymentData = {
+      details: details,
+      amount: amount,
+    }
+    update(expenseRef, paymentData)
+      .catch((error) => console.error(`Payment Data in Expense Transaction: ${error.message}`))
+    update(paymentRef, expenseData)
+      .catch((error) => console.error(`Expense Data in Payment Transaction: ${error.message}`))
   }
 
   const updatePartialPaymentData = async(projectName: string, transactionId: string, formData: TransactionFormData, partialDataSets: PartialPaymentDataInterface[]) => {
-      partialDataSets.forEach((partialDataSet) => {
-          if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
+    await Promise.all(
+      partialDataSets.map((partialDataSet) => {
+        if (partialDataSet.key && partialDataSet.key !== "Select" && partialDataSet.details !== "Select") {
               updatePaymentData(projectName, transactionId, formData, partialDataSet.key, partialDataSet.details, partialDataSet.amount);
           }
       })
+    );
   }
   
   const paymentDataCleanup = async(projectName: string,
@@ -98,28 +97,28 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
                                     fullPaymentData: FullPaymentDataInterface,
                                     partialDataSets: PartialPaymentDataInterface[],
                                     dataKeys?: string[]) => {
-      if (formData.amount >= 0) {
-          if (dataKeys) {
-              if (paymentType === "full") {
-                  dataKeys.filter((key) => key !== fullPaymentData.key)
-                    .forEach((key) => {
-                        remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
-                          .catch((error) => console.error(error.message))
-                    })
-              } else if (paymentType === "partial") {
-                  dataKeys.filter((key) => !partialDataSets.some((dataSet) => dataSet.key === key))
-                    .forEach((key) => {
-                        remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
-                          .catch((error) => console.error(error.message))
-                    })
-              } else {
-                  dataKeys.forEach((key) => {
-                      remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
-                        .catch((error) => console.error(error.message))
-                  })
-              }
-          }
+    if (formData.amount >= 0) {
+      if (dataKeys) {
+        if (paymentType === "full") {
+          dataKeys.filter((key) => key !== fullPaymentData.key)
+            .forEach((key) => {
+                remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                  .catch((error) => console.error(error.message))
+            })
+        } else if (paymentType === "partial") {
+          dataKeys.filter((key) => !partialDataSets.some((dataSet) => dataSet.key === key))
+            .forEach((key) => {
+                remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                  .catch((error) => console.error(error.message))
+            })
+        } else {
+          dataKeys.forEach((key) => {
+              remove(getDatabaseReference(`transaction/project/${projectName}/${key}/data/${transactionId}`))
+                .catch((error) => console.error(error.message))
+          })
+        }
       }
+    }
   }
   
   function handlePartialDataChange (id: number, field: "details" | "key", value: string) {
@@ -204,22 +203,23 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
   const handleReset = () => {
       reset();
       if (formVal.amount >= 0) {
-          if (!data  || data.length == 0) {
-              setPaymentType("notPaid");
-          } else if (data.length == 1 && total >= formVal.amount) {
-              setPaymentType("full");
-              data.map((item) => {
-                  setFullPaymentData({key: item.key!, details: item.val().details})
-              })
-          } else {
-              setPaymentType("partial");
-              data.map((item, index) => {
-                  if (partialDataSets.length  < index + 1 ) addPartialDataSet();
-                  handlePartialDataChange(index + 1, "key", item.key!);
-                  handlePartialDataChange(index + 1, "details", item.val().details);
-                  handlePartialDataAmountChange(index + 1, item.val().amount);
-              })
-          }
+        if (!data || data.length == 0) {
+          setPaymentType("notPaid");
+        } else if (data.length == 1 && total >= formVal.amount) {
+          setPaymentType("full");
+          data.map((item) => {
+            setFullPaymentData({key: item.key!, details: item.val().details})
+          })
+        } else {
+          setPaymentType("partial");
+          const updatedPartialData: PartialPaymentDataInterface[] = data.map((item, index) => ({
+            id: index + 1,
+            key: item.key!,
+            details: item.val().details,
+            amount: item.val().amount,
+          }));
+          setPartialDataSets(updatedPartialData);
+        }
       }
   };
 
@@ -275,10 +275,7 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
             <div>
               <Separator orientation={"horizontal"} className={"my-4"}/>
               <div className="flex space-x-2 justify-center items-center">
-                <CustomRadioGroup id={'paymentType'} options={ProjectPaymentTypeOptions}
-                                  onChange={(value) => setPaymentType(value)}
-                                  defaultValue={paymentType}
-                />
+                <RadioButtonGroup options={ProjectPaymentTypeOptions} value={paymentType} onChange={setPaymentType} />
                 {
                   paymentType === "partial" && partialDataSets.length < 10 && (
                     <Button type="button" variant="accent" size="icon" onClick={addPartialDataSet}><MdAdd/></Button>
@@ -289,16 +286,18 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
 								paymentType == "full" ?
                   <InputDropDown label="Payment Date"
                     options={paidDataOptions}
+                    defaultValue={fullPaymentData.key}
                     onChange={(e) => setFullPaymentData({key: e.target.value, details: e.target.options[e.target.selectedIndex].text})}
                   />
 								: paymentType == "partial" ?
-									<ScrollArea className="h-60 overflow-auto text-center pb-4 pr-4">
+									<ScrollArea className="max-h-60 overflow-auto text-center pb-4 pr-4">
 										{
 											partialDataSets.map((set, index) => (
 												<div key={set.id} className={`flex gap-x-2`}>
                           <InputDropDown label={`Payment Date ${index + 1}`}
                             options={paidDataOptions}
                             className={`flex-[1_1_73%]`}
+                            defaultValue={partialDataSets[index].key}
                             onChange={(e) => {
                               handlePartialDataChange(set.id, "details", e.target.options[e.target.selectedIndex].text);
                               handlePartialDataChange(set.id, "key", e.target.value);
@@ -308,6 +307,7 @@ export default function EditProjectTransactionDialog({ projectName, transactionI
                             type="number"
                             pre="৳"
                             className={`flex-[1_1_27%]`}
+                            defaultValue={partialDataSets[index].amount}
                             onChange={(e) => handlePartialDataAmountChange(set.id, Number(e.target.value))}
                           />
                           <Button variant="destructive" className="mt-[18px]" size="icon" onClick={() => removePartialDataSet(set.id)}>
