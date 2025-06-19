@@ -10,19 +10,21 @@ type ChangelogItem = {
 function getChangelog(isAdmin: boolean): Record<string, ChangelogItem[]> {
   return {
     added: [
-    ],
-    changed: [
       {
         access: isAdmin,
-        details: "All transctions now divided into 2 sections - expense and payment replacing filter options before."
+        details: "Add option to print project transaction statement."
       }
     ],
     fixed: [
       {
-        details: "Project Balance would cause issue in different combination of sort and filter."
+        access: isAdmin,
+        details: "Edit project expense wouldn't show the payment details and amount correctly."
       },
       {
-        details: "Major optimization and bug fixes."
+        details: "Styling for mobile screens."
+      },
+      {
+        details: "Minor optimization and bug fixes."
       },
     ],
   };
