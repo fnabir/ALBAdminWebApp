@@ -48,7 +48,7 @@ export default function TransactionColorInfoDialog() {
 return (
   <Dialog>
     <DialogTrigger asChild>
-      <Button variant={"accent"}>Transaction Colour Info</Button>
+      <Button variant={"accent"} className="pr-2">Transaction Colour Info</Button>
     </DialogTrigger>
     <DialogContent className={"border border-accent"}>
       <DialogHeader>
@@ -71,9 +71,9 @@ return (
           </div>
         ))
       }
-      <DialogFooter className={"sm:justify-center pt-8"}>
+      <DialogFooter className={"sm:justify-center"}>
         <DialogClose asChild>
-          <Button type="button" size="lg" variant="secondary">
+          <Button variant="destructive">
             Close
           </Button>
         </DialogClose>
