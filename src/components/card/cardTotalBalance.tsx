@@ -25,13 +25,13 @@ const CardTotalBalance: React.FC<Props> = ({value, date, text, error, update = f
 	};
 
   return (
-    <Card className={`flex flex-row rounded-xl shadow bg-accent px-2 md:px-6 py-1 md:py-2 items-center ${className}`}>
+    <Card className={`flex flex-row rounded-xl shadow bg-accent text-accent-foreground px-2 md:px-6 py-1 md:py-2 items-center ${className}`}>
       <div className="grow text-start">
         <div className="text-xl ">{`${error ? "Error loading " : ""}${titleText}`}</div>
         {(error || date) &&<p className="text-sm">{error ? error : dateText}</p>}
       </div>
 
-      {!error &&<div className="items-center text-right text-lg md:text-3xl font-medium font-mono">{formatCurrency(value)}</div>}
+      {!error &&<div className="items-center text-right text-base md:text-3xl font-medium font-mono">{formatCurrency(value)}</div>}
 
       { 
         !error && updateState && update && <button className="border-1 border-primary rounded-lg hover:bg-primary/20 ml-2 p-2 cursor-pointer duration-150" onClick={handleOnClick}>

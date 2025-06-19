@@ -23,14 +23,14 @@ export default function CardBalance({
       <Link href={`/${type}/${id}`} className={animationDelay !== 0 ? "opacity-0 animate-fade-in-x" : ""}
 						style={{animationDelay: `${animationDelay}s`}}>
         <Card className={`flex w-full justify-between items-center px-2 lg:px-6 py-2 ${getCardStyle()} transition-all duration-150`}>
-          <div className={"flex-grow items-center"}>
-            <CardHeader className={"flex-row items-center space-x-2 space-y-0 p-0"}>
-              <CardTitle className="font-semibold">{name}</CardTitle>
+          <div className={"grow items-center justify-start"}>
+            <CardHeader className={"flex flex-col md:flex-row items-center space-x-0 md:space-x-2 space-y-1 md:space-y-0 p-0 w-fit"}>
+              <CardTitle className="text-sm md:text-base font-semibold">{name}</CardTitle>
               {badgeLabel && <Badge>{badgeLabel}</Badge>}
             </CardHeader>
             { date && <CardFooter className="text-sm p-0">{date}</CardFooter>}
           </div>
-          <div className={"flex-wrap items-center text-2xl font-medium font-mono"}>
+          <div className={"flex-wrap items-center text-xl md:text-2xl font-medium font-mono"}>
               {formatCurrency(value)}
           </div>
         </Card>
