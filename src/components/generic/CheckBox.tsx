@@ -7,7 +7,7 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	hidden?: boolean;
 }
 
-const CustomCheckbox: React.FC<Props> = ({
+const Checkbox: React.FC<Props> = ({
 																					 id,
 																					 label,
 																					 disabled = false,
@@ -34,4 +34,4 @@ const CustomCheckbox: React.FC<Props> = ({
 	);
 };
 
-export default CustomCheckbox;
+export default Checkbox;
