@@ -6,7 +6,6 @@ import {useList, useObject} from "react-firebase-hooks/database";
 import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
-import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import CardBalance from "@/components/card/cardBalance";
 import {DataSnapshot} from "@firebase/database";
@@ -18,11 +17,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useFilteredSortedBalance } from "@/hooks/useFilteredSortedBalance";
 import Loading from "@/components/loading";
-import { Separator } from "@/components/ui/separator";
 import NoAccess from "@/components/accessDenied";
 import { StaffSortOptions } from "@/lib/arrays";
-import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
 import { ButtonGroup } from "@/components/generic/ButtonGroup";
+import RowSkeleton from "@/components/generic/skeleton";
 
 const breadcrumb: BreadcrumbInterface[] = [
   { label: "Home", href: "/" },
@@ -70,54 +68,47 @@ export default function StaffPage() {
 
 	return (
 		<Layout breadcrumb={breadcrumb}>
-			<div className={"flex flex-col h-full sapce-x-2"}>
-        <div className="flex items-center space-x-2">
+			<div className={"flex flex-col h-full space-y-2"}>
+        <div className="flex items-center transition-all">
           <ButtonGroup title="Sort" options={StaffSortOptions} value={sort} onChange={setSort} className="hidden"/>
           {!balanceLoading && !totalBalanceLoading && total != totalBalanceValue &&
-            <div className={"flex gap-x-2 h-full"}>
-              <Separator orientation={`vertical`}/>
-              <Button variant="accent" onClick={handleUpdateTotalBalance}>
-                Update Total Balance
-              </Button>
-            </div>
+            <Button variant="accent" onClick={handleUpdateTotalBalance}>
+              Update Total Balance
+            </Button>
           }
         </div>
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						balanceLoading ?
-              <div className="flex flex-col space-y-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="w-full h-14 rounded-xl" />
-                ))}
-              </div>
-							: balanceError ?
-								<CardIcon
-									title={"Error"}
-									description={balanceError.message}>
-									<MdError size={28}/>
-								</CardIcon>
-								: !data?.length ?
-									<CardIcon
-										title={"No Record Found"}>
-										<MdError size={28}/>
-									</CardIcon>
-									: <div className={"flex flex-col space-y-2"}>
-										{
-											data.map((item: DataSnapshot, index) => {
-                        const val = item.val();
-                        return (
-                          <CardBalance 
-                            key={item.key!}
-                            type={"staff"}
-                            id={item.key!}
-                            name={val.name} value={val.value}
-                            date={val.date}
-                            status={val.status}
-                            animationDelay={index * 0.05}/>
-                        )
-											})
-										}
-									</div>
+              <RowSkeleton />
+						: balanceError ?
+              <CardIcon
+                title={"Error"}
+                description={balanceError.message}>
+                <MdError size={28}/>
+              </CardIcon>
+            : !data?.length ?
+              <CardIcon
+                title={"No Record Found"}>
+                <MdError size={28}/>
+              </CardIcon>
+            : <div className={"flex flex-col space-y-2"}>
+              {
+                data.map((item: DataSnapshot, index) => {
+                  const val = item.val();
+                  return (
+                    <CardBalance 
+                      key={item.key!}
+                      type={"staff"}
+                      id={item.key!}
+                      name={val.name} value={val.value}
+                      date={val.date}
+                      status={val.status}
+                      animationDelay={index * 0.05}/>
+                  )
+                })
+              }
+            </div>
 					}
 				</ScrollArea>
 				{totalBalanceData &&

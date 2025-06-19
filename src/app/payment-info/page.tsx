@@ -5,7 +5,6 @@ import {useList} from "react-firebase-hooks/database";
 import {getDatabaseReference} from "@/lib/utils";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
-import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import React, {useEffect} from "react";
 import {useAuth} from "@/hooks/useAuth";

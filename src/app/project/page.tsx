@@ -6,14 +6,11 @@ import {useList, useObject} from "react-firebase-hooks/database";
 import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import {ScrollArea} from "@/components/ui/scrollArea";
 import CardIcon from "@/components/card/cardIcon";
-import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import CardBalance from "@/components/card/cardBalance";
 import {DataSnapshot} from "@firebase/database";
 import {useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Separator} from "@/components/ui/separator";
-import CustomButtonGroup from "@/components/generic/CustomButtonGroup";
 import {updateTotalBalance} from "@/lib/functions";
 import {useAuth} from "@/hooks/useAuth";
 import Loading from "@/components/loading";
@@ -82,35 +79,35 @@ export default function ProjectPage() {
 				<ScrollArea className={"grow -mr-4 pr-4 mb-2"}>
 					{
 						balanceLoading ?
-							<RowSkeleton skeletonClassName="h-14" />
-							: balanceError ?
-								<CardIcon
-									title={"Error"}
-									description={balanceError.message}>
-									<MdError size={28}/>
-								</CardIcon>
-								: !data?.length ?
-									<CardIcon
-										title={"No Record Found"}>
-										<MdError size={28}/>
-									</CardIcon>
-									: <div className={"flex flex-col space-y-2"}>
-										{
-											data.map((item: DataSnapshot, index) => {
-                        const val = item.val();
-                        return (
-                          <CardBalance 
-                            key={item.key!}
-                            type={"project"}
-                            id={item.key!}
-                            name={item.key!} value={val.value}
-                            date={val.date}
-                            status={val.status}
-                            animationDelay={index * 0.05}/>
-                        )
-											})
-										}
-									</div>
+							<RowSkeleton />
+            : balanceError ?
+              <CardIcon
+                title={"Error"}
+                description={balanceError.message}>
+                <MdError size={28}/>
+              </CardIcon>
+            : !data?.length ?
+              <CardIcon
+                title={"No Record Found"}>
+                <MdError size={28}/>
+              </CardIcon>
+            : <div className={"flex flex-col space-y-2"}>
+              {
+                data.map((item: DataSnapshot, index) => {
+                  const val = item.val();
+                  return (
+                    <CardBalance 
+                      key={item.key!}
+                      type={"project"}
+                      id={item.key!}
+                      name={item.key!} value={val.value}
+                      date={val.date}
+                      status={val.status}
+                      animationDelay={index * 0.05}/>
+                  )
+                })
+              }
+            </div>
 					}
 				</ScrollArea>
         {totalBalanceData &&
