@@ -11,7 +11,6 @@ import {useParams, useRouter} from "next/navigation";
 import React, {useEffect, useMemo, useRef} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
-import {Separator} from "@/components/ui/separator";
 import {ProjectTransactionInterface} from "@/lib/interfaces";
 import {updateTransactionBalance} from "@/lib/functions";
 import { BreadcrumbInterface } from "@/lib/interfaces";
@@ -92,28 +91,25 @@ export default function ProjectTransactionPage() {
 	return (
 		<Layout breadcrumb={breadcrumb}>
 			<div className={"flex flex-col h-full space-y-2"}>
-				<div className="flex items-center gap-x-2 divide-x-2">
+				<div className="flex flex-wrap items-center gap-2">
           <AddProjectTransactionDialog projectName={projectName} paidDataOptions={paidDataOptions} servicingCharge={servicingCharge}/>
           <TransactionColorInfoDialog/>
-          {
-            isAdmin && transactionData &&<Button variant="accent" onClick={handlePrint}>
+          {isAdmin && transactionData &&
+            <Button variant="accent" onClick={handlePrint} className="pr-2">
               <FaPrint/> Print Statement
             </Button>
           }
 					{!dataLoading && !totalBalanceLoading && total != totalBalanceValue &&
-          <div className={"flex gap-x-2 h-full"}>
-              <Separator orientation={`vertical`}/>
-              <Button variant="accent" onClick={handleUpdateBalance}>
-                Update Total Balance
-              </Button>
-            </div>
+            <Button variant="accent" onClick={handleUpdateBalance}>
+              Update Total Balance
+            </Button>
 					}
 				</div>
         <ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
-          <div className="grid grid-cols-2 gap-2 lg:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4">
             <TransactionSection title="Bill"
                                 balance={totalBill}
-                                className="border border-blue-600"
+                                borderColor="border-blue-600"
                                 contentClassName="flex flex-col space-y-2"
                                 backdropColor="bg-blue-500">
               {
@@ -142,8 +138,8 @@ export default function ProjectTransactionPage() {
             </TransactionSection>
             <TransactionSection title="Payment"
                                 balance={Math.abs(totalPayment)}
-                                className="border border-green-600"
                                 contentClassName="flex flex-col space-y-2"
+                                borderColor="border-green-600"
                                 backdropColor="bg-green-500">
               {
                 dataLoading ?

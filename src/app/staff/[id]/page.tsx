@@ -5,21 +5,16 @@ import CardTotalBalance from "@/components/card/cardTotalBalance";
 import {useList, useObject} from "react-firebase-hooks/database";
 import {getDatabaseReference, getTotalValue, showToast} from "@/lib/utils";
 import CardIcon from "@/components/card/cardIcon";
-import {Skeleton} from "@/components/ui/skeleton";
 import {MdError} from "react-icons/md";
 import {useParams, useRouter} from "next/navigation";
 import React, {useEffect, useMemo} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {Button} from "@/components/ui/button";
-import {Separator} from "@/components/ui/separator";
 import Loading from "@/components/loading";
 import {updateTransactionBalance} from "@/lib/functions";
 import { BreadcrumbInterface } from "@/lib/interfaces";
 import AddStaffTransactionDialog from "@/components/transaction/AddStaffTransactionDialog";
-import CardSection from "@/components/card/cardSection";
-import { FaListUl } from "react-icons/fa6";
 import { ScrollArea } from "@/components/ui/scrollArea";
-import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { TransactionRow } from "@/components/transaction/TransactionRow";
 import AccessDenied from "@/components/accessDenied";
 import RowSkeleton from "@/components/generic/skeleton";
@@ -85,24 +80,19 @@ export default function StaffTransactionPage() {
 		<Layout breadcrumb={breadcrumb}>
 			<div className={"flex flex-col h-full space-y-2"}>
 				<div className="flex items-center gap-x-2">
-					<AddStaffTransactionDialog
-						staffID={staffID}
-					/>
-
+					<AddStaffTransactionDialog staffID={staffID}/>
 					{!transactionLoading && !totalBalanceLoading && total != totalBalanceValue &&
-						<div className={"flex gap-x-2 h-full"}>
-							<Separator orientation={`vertical`}/>
-							<Button variant="accent" onClick={handleUpdateTotalBalance}>
-								Update Total Balance
-							</Button>
-						</div>
+            <Button variant="accent" onClick={handleUpdateTotalBalance}>
+              Update Total Balance
+            </Button>
 					}
 				</div>
         <ScrollArea className={"grow mb-2 -mr-4 pr-4"}>
           <div className="grid grid-cols-2 gap-2 lg:gap-4">
             <TransactionSection title="Bill"
                                 balance={totalBill}
-                                className="border border-blue-600"
+                                borderColor="border-blue-600"
+                                className="border-blue-600"
                                 contentClassName="flex flex-col space-y-2"
                                 backdropColor="bg-blue-500">
               {
@@ -134,7 +124,7 @@ export default function StaffTransactionPage() {
             </TransactionSection>
             <TransactionSection title="Payment"
                                 balance={Math.abs(totalPayment)}
-                                className="border border-green-600"
+                                borderColor="green-600"
                                 contentClassName="flex flex-col space-y-2"
                                 backdropColor="bg-green-500">
               {
