@@ -15,9 +15,9 @@ import { generateDatabaseKey, getDatabaseReference, showToast } from "@/lib/util
 import { InputDate } from "@/components/generic/InputDate";
 import { FullPaymentDataInterface, OptionsInterface, PartialPaymentDataInterface } from "@/lib/interfaces";
 import { set, update } from "firebase/database";
-import CustomRadioGroup from "@/components/generic/CustomRadioGroup";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scrollArea";
+import { RadioButtonGroup } from "../generic/RadioButtonGroup";
 
 type Props = {
   projectName: string;
@@ -216,7 +216,7 @@ export default function AddProjectTransactionDialog({ projectName, paidDataOptio
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button variant="accent">
+        <Button variant="accent" className="pr-2">
           <MdAddCircle/> Add New Transaction
         </Button>
       </DialogTrigger>
@@ -228,9 +228,9 @@ export default function AddProjectTransactionDialog({ projectName, paidDataOptio
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} onReset={() => reset}>
-          <CustomRadioGroup id={'type'} options={ProjectTransactionOptions}
+          <RadioButtonGroup options={ProjectTransactionOptions}
                             onChange={(value) => handleTypeChange(value)}
-                            defaultValue={"+"}
+                            value={"+"}
           />
           <InputDropDown label={titleLabel}
                         options={sign === "-" ? ProjectPaymentOptions : ProjectExpenseOptions}
@@ -264,9 +264,9 @@ export default function AddProjectTransactionDialog({ projectName, paidDataOptio
             paidDataOptions && sign === "+" && <div>
               <Separator orientation={"horizontal"} className={"my-4"}/>
 							<div className="flex space-x-2 justify-center items-center">
-                <CustomRadioGroup id={'paymentType'} options={ProjectPaymentTypeOptions}
+                <RadioButtonGroup options={ProjectPaymentTypeOptions}
                                   onChange={(value) => setPaymentType(value)}
-                                  defaultValue={paymentType}
+                                  value={paymentType}
                 />
                 {
                   paymentType === "partial" && partialDataSets.length < 10 && (
