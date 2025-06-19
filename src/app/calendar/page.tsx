@@ -28,7 +28,7 @@ import {
 	DialogTitle
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import CustomCheckbox from "@/components/generic/CustomCheckBox";
+import Checkbox from "@/components/generic/CheckBox";
 import {addNewEvent} from "@/lib/functions";
 import { InputDate } from "@/components/generic/InputDate";
 import InputText from "@/components/generic/InputText";
@@ -65,7 +65,6 @@ export default function CalendarPage() {
 			end: data.allDay ? "" : data.end,
 		}).finally(() => {
 			setDialog(false);
-			window.location.reload();
 		})
 	}
 
@@ -136,7 +135,7 @@ export default function CalendarPage() {
 				<Dialog open={dialog} onOpenChange={setDialog}>
 					<DialogContent className={"border border-blue-500"}>
 						<DialogHeader>
-							<DialogTitle>Edit Event</DialogTitle>
+							<DialogTitle>Add New Event</DialogTitle>
 							<DialogDescription>
 								Click update to save the changes.
 							</DialogDescription>
@@ -155,10 +154,10 @@ export default function CalendarPage() {
                         {...register('assigned')}
                         error={errors.assigned?.message || ""}
               />
-              <CustomCheckbox id="allDay"
-                              label="All day"
-                              {...register("allDay")}
-                              onChange={(e) => setAllDayEvent(e.target.checked)}
+              <Checkbox id="allDay"
+                        label="All day"
+                        {...register("allDay")}
+                        onChange={(e) => setAllDayEvent(e.target.checked)}
               />
               <InputDate type="datetime-local"
                         label="Start"
