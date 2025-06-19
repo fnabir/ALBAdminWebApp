@@ -25,7 +25,7 @@ export function ProjectTransactionRow({ projectName, transactionId, transactionD
                     total == 0 ? 'bg-red-800 hover:bg-red-900' : val.amount == total ? 'bg-green-800 hover:bg-green-900' : total > val.amount ? 'bg-yellow-800 hover:bg-yellow-900' : `bg-accent`;
 
   return (
-    <div className={`group flex space-x-2 items-center justify-between px-1.5 lg:px-3 py-0.5 lg:py-1 rounded-xl ${bg} transition-all duration-200`}>
+    <div className={`group flex space-x-2 items-center justify-between px-1.5 lg:px-3 py-0.5 lg:py-1 rounded-xl text-accent-foreground ${bg} transition-all duration-200`}>
       <div className="flex-col w-full items-center">
         <div className="w-full mx-auto flex items-center justify-between text-sm md:text-base gap-2 md:gap-6">
           <div className="font-mono">{val.date}</div>
@@ -44,7 +44,7 @@ export function ProjectTransactionRow({ projectName, transactionId, transactionD
             data && data.sort((a, b) => b.key!.localeCompare(a.key!)).map((item) => {
               const snapshot = item.val();
               return (
-                <div className="w-full flex space-x-6 px-2 text-sm pt-1" key={item.key}>
+                <div className="w-full flex space-x-2 md:space-x-6 px-2 text-xs md:text-sm pt-1" key={item.key}>
                   <div className="font-mono">{(snapshot.details).substring(0, 8)}</div>
                   <div className="flex-1">{(snapshot.details).substring(8,)}</div>
                   <div className={"font-mono"}>{formatCurrency(snapshot.amount)}</div>
@@ -55,13 +55,14 @@ export function ProjectTransactionRow({ projectName, transactionId, transactionD
         </div>
       </div>
       {isAdmin && <EditProjectTransactionDialog projectName={projectName} 
-                                                    transactionId={transactionId}
-                                                    formVal={transactionData}
-                                                    databaseRef={databaseRef}
-                                                    servicingCharge={servicingCharge}
-                                                    data={data}
-                                                    dataKeys={dataKeys}
-                                                    paidDataOptions={paidDataOptions}/>}
+                                                transactionId={transactionId}
+                                                formVal={transactionData}
+                                                databaseRef={databaseRef}
+                                                servicingCharge={servicingCharge}
+                                                data={data}
+                                                dataKeys={dataKeys}
+                                                paidDataOptions={paidDataOptions}
+                                                total={total}/>}
           {
             isAdmin && <DeleteTransactionDialog type="project" id={projectName} transactionId={transactionId} dataKeys={dataKeys}>
               <div className="flex w-full space-x-2 border border-blue-500 p-1 rounded-xl">
