@@ -1,11 +1,9 @@
-<div align="center"><h1>ALB Admin Webapp</h1></div>
-<div align="center">Built with the Next.js</div>
-<br />
 <div align="center">
-<a href="https://alb-admin-webapp.vercel.app/">Live</a>
-<span> · </span>
-<a href="https://github.com/fnabir/ALBAdminWebApp">Repository</a>
-<span>
+  <h1>ALB Admin Webapp</h1>
+  <p>Built with the Next.js</p>
+  <a href="https://alb-admin-webapp.vercel.app/">Live</a>
+  <span> · </span>
+  <a href="https://github.com/fnabir/ALBAdminWebApp">Repository</a>
 </div>
 
 ## Overview
