@@ -1,4 +1,4 @@
-<div align="center"><strong>ALB Admin Webapp</strong></div>
+<div align="center"><h1>ALB Admin Webapp</h1></div>
 <div align="center">Built with the Next.js</div>
 <br />
 <div align="center">
@@ -20,7 +20,7 @@ This is the WebApp version of ALBAdmin Android App. It is built using the follow
 - Styling - [Tailwind CSS v4](https://tailwindcss.com)
 - Components - [Shadcn UI](https://ui.shadcn.com/)
 
-This template uses the Next.js App Router. This includes support for enhanced layouts, colocation of components, styles, component-level data fetching, and more.
+This project uses the Next.js App Router. This includes support for enhanced layouts, colocation of components, styles, component-level data fetching, and more.
 
 ## Getting Started
 
